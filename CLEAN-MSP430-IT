@@ -1,0 +1,31 @@
+cd test/msp430
+
+rm -rf core/fuse/omsp_and_gate.v
+rm -rf core/fuse/omsp_clock_gate.v
+rm -rf core/fuse/omsp_clock_mux.v
+rm -rf core/fuse/omsp_scan_mux.v
+rm -rf core/fuse/omsp_sync_cell.v
+rm -rf core/fuse/omsp_sync_reset.v
+rm -rf core/fuse/omsp_wakeup_cell.v
+rm -rf core/main/BCM.v
+rm -rf core/main/DBG.v
+rm -rf core/main/EXECUTION.v
+rm -rf core/main/FRONTEND.v
+rm -rf core/main/GPIO.v
+rm -rf core/main/MEMORY.v
+rm -rf core/main/MULTIPLIER.v
+rm -rf core/main/SFR.v
+rm -rf core/main/T_A.v
+rm -rf core/main/T_WATCOG.v
+rm -rf core/main/TEMPLATE_08.v
+rm -rf core/main/TEMPLATE_16.v
+rm -rf core/main/UART.v
+rm -rf core/omsp/omsp_alu.v
+rm -rf core/omsp/omsp_dbg_hwbrk.v
+rm -rf core/omsp/omsp_dbg_i2c.v
+rm -rf core/omsp/omsp_dbg_uart.v
+rm -rf core/omsp/omsp_register_file.v
+
+rm -rf core/MSP430_CORE.v
+
+rm -rf pkg/openMSP430_defines.v

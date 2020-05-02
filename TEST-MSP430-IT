@@ -1,0 +1,31 @@
+cd test/msp430
+
+vhdl2verilog core/fuse/omsp_and_gate.vhd
+vhdl2verilog core/fuse/omsp_clock_gate.vhd
+vhdl2verilog core/fuse/omsp_clock_mux.vhd
+vhdl2verilog core/fuse/omsp_scan_mux.vhd
+vhdl2verilog core/fuse/omsp_sync_cell.vhd
+vhdl2verilog core/fuse/omsp_sync_reset.vhd
+vhdl2verilog core/fuse/omsp_wakeup_cell.vhd
+vhdl2verilog core/main/BCM.vhd
+vhdl2verilog core/main/DBG.vhd
+vhdl2verilog core/main/EXECUTION.vhd
+vhdl2verilog core/main/FRONTEND.vhd
+vhdl2verilog core/main/GPIO.vhd
+vhdl2verilog core/main/MEMORY.vhd
+vhdl2verilog core/main/MULTIPLIER.vhd
+vhdl2verilog core/main/SFR.vhd
+vhdl2verilog core/main/T_WATCHDOG.vhd
+vhdl2verilog core/main/TEMPLATE_08.vhd
+vhdl2verilog core/main/TEMPLATE_16.vhd
+vhdl2verilog core/main/UART.vhd
+vhdl2verilog core/MSP430_CORE.vhd
+vhdl2verilog core/omsp/omsp_alu.vhd
+vhdl2verilog core/omsp/omsp_dbg_hwbrk.vhd
+vhdl2verilog core/omsp/omsp_dbg_i2c.vhd
+vhdl2verilog core/omsp/omsp_dbg_uart.vhd
+vhdl2verilog core/omsp/omsp_interrupt.vhd
+vhdl2verilog core/omsp/omsp_register_file.vhd
+vhdl2verilog core/omsp/omsp_state_machine.vhd
+
+vhdl2verilog pkg/MSP430_PACK.vhd
