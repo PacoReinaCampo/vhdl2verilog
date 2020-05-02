@@ -365,8 +365,7 @@ void RegisterComment(COMMENTLIST *top, char *str, int *linenum)
     return;
 
   // set pointer to the last of the comment list
-  for (ptr = top; NextComment(ptr) != (COMMENTLIST *)NULL; ptr = NextComment(ptr))
-    ;
+  for (ptr = top; NextComment(ptr) != (COMMENTLIST *)NULL; ptr = NextComment(ptr));
 
   CommentLine(ptr)  = *linenum;
   CommentStr(ptr)    = (char *)malloc(strlen(str) + 10);
@@ -480,9 +479,8 @@ int EnumItemNum(TCELLPNT top)
     return (0);
   if (CellType(top) != N_ENUMTYPE)
     return (0);
-  for (ptr = CellInfo0(top), itemnum = 0; ptr != NULLCELL; ptr = NextCell(ptr), itemnum++)
-    ;
-  return (itemnum);
+  for (ptr = CellInfo0(top), itemnum = 0; ptr != NULLCELL; ptr = NextCell(ptr), itemnum++);
+    return (itemnum);
 }
 
 // (function for evaluating type definitions)
@@ -625,10 +623,9 @@ int ChkIntegerBitLength(int range)
   register  int  len, cmpval;
   if (range <= 0)
     return (-1);
-  for (cmpval = 2, len = 1; range > cmpval && len < 31; cmpval *= 2, len++)
-    ;
-  if (len < 32)
-    return (len);
+  for (cmpval = 2, len = 1; range > cmpval && len < 31; cmpval *= 2, len++);
+    if (len < 32)
+      return (len);
   return (-1);  // overflow
 }
 
@@ -675,8 +672,7 @@ void AppendExtractList(EXTRACTLIST *top, TCELLPNT id, int num)
     return;
   if (CellType(id) != T_ID)
     return;
-  for (ptr = top; NextExtract(ptr) != (EXTRACTLIST *)NULL; ptr = NextExtract(ptr))
-    ;
+  for (ptr = top; NextExtract(ptr) != (EXTRACTLIST *)NULL; ptr = NextExtract(ptr));
   ExtractId(ptr)    = id;
   ExtractNum(ptr)    = num;
   NextExtract(ptr)  = MakeNewExtractList();
@@ -741,7 +737,7 @@ static void fprintfTab(FILE *fp, int indent)
 {
   register int  i;
   for (i = 0; i < indent; i++)
-    fprintf(fp, "\t");
+    fprintf(fp, "  ");
 }
 
 // print warnings
@@ -753,9 +749,8 @@ static void fprintfWarning(FILE *fp, int line, char *msg)
 {
   char  *msg_top, *id;
   id  = msg;
-  for (msg_top = msg; *msg_top != '\0'; msg_top++)
-    ;
-  msg_top++;
+  for (msg_top = msg; *msg_top != '\0'; msg_top++);
+    msg_top++;
 
   if (line > 0) {
     fprintf(fp, "\n// WARNING(%s) in line %d: %s\n", id, line, msg_top);
@@ -788,7 +783,7 @@ static Boolean fprintfComment(FILE *fp, COMMENTLIST *top, int linenum, int preta
       return (retval);
     if (*(CommentStr(ptr)) != '\n') {
       for (i = 0; i < pretab; i++)
-        fprintf(fp, "\t");
+        fprintf(fp, "  ");
     }
     fprintf(fp, "%s", CommentStr(ptr));
     CommentPrn(ptr)  = True;
@@ -815,7 +810,7 @@ static void fprintfEnumDef(FILE *fp, TCELLPNT top, COMMENTLIST *com, int indent)
   for (ptr = CellInfo0(top), item = 1; ptr != NULLCELL; ptr = NextCell(ptr), item++) {
     register int  bit;
     fprintfTab(fp, indent);
-    fprintf(fp, "parameter %s\t= %d'b", CellStr(ptr), itemnum);  // (T_ID)
+    fprintf(fp, "parameter %s  = %d'b", CellStr(ptr), itemnum);  // (T_ID)
     for (bit = 1; bit <= itemnum; bit++) {
       if (item == bit)  fprintf(fp, "1");
       else        fprintf(fp, "0");
@@ -1042,11 +1037,11 @@ fprintfWarning(fp, CellLine(top), WARN_2_RETWIDTH);
         /* parameter item: N_PARAMDEF info0=idlist, info1=sigtype, info2=defaultval */
         fprintfComment(fp, com, CellLine(item) - 1, indent);
         fprintfTab(fp, indent + 1);
-        fprintf(fp, "input\t");
+        fprintf(fp, "input  ");
 
         // write type
         fprintfVerilog(fp, sw, CellInfo1(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-        if (sw == True) fprintf(fp, "\t");
+        if (sw == True) fprintf(fp, "  ");
         // write idlist
         fprintfVerilog(fp, sw, CellInfo0(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
 
@@ -1138,7 +1133,7 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
 
         // write type
         fprintfVerilog(fp, sw, CellInfo1(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-        if (sw == True) fprintf(fp, "\t");
+        if (sw == True) fprintf(fp, "  ");
         // write idlist
         fprintfVerilog(fp, sw, CellInfo0(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
 
@@ -1221,13 +1216,13 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
     if (sw == True) {
       fprintfComment(fp, com, CellLine(top) - 1, indent);
       fprintfTab(fp, indent);
-      fprintf(fp, "parameter\t");
+      fprintf(fp, "parameter  ");
     }
     // write id_list
     fprintfVerilog(fp, sw, CellInfo0(top), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
     // write default value
     if (CellInfo2(top) != NULLCELL) {
-      if (sw == True) fprintf(fp, "\t= ");
+      if (sw == True) fprintf(fp, "  = ");
       fprintfVerilog(fp, sw, CellInfo2(top), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
       if (sw == True) fprintf(fp, ";");
       if (fprintfComment(fp, com, CellLine(CellInfo2(top)), 1) == False)
@@ -1248,10 +1243,10 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
         }
         // write direction
         fprintfVerilog(fp, sw, CellInfo1(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-        if (sw == True) fprintf(fp, "\t");
+        if (sw == True) fprintf(fp, "  ");
         // write type
         fprintfVerilog(fp, sw, CellInfo2(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-        if (sw == True) fprintf(fp, "\t");
+        if (sw == True) fprintf(fp, "  ");
         // write idlist
         fprintfVerilog(fp, sw, CellInfo0(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
 
@@ -1269,11 +1264,11 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
             if ((ptr = SearchSigList(sig, GetSigName(id)) ) != NULLSIG) {
               if (SigIsReg(ptr) == True && SigIsOut(ptr) == True) {
                 fprintfTab(fp, indent);
-                fprintf(fp, "reg\t");
+                fprintf(fp, "reg  ");
                 // write type
                 fprintfVerilog(fp, sw, CellInfo2(item), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-                fprintf(fp, "\t%s;", GetSigName(id));
-                fprintf(fp, "\t\t// appended automatically by vhdl2verilog.\n");
+                fprintf(fp, "  %s;", GetSigName(id));
+                fprintf(fp, "    // appended automatically by vhdl2verilog.\n");
               }
             }
           } // end of for loop;
@@ -1302,7 +1297,7 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
     if (sw == True) {
       fprintfComment(fp, com, CellLine(top) - 1, indent);
       fprintfTab(fp, indent);
-      fprintf(fp, "parameter\t%s\t= ", CellStr(CellInfo0(top)));
+      fprintf(fp, "parameter  %s  = ", CellStr(CellInfo0(top)));
     }
 
     // write value
@@ -1335,14 +1330,14 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
             fprintfTab(fp, indent);
 
             if (SigIsReg(ptr) == True)
-              fprintf(fp, "reg \t");
+              fprintf(fp, "reg   ");
             else
-              fprintf(fp, "wire\t");
+              fprintf(fp, "wire  ");
 
             // write type
             *flag4  = (int)(NULLCELL);
             fprintfVerilog(fp, sw, CellInfo1(top), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-            fprintf(fp, "\t");
+            fprintf(fp, "  ");
 
             // write name
             fprintf(fp, "%s", CellStr(id));
@@ -1352,7 +1347,7 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
               TCELLPNT  range;
               range  = (TCELLPNT)(*flag4, flag5);
               // write width
-              fprintf(fp, "\t");
+              fprintf(fp, "  ");
               fprintf(fp, "[");
               fprintfVerilog(fp, sw, CellInfo0(range), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);  // write range value
               fprintf(fp, ":");
@@ -1368,14 +1363,14 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
             fprintfTab(fp, indent);
 
             if (SigIsReg(ptr) == True)
-              fprintf(fp, "reg \t");
+              fprintf(fp, "reg   ");
             else
-              fprintf(fp, "wire\t");
+              fprintf(fp, "wire  ");
 
             // write type
             *flag4  = (int)(NULLCELL);
             fprintfVerilog(fp, sw, CellInfo1(top), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-            fprintf(fp, "\t");
+            fprintf(fp, "  ");
 
             // write name
             fprintf(fp, "%s", CellStr(id));
@@ -1385,7 +1380,7 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
               TCELLPNT  range;
               range  = (TCELLPNT)(*flag4, flag5);
               // write width
-              fprintf(fp, "\t");
+              fprintf(fp, "  ");
               fprintf(fp, "[");
               fprintfVerilog(fp, sw, CellInfo0(range), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);  // write range value
               fprintf(fp, ":");
@@ -1407,7 +1402,7 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
               TCELLPNT  range;
               range  = (TCELLPNT)(*flag4, flag5);
               // write width
-              fprintf(fp, "\t");
+              fprintf(fp, "  ");
               fprintf(fp, "[");
               fprintfVerilog(fp, sw, CellInfo0(range), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);  // write range value
               fprintf(fp, ":");
@@ -1436,12 +1431,12 @@ fprintfWarning(fp, CellLine(top), WARN_3_PROCPARAM);
     }
 
     if (sw == True) {
-      fprintf(fp, "reg \t");
+      fprintf(fp, "reg   ");
     }
 
     // write type
     fprintfVerilog(fp, sw, CellInfo1(top), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
-    if (sw == True) fprintf(fp, "\t");
+    if (sw == True) fprintf(fp, "  ");
     // write id_list
     fprintfVerilog(fp, sw, CellInfo0(top), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);
 
@@ -1662,7 +1657,7 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
       fprintfTab(fp, indent);
     }
     fprintfVerilog(fp, sw, CellInfo1(top), sig, com, typ, ext, indent + 1, flag0, flag1, flag2, flag3, flag4, flag5);  // signal
-    if (sw == True) fprintf(fp, "\t<= ");
+    if (sw == True) fprintf(fp, "  <= ");
     *flag3  = (int)CellInfo1(top);  // flag3...pointer to L value
     fprintfVerilog(fp, sw, CellInfo2(top), sig, com, typ, ext, indent + 1, flag0, flag1, flag2, flag3, flag4, flag5);  // exp
     if (sw == True) {
@@ -1679,7 +1674,7 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
       fprintfTab(fp, indent);
     }
     fprintfVerilog(fp, sw, CellInfo1(top), sig, com, typ, ext, indent + 1, flag0, flag1, flag2, flag3, flag4, flag5);  // variable
-    if (sw == True) fprintf(fp, "\t= ");
+    if (sw == True) fprintf(fp, "  = ");
     *flag3  = (int)CellInfo1(top);  // flag3...pointer to L value
     fprintfVerilog(fp, sw, CellInfo2(top), sig, com, typ, ext, indent + 1, flag0, flag1, flag2, flag3, flag4, flag5);  // exp
     if (sw == True) {
@@ -1890,10 +1885,10 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
     if (sw == True) {
       fprintfComment(fp, com, CellLine(top) - 1, indent);
       fprintfTab(fp, indent);
-      fprintf(fp, "assign\t");
+      fprintf(fp, "assign  ");
     }
     fprintfVerilog(fp, sw, CellInfo1(top), sig, com, typ, ext, indent + 1, flag0, flag1, flag2, flag3, flag4, flag5);  // signal
-    if (sw == True) fprintf(fp, "\t= ");
+    if (sw == True) fprintf(fp, "  = ");
     *flag3  = (int)CellInfo1(top);  // flag3...pointer to L value
     fprintfVerilog(fp, sw, CellInfo2(top), sig, com, typ, ext, indent + 1, flag0, flag1, flag2, flag3, flag4, flag5);  // exp
     if (sw == True) {
@@ -1908,10 +1903,10 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
     if (sw == True) {
       fprintfComment(fp, com, CellLine(top) - 1, indent);
       fprintfTab(fp, indent);
-      fprintf(fp, "assign\t");
+      fprintf(fp, "assign  ");
     }
     fprintfVerilog(fp, sw, CellInfo1(top), sig, com, typ, ext, indent + 1, flag0, flag1, flag2, flag3, flag4, flag5);  // signal
-    if (sw == True) fprintf(fp, "\t= ");
+    if (sw == True) fprintf(fp, "  = ");
 
     *flag1  = (int)CellInfo2(top);  // (pointer to last condition)
     *flag3  = (int)CellInfo1(top);  // flag3...pointer to L value
@@ -1955,9 +1950,9 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
 
       fprintfComment(fp, com, CellLine(top) - 1, indent);
       fprintfTab(fp, indent);
-      fprintf(fp, "assign\t");
+      fprintf(fp, "assign  ");
       fprintfVerilog(fp, sw, CellInfo2(top), sig, com, typ, ext, indent, flag0, flag1, flag2, flag3, flag4, flag5);  // module name
-      fprintf(fp, " =\t");
+      fprintf(fp, " =  ");
 
       for (item = CellInfo3(top); item != NULLCELL; item = CellInfo2(item)) {
       /* when: N_SELCOND info0=substexp, info1=condexp, info2=else */
@@ -2026,7 +2021,7 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
       }
     }
     else {
-      if (sw == True) fprintf(fp, "\t");
+      if (sw == True) fprintf(fp, "  ");
     }
 
     // label
@@ -2088,7 +2083,7 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
 ///////////////////////////////////////////////////////////////////////////////
   case T_STDLOGIC:
     /* none */
-    if (sw == True) fprintf(fp, "\t");
+    if (sw == True) fprintf(fp, "  ");
     break;
 
   case T_STDLOGICVEC:
@@ -2111,7 +2106,7 @@ fprintfWarning(fp, CellLine(top), WARN_4_CLKRST);
   case T_ARRAY:
     if (sw == True) {
       if (CellType(CellInfo1(top)) == T_STDLOGIC)
-        fprintf(fp, "\t");
+        fprintf(fp, "  ");
       else if (CellType(CellInfo1(top)) == T_STDLOGICVEC) {
         TCELLPNT  range;
         range  = CellInfo0(CellInfo1(top));
