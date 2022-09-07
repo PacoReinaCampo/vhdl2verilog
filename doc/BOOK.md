@@ -1,7 +1,7 @@
 # vhdl2verilog
 ## QueenField
 
-![QueenField](../master/icon.jpg)
+![QueenField](../icon.jpg)
 
 # 1. INTRODUCTION
 

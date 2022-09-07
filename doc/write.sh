@@ -1,2 +1,2 @@
 rm -f *.pdf
-pandoc ../README.md -s -o vhdl2verilog.pdf
+pandoc BOOK.md -s -o vhdl2verilog.pdf
