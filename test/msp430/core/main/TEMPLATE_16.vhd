@@ -62,25 +62,25 @@ architecture TEMPLATE_16_ARQ of TEMPLATE_16 is
 
   constant SIZE_P16 : integer := 4;
 
-  --0.  PARAMETER_DECLARATION
-  --0.1.        Register base address (must be aligned to decoder bit width)
+  -- 0.  PARAMETER_DECLARATION
+  -- 0.1.        Register base address (must be aligned to decoder bit width)
   constant BASE_ADDR_P16 : std_logic_vector (14 downto 0) := "000000110010000";
 
-  --0.2.        Decoder bit width (defines how many bits are considered for address decoding)
+  -- 0.2.        Decoder bit width (defines how many bits are considered for address decoding)
   constant DEC_WD_P16 : integer := 3;
 
-  --0.3.        Register addresses offset
+  -- 0.3.        Register addresses offset
   constant CNTRL1B16 : std_logic_vector (DEC_WD_P16 - 1 downto 0) := std_logic_vector(to_unsigned(0, DEC_WD_P16));
   constant CNTRL2B16 : std_logic_vector (DEC_WD_P16 - 1 downto 0) := std_logic_vector(to_unsigned(2, DEC_WD_P16));
   constant CNTRL3B16 : std_logic_vector (DEC_WD_P16 - 1 downto 0) := std_logic_vector(to_unsigned(4, DEC_WD_P16));
   constant CNTRL4B16 : std_logic_vector (DEC_WD_P16 - 1 downto 0) := std_logic_vector(to_unsigned(6, DEC_WD_P16));
 
-  --0.4.        Register one-hot decoder utilities
+  -- 0.4.        Register one-hot decoder utilities
   constant DEC_SZ_P16 : integer := 2**DEC_WD_P16;
 
   constant BASE_REG_P16 : std_logic_vector (DEC_SZ_P16 - 1 downto 0) := std_logic_vector(to_unsigned(1, DEC_SZ_P16));
 
-  --0.5.        Register one-hot decoder
+  -- 0.5.        Register one-hot decoder
   constant CNTRL1_D16 : std_logic_vector (DEC_SZ_P16 - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_P16) sll to_integer(unsigned(CNTRL1B16)));
   constant CNTRL2_D16 : std_logic_vector (DEC_SZ_P16 - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_P16) sll to_integer(unsigned(CNTRL2B16)));
   constant CNTRL3_D16 : std_logic_vector (DEC_SZ_P16 - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_P16) sll to_integer(unsigned(CNTRL3B16)));
@@ -103,33 +103,33 @@ architecture TEMPLATE_16_ARQ of TEMPLATE_16 is
                                                                                              CNTRL2_D16,
                                                                                              CNTRL1_D16);
 
-  --1.  REGISTER_DECODER
-  --1.1.        Local register selection
+  -- 1.  REGISTER_DECODER
+  -- 1.1.        Local register selection
   signal reg_sel_p16 : std_logic;
 
-  --1.2.        Register local address
+  -- 1.2.        Register local address
   signal reg_addr_p16 : std_logic_vector (DEC_WD_P16 - 1 downto 0);
 
-  --1.3.        Register address decode
+  -- 1.3.        Register address decode
   signal reg_dec_p16 : std_logic_vector (DEC_SZ_P16 - 1 downto 0);
 
-  --1.4.        Read/Write probes
+  -- 1.4.        Read/Write probes
   signal reg_write_p : std_logic;
 
   signal reg_read_p16 : std_logic;
 
-  --1.5.        Read/Write vectors
+  -- 1.5.        Read/Write vectors
   signal reg_wr_p : std_logic_vector (DEC_SZ_P16 - 1 downto 0);
 
   signal reg_rd_p16 : std_logic_vector (DEC_SZ_P16 - 1 downto 0);
 
-  --2.  REGISTERS       
+  -- 2.  REGISTERS       
   signal cntrl_wr_p16 : std_logic_vector (SIZE_P16 - 1 downto 0);
 
   signal cntrl_p16 : std_logic_matrix (SIZE_P16 - 1 downto 0)(15 downto 0);
 
-  --4.  DATA_OUTPUT_GENERATION
-  --4.1.        Data output mux
+  -- 4.  DATA_OUTPUT_GENERATION
+  -- 4.1.        Data output mux
   signal cntrl_rd16 : std_logic_matrix (SIZE_P16 - 1 downto 0)(15 downto 0);
 
   function matrixAP_or (matrix : std_logic_matrix) return std_logic_vector is
@@ -153,14 +153,14 @@ architecture TEMPLATE_16_ARQ of TEMPLATE_16 is
 begin
   REGISTER_DECODER : block
   begin
-    --1.1.      Local register selection
+    -- 1.1.      Local register selection
     reg_sel_p16 <= per_en and
                    to_stdlogic(per_addr(13 downto DEC_WD_P16 - 1) = BASE_ADDR_P16(14 downto DEC_WD_P16));
 
-    --1.2.      Register local address
+    -- 1.2.      Register local address
     reg_addr_p16 <= per_addr(DEC_WD_P16 - 2 downto 0) & '0';
 
-    --1.3.      Register address decode 
+    -- 1.3.      Register address decode 
     address_decode : process (reg_addr_p16)
       variable decode : std_logic_matrix (SIZE_P16 - 1 downto 0)(DEC_SZ_P16 - 1 downto 0);
     begin
@@ -172,12 +172,12 @@ begin
       reg_dec_p16 <= matrixBP_or(decode);
     end process address_decode;
 
-    --1.4.      Read/Write probes
+    -- 1.4.      Read/Write probes
     reg_write_p <= reduce_or(per_we) and reg_sel_p16;
 
     reg_read_p16 <= not reduce_or(per_we) and reg_sel_p16;
 
-    --1.5.      Read/Write vectors
+    -- 1.5.      Read/Write vectors
     reg_wr_p <= reg_dec_p16 and (0 to DEC_SZ_P16 - 1 => reg_write_p);
 
     reg_rd_p16 <= reg_dec_p16 and (0 to DEC_SZ_P16 - 1 => reg_read_p16);

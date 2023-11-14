@@ -59,14 +59,14 @@ end MULTIPLIER;
 
 architecture MULTIPLIER_ARQ of MULTIPLIER is
 
-  --0.          PARAMETER_DECLARATION
-  --0.1.                Register base address (must be aligned to decoder bit width)
+  -- 0.          PARAMETER_DECLARATION
+  -- 0.1.                Register base address (must be aligned to decoder bit width)
   constant BASE_ADDR_M : std_logic_vector (14 downto 0) := "000000100110000";
 
-  --0.2.                Decoder bit width (defines how many bits are considered for address decoding)
+  -- 0.2.                Decoder bit width (defines how many bits are considered for address decoding)
   constant DEC_WD_M : integer := 4;
 
-  --0.3.                Register addresses offset
+  -- 0.3.                Register addresses offset
   constant OP1_MPY  : integer := 0;
   constant OP1_MPYS : integer := 2;
   constant OP1_MAC  : integer := 4;
@@ -85,11 +85,11 @@ architecture MULTIPLIER_ARQ of MULTIPLIER is
   constant RESHICB   : std_logic_vector (DEC_WD_M - 1 downto 0) := std_logic_vector(to_unsigned(RESHIC, DEC_WD_M));
   constant SUMEXTCB  : std_logic_vector (DEC_WD_M - 1 downto 0) := std_logic_vector(to_unsigned(SUMEXTC, DEC_WD_M));
 
-  --0.4.                Register one-hot decoder utilities
+  -- 0.4.                Register one-hot decoder utilities
   constant DEC_SZ_M   : integer                                   := 2**DEC_WD_M;
   constant BASE_REG_M : std_logic_vector (DEC_SZ_M - 1 downto 0) := std_logic_vector(to_unsigned(1, DEC_SZ_M));
 
-  --0.5.                Register one-hot decoder
+  -- 0.5.                Register one-hot decoder
   constant OP1_MPY_D  : std_logic_vector (DEC_SZ_M - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_M) sll OP1_MPY);
   constant OP1_MPYS_D : std_logic_vector (DEC_SZ_M - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_M) sll OP1_MPYS);
   constant OP1_MAC_D  : std_logic_vector (DEC_SZ_M - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_M) sll OP1_MAC);
@@ -99,42 +99,42 @@ architecture MULTIPLIER_ARQ of MULTIPLIER is
   constant RESHIC_D   : std_logic_vector (DEC_SZ_M - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_M) sll RESHIC);
   constant SUMEXTC_D  : std_logic_vector (DEC_SZ_M - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_M) sll SUMEXTC);
 
-  --0.6.        Wire pre-declarations
+  -- 0.6.        Wire pre-declarations
   signal result_wr  : std_logic;
   signal result_clr : std_logic;
   signal early_read : std_logic;
 
-  --1.  REGISTER_DECODER
-  --1.1.        Local register selection
+  -- 1.  REGISTER_DECODER
+  -- 1.1.        Local register selection
   signal reg_sel_m : std_logic;
 
-  --1.2.        Register local address
+  -- 1.2.        Register local address
   signal reg_addr_m : std_logic_vector (DEC_WD_M - 1 downto 0);
 
-  --1.3.        Register address decode
+  -- 1.3.        Register address decode
   signal reg_dec_m : std_logic_vector (DEC_SZ_M - 1 downto 0);
 
-  --1.4.        Read/Write probes
+  -- 1.4.        Read/Write probes
   signal reg_write_m : std_logic;
   signal reg_read_m  : std_logic;
 
-  --1.5.        Read/Write vectors
+  -- 1.5.        Read/Write vectors
   signal reg_wr_m : std_logic_vector (DEC_SZ_M - 1 downto 0);
   signal reg_rd_m : std_logic_vector (DEC_SZ_M - 1 downto 0);
 
-  --1.6.        Masked input data for byte access
+  -- 1.6.        Masked input data for byte access
   signal per_din_msk : std_logic_vector (15 downto 0);
 
-  --2.  REGISTERS
-  --2.1.        OP1 Register    
+  -- 2.  REGISTERS
+  -- 2.1.        OP1 Register    
   signal op_wr   : std_logic_vector (1 downto 0);
   signal mclk_op : std_logic_vector (1 downto 0);
   signal op      : std_logic_matrix (1 downto 0)(15 downto 0);
   signal op_rd   : std_logic_matrix (1 downto 0)(15 downto 0);
 
-  --2.2.        OP2C Register
+  -- 2.2.        OP2C Register
 
-  --2.3.        RESLOC Register
+  -- 2.3.        RESLOC Register
   signal reslo_en   : std_logic;
   signal reslo_wr   : std_logic;
   signal mclk_reslo : std_logic;
@@ -142,7 +142,7 @@ architecture MULTIPLIER_ARQ of MULTIPLIER is
   signal reslo_nxt  : std_logic_vector (15 downto 0);
   signal reslo_rd   : std_logic_vector (15 downto 0);
 
-  --2.4.        RESHIC Register
+  -- 2.4.        RESHIC Register
   signal reshi_en   : std_logic;
   signal reshi_wr   : std_logic;
   signal mclk_reshi : std_logic;
@@ -151,78 +151,78 @@ architecture MULTIPLIER_ARQ of MULTIPLIER is
   signal reshi_nxt : std_logic_vector (15 downto 0);
   signal reshi_rd  : std_logic_vector (15 downto 0);
 
-  --2.5.        SUMEXTC Register
+  -- 2.5.        SUMEXTC Register
   signal sumext_s     : std_logic_vector (1 downto 0);
   signal sumext_s_nxt : std_logic_vector (1 downto 0);
   signal sumext_nxt   : std_logic_vector (15 downto 0);
   signal sumext       : std_logic_vector (15 downto 0);
   signal sumext_rd    : std_logic_vector (15 downto 0);
 
-  --3.  DATA_OUTPUT_GENERATION
-  --3.1.        Data output mux
+  -- 3.  DATA_OUTPUT_GENERATION
+  -- 3.1.        Data output mux
   signal op1_mux    : std_logic_vector (15 downto 0);
   signal op2_mux    : std_logic_vector (15 downto 0);
   signal reslo_mux  : std_logic_vector (15 downto 0);
   signal reshi_mux  : std_logic_vector (15 downto 0);
   signal sumext_mux : std_logic_vector (15 downto 0);
 
-  --4.  HARDWARE_MULTIPLIER_FUNCTIONAL_LOGIC
-  --4.1.        Multiplier configuration        
-  --Detect signed mode
+  -- 4.  HARDWARE_MULTIPLIER_FUNCTIONAL_LOGIC
+  -- 4.1.        Multiplier configuration        
+  -- Detect signed mode
   signal sign_sel : std_logic;
 
-  --Detect accumulate mode
+  -- Detect accumulate mode
   signal acc_sel : std_logic;
 
-  --Detect whenever the RESHIC and RESLOC registers should be cleared
+  -- Detect whenever the RESHIC and RESLOC registers should be cleared
 
-  --Combine RESHIC & RESLOC
+  -- Combine RESHIC & RESLOC
   signal result : std_logic_vector (31 downto 0);
 
-  --4.2.        16x16 Multiplier (result computed in 1 clock cycle1)
-  --Detect start of a multiplication
+  -- 4.2.        16x16 Multiplier (result computed in 1 clock cycle1)
+  -- Detect start of a multiplication
   signal cycle1 : std_logic;
 
-  --Expand the operands to support signed & unsigned operations
+  -- Expand the operands to support signed & unsigned operations
   signal op1_xp : std_logic_vector (16 downto 0);
   signal op2_xp : std_logic_vector (16 downto 0);
 
-  --17x17 signed multiplication
+  -- 17x17 signed multiplication
   signal product1 : std_logic_vector (33 downto 0);
 
-  --Accumulate
+  -- Accumulate
   signal result_nxt : std_logic_vector (32 downto 0);
 
-  --Next register values        
-  --Since the MAC is completed within 1 clock cycle1, an early read can't happen
+  -- Next register values        
+  -- Since the MAC is completed within 1 clock cycle1, an early read can't happen
 
-  --4.3.        16x8 Multiplier (result computed in 2 clock cycle1s)
-  --Detect start of a multiplication
+  -- 4.3.        16x8 Multiplier (result computed in 2 clock cycle1s)
+  -- Detect start of a multiplication
   signal cycle2 : std_logic_vector (1 downto 0);
 
-  --Expand the operands to support signed & unsigned operations
+  -- Expand the operands to support signed & unsigned operations
   signal op2_hi_xp : std_logic_vector (8 downto 0);
   signal op2_lo_xp : std_logic_vector (8 downto 0);
   signal op2_xp9   : std_logic_vector (8 downto 0);
 
-  --17x9 signed multiplication
+  -- 17x9 signed multiplication
   signal product2   : std_logic_vector (25 downto 0);
   signal product_xp : std_logic_vector (31 downto 0);
 
-  --Accumulate
-  --Next register values
-  --Since the MAC is completed within 2 clock cycle1, an early read can happen during the second cycle1
+  -- Accumulate
+  -- Next register values
+  -- Since the MAC is completed within 2 clock cycle1, an early read can happen during the second cycle1
 
 begin
   REGISTER_DECODER : block
   begin
-    --1.1.      Local register selection
+    -- 1.1.      Local register selection
     reg_sel_m <= per_en and to_stdlogic(per_addr(13 downto DEC_WD_M - 1) = BASE_ADDR_M(14 downto DEC_WD_M));
 
-    --1.2.      Register local address
+    -- 1.2.      Register local address
     reg_addr_m <= per_addr(DEC_WD_M - 2 downto 0) & '0';
 
-    --1.3.      Register address decode
+    -- 1.3.      Register address decode
     reg_dec_m <= (OP1_MPY_D and (0 to DEC_SZ_M - 1 => to_stdlogic(reg_addr_m = OP1_MPYB))) or
                  (OP1_MPYS_D and (0 to DEC_SZ_M - 1 => to_stdlogic(reg_addr_m = OP1_MPYSB))) or
                  (OP1_MAC_D and (0 to DEC_SZ_M - 1  => to_stdlogic(reg_addr_m = OP1_MACB))) or
@@ -232,21 +232,21 @@ begin
                  (RESHIC_D and (0 to DEC_SZ_M - 1   => to_stdlogic(reg_addr_m = RESHICB))) or
                  (SUMEXTC_D and (0 to DEC_SZ_M - 1  => to_stdlogic(reg_addr_m = SUMEXTCB)));
 
-    --1.4.      Read/Write probes
+    -- 1.4.      Read/Write probes
     reg_write_m <= reduce_or(per_we) and reg_sel_m;
     reg_read_m  <= not reduce_or(per_we) and reg_sel_m;
 
-    --1.5.      Read/Write vectors
+    -- 1.5.      Read/Write vectors
     reg_wr_m <= reg_dec_m and (0 to DEC_SZ_M - 1 => reg_write_m);
     reg_rd_m <= reg_dec_m and (0 to DEC_SZ_M - 1 => reg_read_m);
 
-    --1.6.      Masked input data for byte access
+    -- 1.6.      Masked input data for byte access
     per_din_msk <= per_din and (8 to 15 => per_we(1), 0 to 7 => '1');
   end block REGISTER_DECODER;
 
   REGISTERS : block
   begin
-    --2.1.      OP1 Register
+    -- 2.1.      OP1 Register
     op_wr(0) <= reg_wr_m(OP1_MPY) or reg_wr_m(OP1_MPYS) or reg_wr_m(OP1_MAC) or reg_wr_m(OP1_MACS);
 
     clock_gating_1_on : if (CLOCK_GATING = '1') generate
@@ -277,7 +277,7 @@ begin
 
     op_rd(0) <= op(0);
 
-    --2.2.      OP2C Register
+    -- 2.2.      OP2C Register
     op_wr(1) <= reg_wr_m(OP2C);
 
     clock_gating_2_on : if (CLOCK_GATING = '1') generate
@@ -308,7 +308,7 @@ begin
 
     op_rd(1) <= op(1);
 
-    --2.3.      RESLO Register
+    -- 2.3.      RESLO Register
     reslo_wr <= reg_wr_m(RESLOC);
 
     clock_gating_3_on : if (CLOCK_GATING = '1') generate
@@ -345,7 +345,7 @@ begin
 
     reslo_rd <= reslo_nxt when early_read = '1' else reslo;
 
-    --2.4.      RESHI Register
+    -- 2.4.      RESHI Register
     reshi_wr <= reg_wr_m(RESHIC);
 
     clock_gating_4_on : if (CLOCK_GATING = '1') generate
@@ -382,7 +382,7 @@ begin
 
     reshi_rd <= reshi_nxt when early_read = '1' else reshi;
 
-    --2.5.      SUMEXTC Register
+    -- 2.5.      SUMEXTC Register
     R_1c_2c : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -403,7 +403,7 @@ begin
 
   DATA_OUTPUT_GENERATION : block
   begin
-    --3.1.      Data output mux
+    -- 3.1.      Data output mux
     op1_mux    <= op_rd(0) and (0 to 15  => reg_rd_m(OP1_MPY) or reg_rd_m(OP1_MPYS) or reg_rd_m(OP1_MAC) or reg_rd_m(OP1_MACS));
     op2_mux    <= op_rd(1) and (0 to 15  => reg_rd_m(OP2C));
     reslo_mux  <= reslo_rd and (0 to 15  => reg_rd_m(RESLOC));
@@ -414,8 +414,8 @@ begin
 
   HARDWARE_MULTIPLIER_FUNCTIONAL_LOGIC : block
   begin
-    --4.1.      Multiplier configuration
-    --Detect signed mode
+    -- 4.1.      Multiplier configuration
+    -- Detect signed mode
     R1_1i_2ci_e : process (mclk_op(0), puc_rst)
     begin
       if (puc_rst = '1') then
@@ -429,7 +429,7 @@ begin
       end if;
     end process R1_1i_2ci_e;
 
-    --Detect accumulate mode
+    -- Detect accumulate mode
     R2_1i_2ci_e : process (mclk_op(0), puc_rst)
     begin
       if (puc_rst = '1') then
@@ -443,16 +443,16 @@ begin
       end if;
     end process R2_1i_2ci_e;
 
-    --Detect whenever the RESHIC and RESLOC registers should be cleared
+    -- Detect whenever the RESHIC and RESLOC registers should be cleared
     result_clr <= op_wr(1) and not acc_sel;
 
-    --Combine RESHIC & RESLOC
+    -- Combine RESHIC & RESLOC
     result <= reshi & reslo;
 
-    --4.2.      16x16 Multiplier (result computed in 1 clock cycle)
+    -- 4.2.      16x16 Multiplier (result computed in 1 clock cycle)
     mpy_16x16_on : if (MPY_16x16 = '1') generate
 
-      --Detect start of a multiplication
+      -- Detect start of a multiplication
       R_1_e : process (mclk, puc_rst)
       begin
         if (puc_rst = '1') then
@@ -464,29 +464,29 @@ begin
 
       result_wr <= cycle1;
 
-      --Expand the operands to support signed & unsigned operations
+      -- Expand the operands to support signed & unsigned operations
       op1_xp <= (sign_sel and op(0)(15)) & op(0);
       op2_xp <= (sign_sel and op(1)(15)) & op(1);
 
-      --17x17 signed multiplication
+      -- 17x17 signed multiplication
       product1 <= std_logic_vector(signed(op1_xp) * signed(op2_xp));
 
-      --Accumulate
+      -- Accumulate
       result_nxt <= std_logic_vector(('0' & unsigned(result)) + ('0' & unsigned(product1(31 downto 0))));
 
-      --Next register values
+      -- Next register values
       reslo_nxt    <= result_nxt(15 downto 0);
       reshi_nxt    <= result_nxt(31 downto 16);
       sumext_s_nxt <= (others => result_nxt(31)) when (sign_sel = '1') else ('0' & result_nxt(32));
 
-      --Since the MAC is completed within 1 clock cycle1, an early read can't happen
+      -- Since the MAC is completed within 1 clock cycle1, an early read can't happen
       early_read <= '0';
     end generate mpy_16x16_on;
 
-    --4.3.      16x8 Multiplier (result computed in 2 clock cycles)
+    -- 4.3.      16x8 Multiplier (result computed in 2 clock cycles)
     mpy_16x16_off : if (MPY_16x16 = '0') generate
 
-      --Detect start of a multiplication
+      -- Detect start of a multiplication
       R_1 : process (mclk, puc_rst)
       begin
         if (puc_rst = '1') then
@@ -498,26 +498,26 @@ begin
 
       result_wr <= reduce_or(cycle2);
 
-      --Expand the operands to support signed & unsigned operations
+      -- Expand the operands to support signed & unsigned operations
       op1_xp    <= (sign_sel and op(0)(15)) & op(0);
       op2_hi_xp <= (sign_sel and op(1)(15)) & op(1)(15 downto 8);
       op2_lo_xp <= '0' & op(1)(7 downto 0);
       op2_xp9   <= op2_hi_xp when cycle2(0) = '1' else op2_lo_xp;
 
-      --17x9 signed multiplication
+      -- 17x9 signed multiplication
       product2   <= std_logic_vector(signed(op1_xp) * signed(op2_xp9));
       product_xp <= product2(23 downto 0) & X"00"
                     when cycle2(0) = '1' else (31 downto 24 => (sign_sel and product2(23))) & product2(23 downto 0);
 
-      --Accumulate
+      -- Accumulate
       result_nxt <= std_logic_vector(('0' & unsigned(result)) + ('0' & unsigned(product_xp(31 downto 0))));
 
-      --Next register values
+      -- Next register values
       reslo_nxt    <= result_nxt(15 downto 0);
       reshi_nxt    <= result_nxt(31 downto 16);
       sumext_s_nxt <= (others => result_nxt(31)) when sign_sel = '1' else ('0' & (result_nxt(32) or sumext_s(0)));
 
-      --Since the MAC is completed within 2 clock cycle1, an early read can happen during the second cycle1     
+      -- Since the MAC is completed within 2 clock cycle1, an early read can happen during the second cycle1     
       early_read <= cycle2(1);
     end generate mpy_16x16_off;
   end block HARDWARE_MULTIPLIER_FUNCTIONAL_LOGIC;

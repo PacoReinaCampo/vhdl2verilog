@@ -37,7 +37,6 @@
 -- =============================================================================
 -- Author(s):
 --   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
---
 
 library IEEE;
 use IEEE.STD_LOGIC_1164 .all;
@@ -69,29 +68,29 @@ end omsp_dbg_i2c;
 
 architecture omsp_dbg_i2c_ARQ of omsp_dbg_i2c is
 
-  --9.          I2C_COMMUNICATION       
-  --9.3.                I2C STATE MACHINE       
-  --9.3.3.      State machine definition
+  -- 9.          I2C_COMMUNICATION       
+  -- 9.3.                I2C STATE MACHINE       
+  -- 9.3.3.      State machine definition
   constant RX_ADDR     : std_logic_vector (2 downto 0) := "000";
   constant RX_ADDR_ACK : std_logic_vector (2 downto 0) := "001";
   constant RX_DATA     : std_logic_vector (2 downto 0) := "010";
   constant RX_DATA_ACK : std_logic_vector (2 downto 0) := "011";
   constant TX_DATA     : std_logic_vector (2 downto 0) := "100";
   constant TX_DATA_ACK : std_logic_vector (2 downto 0) := "101";
-  --9.4.                I2C SHIFT REGISTER (FOR RECEIVING & TRANSMITING)
-  --9.6.3.      State machine definition
+  -- 9.4.                I2C SHIFT REGISTER (FOR RECEIVING & TRANSMITING)
+  -- 9.6.3.      State machine definition
   constant RX_CMD      : std_logic_vector (2 downto 0) := "000";
   constant RX_BYTE_LO  : std_logic_vector (2 downto 0) := "001";
   constant RX_BYTE_HI  : std_logic_vector (2 downto 0) := "010";
   constant TX_BYTE_LO  : std_logic_vector (2 downto 0) := "011";
   constant TX_BYTE_HI  : std_logic_vector (2 downto 0) := "100";
 
-  --9.7.                REGISTER READ/WRITE ACCESS
+  -- 9.7.                REGISTER READ/WRITE ACCESS
   constant MEM_DATA : std_logic_vector (5 downto 0) := "000110";
 
-  --9.          I2C_COMMUNICATION
-  --9.1.                I2C RECEIVE LINE SYNCHRONIZTION & FILTERING
-  --9.1.1.      Synchronize SCL/SDA inputs
+  -- 9.          I2C_COMMUNICATION
+  -- 9.1.                I2C RECEIVE LINE SYNCHRONIZTION & FILTERING
+  -- 9.1.1.      Synchronize SCL/SDA inputs
   signal scl_sync_n         : std_logic;
   signal scl_sync           : std_logic;
   signal sda_in_sync_n      : std_logic;
@@ -99,15 +98,15 @@ architecture omsp_dbg_i2c_ARQ of omsp_dbg_i2c is
   signal not_dbg_i2c_scl    : std_logic;
   signal not_dbg_i2c_sda_in : std_logic;
 
-  --9.1.2.      SCL/SDA input buffers
+  -- 9.1.2.      SCL/SDA input buffers
   signal scl_buf    : std_logic_vector (1 downto 0);
   signal sda_in_buf : std_logic_vector (1 downto 0);
 
-  --9.1.3.      SCL/SDA Majority decision
+  -- 9.1.3.      SCL/SDA Majority decision
   signal scl    : std_logic;
   signal sda_in : std_logic;
 
-  --9.1.4.      SCL/SDA Edge detection
+  -- 9.1.4.      SCL/SDA Edge detection
   signal sda_in_dly : std_logic;
   signal sda_in_fe  : std_logic;
   signal sda_in_re  : std_logic;
@@ -117,20 +116,20 @@ architecture omsp_dbg_i2c_ARQ of omsp_dbg_i2c is
   signal scl_sample : std_logic;
   signal scl_re_dly : std_logic_vector (1 downto 0);
 
-  --9.2.                I2C START & STOP CONDITION DETECTION
-  --9.2.1.      Start condition
+  -- 9.2.                I2C START & STOP CONDITION DETECTION
+  -- 9.2.1.      Start condition
   signal start_detect : std_logic;
 
-  --9.2.2.      Stop condition
+  -- 9.2.2.      Stop condition
   signal stop_detect : std_logic;
 
-  --9.2.3.      I2C Slave Active
+  -- 9.2.3.      I2C Slave Active
   signal i2c_addr_not_valid : std_logic;
   signal i2c_active_seq     : std_logic;
   signal i2c_active         : std_logic;
   signal i2c_init           : std_logic;
 
-  --9.3.                I2C STATE MACHINE
+  -- 9.3.                I2C STATE MACHINE
   signal re_rx_addr     : std_logic_vector (2 downto 0);
   signal re_rx_addr_ack : std_logic_vector (2 downto 0);
   signal re_rx_data     : std_logic_vector (2 downto 0);
@@ -138,19 +137,19 @@ architecture omsp_dbg_i2c_ARQ of omsp_dbg_i2c is
   signal re_tx_data     : std_logic_vector (2 downto 0);
   signal re_tx_data_ack : std_logic_vector (2 downto 0);
 
-  --9.3.1.      State register/wires
+  -- 9.3.1.      State register/wires
   signal i2c_state     : std_logic_vector (2 downto 0);
   signal i2c_state_nxt : std_logic_vector (2 downto 0);
 
-  --9.3.2.      Utility signals
+  -- 9.3.2.      Utility signals
   signal shift_rx_done : std_logic;
   signal shift_tx_done : std_logic;
   signal shift_buf     : std_logic_vector (8 downto 0);
 
-  --9.3.3.      State machine definition        
-  --9.3.4.      State transition
-  --9.3.5.      State machine
-  --9.4.                I2C SHIFT REGISTER (FOR RECEIVING & TRANSMITING)
+  -- 9.3.3.      State machine definition        
+  -- 9.3.4.      State transition
+  -- 9.3.5.      State machine
+  -- 9.4.                I2C SHIFT REGISTER (FOR RECEIVING & TRANSMITING)
   signal shift_rx_en       : std_logic;
   signal shift_tx_en       : std_logic;
   signal shift_tx_en_pre   : std_logic;
@@ -161,13 +160,13 @@ architecture omsp_dbg_i2c_ARQ of omsp_dbg_i2c is
   signal shift_tx_val      : std_logic_vector (7 downto 0);
   signal shift_buf_nxt     : std_logic_vector (8 downto 0);
 
-  --9.4.1.      Detect when the received I2C device address is not valid
-  --9.4.2.      Utility signals
+  -- 9.4.1.      Detect when the received I2C device address is not valid
+  -- 9.4.2.      Utility signals
   signal shift_rx_data_done : std_logic;
   signal shift_tx_data_done : std_logic;
 
-  --9.5.                I2C TRANSMIT BUFFER
-  --9.6.                DEBUG INTERFACE STATE MACHINE
+  -- 9.5.                I2C TRANSMIT BUFFER
+  -- 9.6.                DEBUG INTERFACE STATE MACHINE
   signal re_rx_cmd     : std_logic_vector (2 downto 0);
   signal re_rx_byte_lo : std_logic_vector (2 downto 0);
   signal re_rx_byte_hi : std_logic_vector (2 downto 0);
@@ -175,40 +174,40 @@ architecture omsp_dbg_i2c_ARQ of omsp_dbg_i2c is
   signal re_tx_byte_hi : std_logic_vector (2 downto 0);
   signal re_0_rx_cmd   : std_logic_vector (2 downto 0);
 
-  --9.6.1.      State register/wires
+  -- 9.6.1.      State register/wires
   signal dbg_state     : std_logic_vector (2 downto 0);
   signal dbg_state_nxt : std_logic_vector (2 downto 0);
 
-  --9.6.2.      Utility signals
+  -- 9.6.2.      Utility signals
   signal dbg_bw : std_logic;
 
-  --9.6.3.      State machine definition
-  --9.6.4.      State transition
-  --9.6.5.      State machine
-  --9.6.6.      Utility signals
+  -- 9.6.3.      State machine definition
+  -- 9.6.4.      State transition
+  -- 9.6.5.      State machine
+  -- 9.6.6.      Utility signals
   signal cmd_valid   : std_logic;
   signal rx_lo_valid : std_logic;
   signal rx_hi_valid : std_logic;
 
-  --9.7.                REGISTER READ/WRITE ACCESS      
-  --9.7.1.      Debug register address & bit width      
-  --9.7.2.      Debug register data input
+  -- 9.7.                REGISTER READ/WRITE ACCESS      
+  -- 9.7.1.      Debug register address & bit width      
+  -- 9.7.2.      Debug register data input
   signal dbg_din_lo : std_logic_vector (7 downto 0);
   signal dbg_din_hi : std_logic_vector (7 downto 0);
 
-  --9.7.3.      Debug register data write command       
+  -- 9.7.3.      Debug register data write command       
   signal data_write_command : std_logic;
 
-  --9.7.4.      Debug register data read command
+  -- 9.7.4.      Debug register data read command
   signal data_read_command : std_logic;
 
-  --9.7.5.      Debug register data read value
+  -- 9.7.5.      Debug register data read value
 
 begin
   P9_I2C_COMMUNICATION : block
   begin
-    --9.1.              I2C RECEIVE LINE SYNCHRONIZTION & FILTERING
-    --9.1.1.    Synchronize SCL/SDA inputs
+    -- 9.1.              I2C RECEIVE LINE SYNCHRONIZTION & FILTERING
+    -- 9.1.1.    Synchronize SCL/SDA inputs
     sync_cell_i2c_scl : omsp_sync_cell
       port map (
         data_out => scl_sync_n,
@@ -229,7 +228,7 @@ begin
     not_dbg_i2c_sda_in <= not dbg_i2c_sda_in;
     sda_in_sync        <= not sda_in_sync_n;
 
-    --9.1.2.    SCL/SDA input buffers
+    -- 9.1.2.    SCL/SDA input buffers
     R1_1 : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -248,11 +247,11 @@ begin
       end if;
     end process R1_2;
 
-    --9.1.3.    SCL/SDA Majority decisi\F3n
+    -- 9.1.3.    SCL/SDA Majority decisi\F3n
     scl    <= (scl_sync and scl_buf(0)) or (scl_sync and scl_buf(1)) or (scl_buf(0) and scl_buf(1));
     sda_in <= (sda_in_sync and sda_in_buf(0)) or (sda_in_sync and sda_in_buf(1)) or (sda_in_buf(0) and sda_in_buf(1));
 
-    --9.1.4.    SCL/SDA Edge detection
+    -- 9.1.4.    SCL/SDA Edge detection
     R1_1_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -288,14 +287,14 @@ begin
 
     scl_sample <= scl_re_dly(1);
 
-    --9.2.              I2C START & STOP CONDITION DETECTION
-    --9.2.1.    Start condition
+    -- 9.2.              I2C START & STOP CONDITION DETECTION
+    -- 9.2.1.    Start condition
     start_detect <= sda_in_fe and scl;
 
-    --9.2.2.    Stop condition
+    -- 9.2.2.    Stop condition
     stop_detect <= sda_in_re and scl;
 
-    --9.2.3.    I2C Slave Active
+    -- 9.2.3.    I2C Slave Active
     R_1c_2c_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -312,11 +311,11 @@ begin
     i2c_active <= i2c_active_seq and not stop_detect;
     i2c_init   <= not i2c_active or start_detect;
 
-    --9.3.              I2C STATE MACHINE
-    --9.3.1.    State register/wires
-    --9.3.2.    Utility signals
-    --9.3.3.    State machine definition
-    --9.3.4.    State transition
+    -- 9.3.              I2C STATE MACHINE
+    -- 9.3.1.    State register/wires
+    -- 9.3.2.    Utility signals
+    -- 9.3.3.    State machine definition
+    -- 9.3.4.    State transition
     process(i2c_state, re_rx_addr, re_rx_addr_ack, re_rx_data, re_rx_data_ack, re_tx_data, re_tx_data_ack)
     begin
       case i2c_state is
@@ -357,7 +356,7 @@ begin
                       when scl_fe = '0'   else TX_DATA
                       when sda_in = '0'   else RX_ADDR;
 
-    --9.3.5.    State machine   
+    -- 9.3.5.    State machine   
     R4_2 : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -367,7 +366,7 @@ begin
       end if;
     end process R4_2;
 
-    --9.4.              I2C SHIFT REGISTER (FOR RECEIVING & TRANSMITING)
+    -- 9.4.              I2C SHIFT REGISTER (FOR RECEIVING & TRANSMITING)
     shift_rx_en       <= (to_stdlogic(i2c_state = RX_ADDR) or to_stdlogic(i2c_state = RX_DATA) or to_stdlogic(i2c_state = RX_DATA_ACK));
     shift_tx_en       <= to_stdlogic(i2c_state = TX_DATA) or to_stdlogic(i2c_state = TX_DATA_ACK);
     shift_tx_en_pre   <= to_stdlogic(i2c_state_nxt = TX_DATA) or to_stdlogic(i2c_state_nxt = TX_DATA_ACK);
@@ -393,7 +392,7 @@ begin
       end if;
     end process R5_2;
 
-    --9.4.1.    Detect when the received I2C device address is not valid                        
+    -- 9.4.1.    Detect when the received I2C device address is not valid                        
     dbg_i2c_broadcastc_on : if (DBG_I2C_BROADCASTC = '1') generate
       i2c_addr_not_valid <= to_stdlogic(i2c_state = RX_ADDR) and shift_rx_done and
                             to_stdlogic(shift_buf(7 downto 1) /= dbg_i2c_addr(6 downto 0)) and
@@ -405,11 +404,11 @@ begin
                             to_stdlogic(shift_buf(7 downto 1) /= dbg_i2c_addr(6 downto 0));
     end generate dbg_i2c_broadcastc_off;
 
-    --9.4.2.    Utility signals
+    -- 9.4.2.    Utility signals
     shift_rx_data_done <= shift_rx_done and to_stdlogic(i2c_state = RX_DATA);
     shift_tx_data_done <= shift_tx_done;
 
-    --9.5.              I2C TRANSMIT BUFFER
+    -- 9.5.              I2C TRANSMIT BUFFER
     R3_1c_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -424,11 +423,11 @@ begin
       end if;
     end process R3_1c_e;
 
-    --9.6.              DEBUG INTERFACE STATE MACHINE
-    --9.6.1.    State register/wires
-    --9.6.2.    Utility signals
-    --9.6.3.    State machine definition
-    --9.6.4.    State transition
+    -- 9.6.              DEBUG INTERFACE STATE MACHINE
+    -- 9.6.1.    State register/wires
+    -- 9.6.2.    Utility signals
+    -- 9.6.3.    State machine definition
+    -- 9.6.4.    State transition
     process(dbg_state, re_rx_byte_hi, re_rx_byte_lo, re_rx_cmd, re_tx_byte_hi, re_tx_byte_lo)
     begin
       case dbg_state is
@@ -470,7 +469,7 @@ begin
     re_0_rx_cmd <= RX_BYTE_LO
                    when mem_bw = '1' else RX_BYTE_HI;
 
-    --9.6.5.    State machine
+    -- 9.6.5.    State machine
     R6_2 : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -480,13 +479,13 @@ begin
       end if;
     end process R6_2;
 
-    --9.6.6.    Utility signals
+    -- 9.6.6.    Utility signals
     cmd_valid   <= to_stdlogic(dbg_state = RX_CMD) and shift_rx_data_done;
     rx_lo_valid <= to_stdlogic(dbg_state = RX_BYTE_LO) and shift_rx_data_done;
     rx_hi_valid <= to_stdlogic(dbg_state = RX_BYTE_HI) and shift_rx_data_done;
 
-    --9.7.              REGISTER READ/WRITE ACCESS
-    --9.7.1.    Debug register address & bit width
+    -- 9.7.              REGISTER READ/WRITE ACCESS
+    -- 9.7.1.    Debug register address & bit width
     process (dbg_rst, dbg_clk)
     begin
       if (dbg_rst = '1') then
@@ -503,7 +502,7 @@ begin
       end if;
     end process;
 
-    --9.7.2.    Debug register data input
+    -- 9.7.2.    Debug register data input
     R_1c : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -530,7 +529,7 @@ begin
 
     dbg_din <= dbg_din_hi & dbg_din_lo;
 
-    --9.7.3.    Debug register data write command
+    -- 9.7.3.    Debug register data write command
     process (dbg_rst, dbg_clk)
     begin
       if (dbg_rst = '1') then
@@ -545,7 +544,7 @@ begin
                           when (mem_burst and not mem_bw) = '1' else rx_lo_valid
                           when dbg_bw = '1'                     else rx_hi_valid;
 
-    --9.7.4.    Debug register data read command
+    -- 9.7.4.    Debug register data read command
     process (dbg_rst, dbg_clk)
     begin
       if (dbg_rst = '1') then
@@ -559,7 +558,7 @@ begin
                          when (mem_burst and mem_bw) = '1'     else shift_tx_data_done and to_stdlogic(dbg_state = TX_BYTE_HI)
                          when (mem_burst and not mem_bw) = '1' else not shift_buf(7)
                          when cmd_valid = '1'                  else '0';
-    --9.7.5.    Debug register data read value
+    -- 9.7.5.    Debug register data read value
     shift_tx_val <= dbg_dout(15 downto 8) when dbg_state = TX_BYTE_HI else dbg_dout(7 downto 0);
   end block P9_I2C_COMMUNICATION;
 end omsp_dbg_i2c_ARQ;

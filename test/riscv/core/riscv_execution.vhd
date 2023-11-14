@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/core/riscv_execution.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -69,7 +66,7 @@ entity riscv_execution is
     wb_stall : in  std_logic;
     ex_stall : out std_logic;
 
-    --Program counter
+    -- Program counter
     id_pc         : in  std_logic_vector(XLEN-1 downto 0);
     ex_pc         : out std_logic_vector(XLEN-1 downto 0);
     bu_nxt_pc     : out std_logic_vector(XLEN-1 downto 0);
@@ -81,7 +78,7 @@ entity riscv_execution is
     bu_bp_btaken  : out std_logic;
     bu_bp_update  : out std_logic;
 
-    --Instruction
+    -- Instruction
     id_bubble : in  std_logic;
     id_instr  : in  std_logic_vector(ILEN-1 downto 0);
     ex_bubble : out std_logic;
@@ -92,7 +89,7 @@ entity riscv_execution is
     wb_exception  : in  std_logic_vector(EXCEPTION_SIZE-1 downto 0);
     ex_exception  : out std_logic_vector(EXCEPTION_SIZE-1 downto 0);
 
-    --from ID
+    -- from ID
     id_userf_opA  : in std_logic;
     id_userf_opB  : in std_logic;
     id_bypex_opA  : in std_logic;
@@ -104,29 +101,29 @@ entity riscv_execution is
     id_opA        : in std_logic_vector(XLEN-1 downto 0);
     id_opB        : in std_logic_vector(XLEN-1 downto 0);
 
-    --from RF
+    -- from RF
     rf_srcv1 : in std_logic_vector(XLEN-1 downto 0);
     rf_srcv2 : in std_logic_vector(XLEN-1 downto 0);
 
-    --to MEM
+    -- to MEM
     ex_r : out std_logic_vector(XLEN-1 downto 0);
 
-    --Bypasses
+    -- Bypasses
     mem_r : in std_logic_vector(XLEN-1 downto 0);
     wb_r  : in std_logic_vector(XLEN-1 downto 0);
 
-    --To State
+    -- To State
     ex_csr_reg  : out std_logic_vector(11 downto 0);
     ex_csr_wval : out std_logic_vector(XLEN-1 downto 0);
     ex_csr_we   : out std_logic;
 
-    --From State
+    -- From State
     st_prv      : in std_logic_vector(1 downto 0);
     st_xlen     : in std_logic_vector(1 downto 0);
     st_flush    : in std_logic;
     st_csr_rval : in std_logic_vector(XLEN-1 downto 0);
 
-    --To DCACHE/Memory
+    -- To DCACHE/Memory
     dmem_adr        : out std_logic_vector(XLEN-1 downto 0);
     dmem_d          : out std_logic_vector(XLEN-1 downto 0);
     dmem_req        : out std_logic;
@@ -137,7 +134,7 @@ entity riscv_execution is
     dmem_misaligned : in  std_logic;
     dmem_page_fault : in  std_logic;
 
-    --Debug Unit
+    -- Debug Unit
     du_stall     : in std_logic;
     du_stall_dly : in std_logic;
     du_flush     : in std_logic;
@@ -160,27 +157,27 @@ architecture RTL of riscv_execution is
 
       ex_stall : in std_logic;
 
-      --Program counter
+      -- Program counter
       id_pc : in std_logic_vector(XLEN-1 downto 0);
 
-      --Instruction
+      -- Instruction
       id_bubble : in std_logic;
       id_instr  : in std_logic_vector(ILEN-1 downto 0);
 
-      --Operands
+      -- Operands
       opA : in std_logic_vector(XLEN-1 downto 0);
       opB : in std_logic_vector(XLEN-1 downto 0);
 
-      --to WB
+      -- to WB
       alu_bubble : out std_logic;
       alu_r      : out std_logic_vector(XLEN-1 downto 0);
 
-      --To State
+      -- To State
       ex_csr_reg  : out std_logic_vector(11 downto 0);
       ex_csr_wval : out std_logic_vector(XLEN-1 downto 0);
       ex_csr_we   : out std_logic;
 
-      --From State
+      -- From State
       st_csr_rval : in std_logic_vector(XLEN-1 downto 0);
       st_xlen     : in std_logic_vector(1 downto 0)
     );
@@ -199,7 +196,7 @@ architecture RTL of riscv_execution is
       ex_stall  : in  std_logic;
       lsu_stall : out std_logic;
 
-      --Instruction
+      -- Instruction
       id_bubble : in std_logic;
       id_instr  : in std_logic_vector(ILEN-1 downto 0);
 
@@ -212,19 +209,19 @@ architecture RTL of riscv_execution is
       wb_exception  : in  std_logic_vector(EXCEPTION_SIZE-1 downto 0);
       lsu_exception : out std_logic_vector(EXCEPTION_SIZE-1 downto 0);
 
-      --Operands
+      -- Operands
       opA : in std_logic_vector(XLEN-1 downto 0);
       opB : in std_logic_vector(XLEN-1 downto 0);
 
-      --From State
+      -- From State
       st_xlen : in std_logic_vector(1 downto 0);
 
-      --To Memory
+      -- To Memory
       dmem_adr, dmem_d  : out std_logic_vector(XLEN-1 downto 0);
       dmem_req, dmem_we : out std_logic;
       dmem_size         : out std_logic_vector(2 downto 0);
 
-      --From Memory (for AMO)
+      -- From Memory (for AMO)
       dmem_ack        : in std_logic;
       dmem_q          : in std_logic_vector(XLEN-1 downto 0);
       dmem_misaligned : in std_logic;
@@ -249,7 +246,7 @@ architecture RTL of riscv_execution is
       ex_stall : in std_logic;
       st_flush : in std_logic;
 
-      --Program counter
+      -- Program counter
       id_pc         : in  std_logic_vector(XLEN-1 downto 0);
       bu_nxt_pc     : out std_logic_vector(XLEN-1 downto 0);
       bu_flush      : out std_logic;
@@ -260,7 +257,7 @@ architecture RTL of riscv_execution is
       bu_bp_btaken  : out std_logic;
       bu_bp_update  : out std_logic;
 
-      --Instruction
+      -- Instruction
       id_bubble : in std_logic;
       id_instr  : in std_logic_vector(ILEN-1 downto 0);
 
@@ -270,11 +267,11 @@ architecture RTL of riscv_execution is
       wb_exception  : in  std_logic_vector(EXCEPTION_SIZE-1 downto 0);
       bu_exception  : out std_logic_vector(EXCEPTION_SIZE-1 downto 0);
 
-      --from ID
+      -- from ID
       opA : in std_logic_vector(XLEN-1 downto 0);
       opB : in std_logic_vector(XLEN-1 downto 0);
 
-      --Debug Unit
+      -- Debug Unit
       du_stall : in std_logic;
       du_flush : in std_logic;
       du_we_pc : in std_logic;
@@ -295,18 +292,18 @@ architecture RTL of riscv_execution is
       ex_stall  : in  std_logic;
       mul_stall : out std_logic;
 
-      --Instruction
+      -- Instruction
       id_bubble : in std_logic;
       id_instr  : in std_logic_vector(ILEN-1 downto 0);
 
-      --Operands
+      -- Operands
       opA : in std_logic_vector(XLEN-1 downto 0);
       opB : in std_logic_vector(XLEN-1 downto 0);
 
-      --from State
+      -- from State
       st_xlen : in std_logic_vector(1 downto 0);
 
-      --to WB
+      -- to WB
       mul_bubble : out std_logic;
       mul_r      : out std_logic_vector(XLEN-1 downto 0)
     );
@@ -324,18 +321,18 @@ architecture RTL of riscv_execution is
       ex_stall  : in  std_logic;
       div_stall : out std_logic;
 
-      --Instruction
+      -- Instruction
       id_bubble : in std_logic;
       id_instr  : in std_logic_vector(ILEN-1 downto 0);
 
-      --Operands
+      -- Operands
       opA : in std_logic_vector(XLEN-1 downto 0);
       opB : in std_logic_vector(XLEN-1 downto 0);
 
-      --From State
+      -- From State
       st_xlen : in std_logic_vector(1 downto 0);
 
-      --To WB
+      -- To WB
       div_bubble : out std_logic;
       div_r      : out std_logic_vector(XLEN-1 downto 0)
     );
@@ -346,7 +343,7 @@ architecture RTL of riscv_execution is
   -- Variables
   --
 
-  --Operand generation
+  -- Operand generation
   signal opA : std_logic_vector(XLEN-1 downto 0);
   signal opB : std_logic_vector(XLEN-1 downto 0);
 
@@ -355,18 +352,18 @@ architecture RTL of riscv_execution is
   signal mul_r : std_logic_vector(XLEN-1 downto 0);
   signal div_r : std_logic_vector(XLEN-1 downto 0);
 
-  --Pipeline Bubbles
+  -- Pipeline Bubbles
   signal alu_bubble : std_logic;
   signal lsu_bubble : std_logic;
   signal mul_bubble : std_logic;
   signal div_bubble : std_logic;
 
-  --Pipeline stalls
+  -- Pipeline stalls
   signal lsu_stall : std_logic;
   signal mul_stall : std_logic;
   signal div_stall : std_logic;
 
-  --Exceptions
+  -- Exceptions
   signal bu_exception  : std_logic_vector(EXCEPTION_SIZE-1 downto 0);
   signal lsu_exception : std_logic_vector(EXCEPTION_SIZE-1 downto 0);
 
@@ -380,19 +377,19 @@ begin
   -- Module Body
   --
 
-  --Program Counter
+  -- Program Counter
   processing_0 : process (clk, rstn)
   begin
     if (rstn = '0') then
       ex_pc <= PC_INIT;
     elsif (rising_edge(clk)) then
-      if (ex_stall_sgn = '0' and du_stall = '0') then  --stall during DBG to retain PPC
+      if (ex_stall_sgn = '0' and du_stall = '0') then  -- stall during DBG to retain PPC
         ex_pc <= id_pc;
       end if;
     end if;
   end process;
 
-  --Instruction
+  -- Instruction
   processing_1 : process (clk)
   begin
     if (rising_edge(clk)) then
@@ -402,11 +399,11 @@ begin
     end if;
   end process;
 
-  --Bypasses
+  -- Bypasses
 
-  --Ignore the bypasses during dbg_stall, use register-file instead
-  --use du_stall_dly, because this is combinatorial
-  --When the pipeline is longer than the time for the debugger to access the system, this fails
+  -- Ignore the bypasses during dbg_stall, use register-file instead
+  -- use du_stall_dly, because this is combinatorial
+  -- When the pipeline is longer than the time for the debugger to access the system, this fails
   processing_2 : process (du_stall_dly, ex_r_sgn, id_bypex_opA, id_bypmem_opA, id_bypwb_opA, id_opA, id_userf_opA, mem_r, rf_srcv1, wb_r)
     variable state : std_logic_vector(3 downto 0);
   begin
@@ -467,7 +464,7 @@ begin
     state := id_userf_opB & id_bypwb_opB & id_bypmem_opB & id_bypex_opB;
   end process;
 
-  --Execution Units
+  -- Execution Units
   alu : riscv_alu
     generic map (
       XLEN    => XLEN,
@@ -618,13 +615,13 @@ begin
     div_stall  <= '0';
   end generate;
 
-  --Combine outputs into 1 single EX output
+  -- Combine outputs into 1 single EX output
   ex_bubble     <= alu_bubble and lsu_bubble and mul_bubble and div_bubble;
   ex_stall_sgn  <= wb_stall or lsu_stall or mul_stall or div_stall;
 
   ex_stall <= ex_stall_sgn;
 
-  --result
+  -- result
   processing_4 : process (alu_r, div_bubble, div_r, lsu_bubble, lsu_r, mul_bubble, mul_r)
     variable state : std_logic_vector(2 downto 0);
   begin

@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/core/memory/riscv_dmem_ctrl.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -71,11 +68,11 @@ entity riscv_dmem_ctrl is
     rst_ni : in std_logic;
     clk_i  : in std_logic;
 
-    --Configuration
+    -- Configuration
     pma_cfg_i : std_logic_matrix(PMA_CNT-1 downto 0)(13 downto 0);
     pma_adr_i : std_logic_matrix(PMA_CNT-1 downto 0)(XLEN-1 downto 0);
 
-    --CPU side
+    -- CPU side
     mem_req_i        : in  std_logic;
     mem_adr_i        : in  std_logic_vector(XLEN-1 downto 0);
     mem_size_i       : in  std_logic_vector(2 downto 0);
@@ -94,7 +91,7 @@ entity riscv_dmem_ctrl is
     st_pmpaddr_i : in std_logic_matrix(PMP_CNT-1 downto 0)(PLEN-1 downto 0);
     st_prv_i     : in std_logic_vector(1 downto 0);
 
-    --BIU ports
+    -- BIU ports
     biu_stb_o     : out std_logic;
     biu_stb_ack_i : in  std_logic;
     biu_d_ack_i   : in  std_logic;
@@ -122,14 +119,14 @@ architecture RTL of riscv_dmem_ctrl is
       rst_ni : in std_logic;
       clk_i  : in std_logic;
 
-      clr_i : in std_logic;            --clear pending requests
+      clr_i : in std_logic;            -- clear pending requests
       ena_i : in std_logic;
 
-      --CPU side
+      -- CPU side
       req_i : in std_logic;
       d_i   : in std_logic_vector(DBITS-1 downto 0);
 
-      --Memory system side
+      -- Memory system side
       req_o : out std_logic;
       ack_i : in  std_logic;
       q_o   : out std_logic_vector(DBITS-1 downto 0);
@@ -147,13 +144,13 @@ architecture RTL of riscv_dmem_ctrl is
     port (
       clk_i : in std_logic;
 
-      --CPU side
+      -- CPU side
       instruction_i : in std_logic;
       req_i         : in std_logic;
       adr_i         : in std_logic_vector(XLEN-1 downto 0);
       size_i        : in std_logic_vector(2 downto 0);
 
-      --To memory subsystem
+      -- To memory subsystem
       misaligned_o : out std_logic
     );
   end component;
@@ -166,23 +163,23 @@ architecture RTL of riscv_dmem_ctrl is
     port (
       rst_ni : in std_logic;
       clk_i  : in std_logic;
-      clr_i  : in std_logic;           --clear pending request
+      clr_i  : in std_logic;           -- clear pending request
 
-      --Mode
-      --input  logic [XLEN-1:0] st_satp;
+      -- Mode
+      -- input  logic [XLEN-1:0] st_satp;
 
-      --CPU side
-      vreq_i  : in std_logic;          --Request from CPU
-      vadr_i  : in std_logic_vector(XLEN-1 downto 0);  --Virtual Memory Address
+      -- CPU side
+      vreq_i  : in std_logic;          -- Request from CPU
+      vadr_i  : in std_logic_vector(XLEN-1 downto 0);  -- Virtual Memory Address
       vsize_i : in std_logic_vector(2 downto 0);
       vlock_i : in std_logic;
       vprot_i : in std_logic_vector(2 downto 0);
       vwe_i   : in std_logic;
       vd_i    : in std_logic_vector(XLEN-1 downto 0);
 
-      --Memory system side
+      -- Memory system side
       preq_o  : out std_logic;
-      padr_o  : out std_logic_vector(PLEN-1 downto 0);  --Physical Memory Address
+      padr_o  : out std_logic_vector(PLEN-1 downto 0);  -- Physical Memory Address
       psize_o : out std_logic_vector(2 downto 0);
       plock_o : out std_logic;
       pprot_o : out std_logic_vector(2 downto 0);
@@ -191,7 +188,7 @@ architecture RTL of riscv_dmem_ctrl is
       pq_i    : in  std_logic_vector(XLEN-1 downto 0);
       pack_i  : in  std_logic;
 
-      --Exception
+      -- Exception
       page_fault_o : out std_logic
     );
   end component;
@@ -203,21 +200,21 @@ architecture RTL of riscv_dmem_ctrl is
       PMA_CNT : integer := 4
     );
     port (
-      --PMA  configuration
+      -- PMA  configuration
       pma_cfg_i : std_logic_matrix(PMA_CNT-1 downto 0)(13 downto 0);
       pma_adr_i : std_logic_matrix(PMA_CNT-1 downto 0)(PLEN-1 downto 0);
 
-      --Memory Access
-      instruction_i : in std_logic;    --This is an instruction access
-      req_i         : in std_logic;    --Memory access requested
-      adr_i         : in std_logic_vector(PLEN-1 downto 0);  --Physical Memory address (i.e. after translation)
-      size_i        : in std_logic_vector(2 downto 0);       --Transfer size
-      lock_i        : in std_logic;    --AMO : TODO: specify AMO type
+      -- Memory Access
+      instruction_i : in std_logic;    -- This is an instruction access
+      req_i         : in std_logic;    -- Memory access requested
+      adr_i         : in std_logic_vector(PLEN-1 downto 0);  -- Physical Memory address (i.e. after translation)
+      size_i        : in std_logic_vector(2 downto 0);       -- Transfer size
+      lock_i        : in std_logic;    -- AMO : TODO: specify AMO type
       we_i          : in std_logic;
 
-      misaligned_i : in std_logic;     --Misaligned access
+      misaligned_i : in std_logic;     -- Misaligned access
 
-      --Output
+      -- Output
       pma_o             : out std_logic_vector(13 downto 0);
       exception_o       : out std_logic;
       misaligned_o      : out std_logic;
@@ -234,19 +231,19 @@ architecture RTL of riscv_dmem_ctrl is
       PMP_CNT : integer := 16
     );
     port (
-      --From State
+      -- From State
       st_pmpcfg_i  : in std_logic_matrix(PMP_CNT-1 downto 0)(7 downto 0);
       st_pmpaddr_i : in std_logic_matrix(PMP_CNT-1 downto 0)(PLEN-1 downto 0);
       st_prv_i     : in std_logic_vector(1 downto 0);
 
-      --Memory Access
-      instruction_i : in std_logic;    --This is an instruction access
-      req_i         : in std_logic;    --Memory access requested
-      adr_i         : in std_logic_vector(PLEN-1 downto 0);  --Physical Memory address (i.e. after translation)
-      size_i        : in std_logic_vector(2 downto 0);       --Transfer size
-      we_i          : in std_logic;    --Read/Write enable
+      -- Memory Access
+      instruction_i : in std_logic;    -- This is an instruction access
+      req_i         : in std_logic;    -- Memory access requested
+      adr_i         : in std_logic_vector(PLEN-1 downto 0);  -- Physical Memory address (i.e. after translation)
+      size_i        : in std_logic_vector(2 downto 0);       -- Transfer size
+      we_i          : in std_logic;    -- Read/Write enable
 
-      --Output
+      -- Output
       exception_o : out std_logic
     );
   end component;
@@ -267,7 +264,7 @@ architecture RTL of riscv_dmem_ctrl is
       rst_ni : in std_logic;
       clk_i  : in std_logic;
 
-      --CPU side
+      -- CPU side
       mem_vreq_i : in  std_logic;
       mem_preq_i : in  std_logic;
       mem_vadr_i : in  std_logic_vector(XLEN-1 downto 0);
@@ -283,36 +280,36 @@ architecture RTL of riscv_dmem_ctrl is
       flush_i    : in  std_logic;
       flushrdy_o : out std_logic;
 
-      --To BIU
-      biu_stb_o     : out std_logic;   --access request
-      biu_stb_ack_i : in  std_logic;   --access acknowledge
-      biu_d_ack_i   : in  std_logic;   --BIU needs new data (biu_d_o)
-      biu_adri_o    : out std_logic_vector(PLEN-1 downto 0);  --access start address
+      -- To BIU
+      biu_stb_o     : out std_logic;   -- access request
+      biu_stb_ack_i : in  std_logic;   -- access acknowledge
+      biu_d_ack_i   : in  std_logic;   -- BIU needs new data (biu_d_o)
+      biu_adri_o    : out std_logic_vector(PLEN-1 downto 0);  -- access start address
       biu_adro_i    : in  std_logic_vector(PLEN-1 downto 0);
-      biu_size_o    : out std_logic_vector(2 downto 0);  --transfer size
-      biu_type_o    : out std_logic_vector(2 downto 0);  --burst type
-      biu_lock_o    : out std_logic;   --locked transfer
-      biu_prot_o    : out std_logic_vector(2 downto 0);  --protection bits
-      biu_we_o      : out std_logic;   --write enable
-      biu_d_o       : out std_logic_vector(XLEN-1 downto 0);  --write data
-      biu_q_i       : in  std_logic_vector(XLEN-1 downto 0);  --read data
-      biu_ack_i     : in  std_logic;   --transfer acknowledge
-      biu_err_i     : in  std_logic    --transfer error
+      biu_size_o    : out std_logic_vector(2 downto 0);  -- transfer size
+      biu_type_o    : out std_logic_vector(2 downto 0);  -- burst type
+      biu_lock_o    : out std_logic;   -- locked transfer
+      biu_prot_o    : out std_logic_vector(2 downto 0);  -- protection bits
+      biu_we_o      : out std_logic;   -- write enable
+      biu_d_o       : out std_logic_vector(XLEN-1 downto 0);  -- write data
+      biu_q_i       : in  std_logic_vector(XLEN-1 downto 0);  -- read data
+      biu_ack_i     : in  std_logic;   -- transfer acknowledge
+      biu_err_i     : in  std_logic    -- transfer error
     );
   end component;
 
   component riscv_dext
     generic (
       XLEN  : integer := 64;
-      PLEN  : integer := 64;  --Physical address bus size
-      DEPTH : integer := 2    --number of instructions in flight
+      PLEN  : integer := 64;  -- Physical address bus size
+      DEPTH : integer := 2    -- number of instructions in flight
     );
     port (
       rst_ni : in std_logic;
       clk_i  : in std_logic;
       clr_i  : in std_logic;
 
-      --CPU side
+      -- CPU side
       mem_req_i     : in  std_logic;
       mem_adr_i     : in  std_logic_vector(XLEN-1 downto 0);
       mem_size_i    : in  std_logic_vector(2 downto 0);
@@ -321,26 +318,26 @@ architecture RTL of riscv_dmem_ctrl is
       mem_prot_i    : in  std_logic_vector(2 downto 0);
       mem_we_i      : in  std_logic;
       mem_d_i       : in  std_logic_vector(XLEN-1 downto 0);
-      mem_adr_ack_o : out std_logic;   --acknowledge address phase
+      mem_adr_ack_o : out std_logic;   -- acknowledge address phase
       mem_adr_o     : out std_logic_vector(PLEN-1 downto 0);
       mem_q_o       : out std_logic_vector(XLEN-1 downto 0);
-      mem_ack_o     : out std_logic;   --acknowledge data transfer
-      mem_err_o     : out std_logic;   --data transfer error
+      mem_ack_o     : out std_logic;   -- acknowledge data transfer
+      mem_err_o     : out std_logic;   -- data transfer error
 
-      --To BIU
+      -- To BIU
       biu_stb_o     : out std_logic;
       biu_stb_ack_i : in  std_logic;
       biu_adri_o    : out std_logic_vector(PLEN-1 downto 0);
       biu_adro_i    : in  std_logic_vector(PLEN-1 downto 0);
-      biu_size_o    : out std_logic_vector(2 downto 0);  --transfer size
-      biu_type_o    : out std_logic_vector(2 downto 0);  --burst type
+      biu_size_o    : out std_logic_vector(2 downto 0);  -- transfer size
+      biu_type_o    : out std_logic_vector(2 downto 0);  -- burst type
       biu_lock_o    : out std_logic;
       biu_prot_o    : out std_logic_vector(2 downto 0);
       biu_we_o      : out std_logic;
       biu_d_o       : out std_logic_vector(XLEN-1 downto 0);
       biu_q_i       : in  std_logic_vector(XLEN-1 downto 0);
-      biu_ack_i     : in  std_logic;   --data acknowledge, 1 per data
-      biu_err_i     : in  std_logic    --data error
+      biu_ack_i     : in  std_logic;   -- data acknowledge, 1 per data
+      biu_err_i     : in  std_logic    -- data error
     );
   end component;
 
@@ -354,44 +351,44 @@ architecture RTL of riscv_dmem_ctrl is
       rst_ni : in std_logic;
       clk_i  : in std_logic;
 
-      --Input Ports
-      biu_req_i     : in  std_logic_vector(PORTS-1 downto 0);  --access request
-      biu_req_ack_o : out std_logic_vector(PORTS-1 downto 0);  --biu access acknowledge
-      biu_d_ack_o   : out std_logic_vector(PORTS-1 downto 0);  --biu early data acknowledge
-      biu_adri_i    : in  std_logic_matrix(PORTS-1 downto 0)(PLEN-1 downto 0);  --access start address
-      biu_adro_o    : out std_logic_matrix(PORTS-1 downto 0)(PLEN-1 downto 0);  --biu response address
-      biu_size_i    : in  std_logic_matrix(PORTS-1 downto 0)(2 downto 0);  --access data size
-      biu_type_i    : in  std_logic_matrix(PORTS-1 downto 0)(2 downto 0);  --access burst type
-      biu_lock_i    : in  std_logic_vector(PORTS-1 downto 0);  --access locked access
-      biu_prot_i    : in  std_logic_matrix(PORTS-1 downto 0)(2 downto 0);  --access protection
-      biu_we_i      : in  std_logic_vector(PORTS-1 downto 0);  --access write enable
-      biu_d_i       : in  std_logic_matrix(PORTS-1 downto 0)(XLEN-1 downto 0);  --access write data
-      biu_q_o       : out std_logic_matrix(PORTS-1 downto 0)(XLEN-1 downto 0);  --access read data
-      biu_ack_o     : out std_logic_vector(PORTS-1 downto 0);  --access acknowledge
-      biu_err_o     : out std_logic_vector(PORTS-1 downto 0);  --access error
+      -- Input Ports
+      biu_req_i     : in  std_logic_vector(PORTS-1 downto 0);  -- access request
+      biu_req_ack_o : out std_logic_vector(PORTS-1 downto 0);  -- biu access acknowledge
+      biu_d_ack_o   : out std_logic_vector(PORTS-1 downto 0);  -- biu early data acknowledge
+      biu_adri_i    : in  std_logic_matrix(PORTS-1 downto 0)(PLEN-1 downto 0);  -- access start address
+      biu_adro_o    : out std_logic_matrix(PORTS-1 downto 0)(PLEN-1 downto 0);  -- biu response address
+      biu_size_i    : in  std_logic_matrix(PORTS-1 downto 0)(2 downto 0);  -- access data size
+      biu_type_i    : in  std_logic_matrix(PORTS-1 downto 0)(2 downto 0);  -- access burst type
+      biu_lock_i    : in  std_logic_vector(PORTS-1 downto 0);  -- access locked access
+      biu_prot_i    : in  std_logic_matrix(PORTS-1 downto 0)(2 downto 0);  -- access protection
+      biu_we_i      : in  std_logic_vector(PORTS-1 downto 0);  -- access write enable
+      biu_d_i       : in  std_logic_matrix(PORTS-1 downto 0)(XLEN-1 downto 0);  -- access write data
+      biu_q_o       : out std_logic_matrix(PORTS-1 downto 0)(XLEN-1 downto 0);  -- access read data
+      biu_ack_o     : out std_logic_vector(PORTS-1 downto 0);  -- access acknowledge
+      biu_err_o     : out std_logic_vector(PORTS-1 downto 0);  -- access error
 
-      --Output (to BIU)
-      biu_req_o     : out std_logic;  --BIU access request
-      biu_req_ack_i : in  std_logic;  --BIU ackowledge
-      biu_d_ack_i   : in  std_logic;  --BIU early data acknowledge
-      biu_adri_o    : out std_logic_vector(PLEN-1 downto 0);  --address into BIU
-      biu_adro_i    : in  std_logic_vector(PLEN-1 downto 0);  --address from BIU
-      biu_size_o    : out std_logic_vector(2 downto 0);  --transfer size
-      biu_type_o    : out std_logic_vector(2 downto 0);  --burst type
+      -- Output (to BIU)
+      biu_req_o     : out std_logic;  -- BIU access request
+      biu_req_ack_i : in  std_logic;  -- BIU ackowledge
+      biu_d_ack_i   : in  std_logic;  -- BIU early data acknowledge
+      biu_adri_o    : out std_logic_vector(PLEN-1 downto 0);  -- address into BIU
+      biu_adro_i    : in  std_logic_vector(PLEN-1 downto 0);  -- address from BIU
+      biu_size_o    : out std_logic_vector(2 downto 0);  -- transfer size
+      biu_type_o    : out std_logic_vector(2 downto 0);  -- burst type
       biu_lock_o    : out std_logic;
       biu_prot_o    : out std_logic_vector(2 downto 0);
       biu_we_o      : out std_logic;
-      biu_d_o       : out std_logic_vector(XLEN-1 downto 0);  --data into BIU
-      biu_q_i       : in  std_logic_vector(XLEN-1 downto 0);  --data from BIU
-      biu_ack_i     : in  std_logic;  --data acknowledge, 1 per data
-      biu_err_i     : in  std_logic  --data error
+      biu_d_o       : out std_logic_vector(XLEN-1 downto 0);  -- data into BIU
+      biu_q_i       : in  std_logic_vector(XLEN-1 downto 0);  -- data from BIU
+      biu_ack_i     : in  std_logic;  -- data acknowledge, 1 per data
+      biu_err_i     : in  std_logic  -- data error
     );
   end component;
 
   --////////////////////////////////////////////////////////////////
   --
   -- Constants
-  --
+  ------------------------------------------------------------------------------
   constant MUX_PORTS : integer := 2;
 
   constant EXT       : integer := 0;
@@ -406,8 +403,8 @@ architecture RTL of riscv_dmem_ctrl is
   -- Variables
   --
 
-  --Buffered memory request signals
-  --Virtual memory access signals
+  -- Buffered memory request signals
+  -- Virtual memory access signals
   signal queue_d : std_logic_vector(2*XLEN+5-1 downto 0);
   signal queue_q : std_logic_vector(2*XLEN+5-1 downto 0);
 
@@ -419,11 +416,11 @@ architecture RTL of riscv_dmem_ctrl is
   signal buf_we   : std_logic;
   signal buf_d    : std_logic_vector(XLEN-1 downto 0);
 
-  --Misalignment check
+  -- Misalignment check
   signal misaligned : std_logic;
 
-  --MMU signals
-  --Physical memory access signals
+  -- MMU signals
+  -- Physical memory access signals
   signal preq  : std_logic;
   signal padr  : std_logic_vector(PLEN-1 downto 0);
   signal psize : std_logic_vector(2 downto 0);
@@ -432,34 +429,34 @@ architecture RTL of riscv_dmem_ctrl is
   signal pwe   : std_logic;
   signal pd    : std_logic_vector(XLEN-1 downto 0);
 
-  --from PMA check
+  -- from PMA check
   signal pma_exception   : std_logic;
   signal is_cache_access : std_logic;
   signal is_ext_access   : std_logic;
   signal ext_access_req  : std_logic;
   signal is_tcm_access   : std_logic;
 
-  --from PMP check
+  -- from PMP check
   signal pmp_exception : std_logic;
 
-  --all exceptions
+  -- all exceptions
   signal exception : std_logic;
 
-  --From Cache Controller Core
+  -- From Cache Controller Core
   signal cache_q   : std_logic_vector(XLEN-1 downto 0);
   signal cache_ack : std_logic;
   signal cache_err : std_logic;
 
-  --From TCM
+  -- From TCM
   signal tcm_q   : std_logic_vector(XLEN-1 downto 0);
   signal tcm_ack : std_logic;
 
-  --From IO
+  -- From IO
   signal ext_q   : std_logic_vector(XLEN-1 downto 0);
   signal ext_ack : std_logic;
   signal ext_err : std_logic;
 
-  --BIU ports
+  -- BIU ports
   signal biu_stb     : std_logic_vector(MUX_PORTS-1 downto 0);
   signal biu_stb_ack : std_logic_vector(MUX_PORTS-1 downto 0);
   signal biu_d_ack   : std_logic_vector(MUX_PORTS-1 downto 0);
@@ -509,9 +506,9 @@ begin
   --  end
   --
 
-  --Hookup Access Buffer
+  -- Hookup Access Buffer
 
-  --Queue Input Data
+  -- Queue Input Data
   queue_d(2*XLEN+4 downto XLEN+5) <= mem_adr_i;
   queue_d(XLEN+4 downto XLEN+2)   <= mem_size_i;
   queue_d(XLEN+1)                 <= mem_lock_i;
@@ -549,7 +546,7 @@ begin
   buf_prot <= PROT_USER
               when ((PROT_DATA(1 downto 0) or st_prv_i(1 downto 0)) = PRV_U) else PROT_PRIVILEGED;
 
-  --Hookup misalignment check
+  -- Hookup misalignment check
   misaligned_inst : riscv_memmisaligned
     generic map (
       XLEN    => XLEN,
@@ -557,7 +554,7 @@ begin
     )
     port map (
       clk_i         => clk_i,
-      instruction_i => '0',             --data cache
+      instruction_i => '0',             -- data cache
       req_i         => buf_req,
       adr_i         => buf_adr,
       size_i        => buf_size,
@@ -598,7 +595,7 @@ begin
 
   mem_page_fault_o <= mem_page_fault;
 
-  --Hookup Physical Memory Atrributes Unit
+  -- Hookup Physical Memory Atrributes Unit
   pmachk_inst : riscv_pmachk
     generic map (
       XLEN => XLEN,
@@ -606,22 +603,22 @@ begin
       PMA_CNT => PMA_CNT
     )
     port map (
-      --Configuration
+      -- Configuration
       pma_cfg_i => pma_cfg_i,
       pma_adr_i => pma_adr_i,
 
-      --misaligned
+      -- misaligned
       misaligned_i => misaligned,
 
-      --Memory Access
-      instruction_i => '0',             --Data access
+      -- Memory Access
+      instruction_i => '0',             -- Data access
       req_i         => preq,
       adr_i         => padr,
       size_i        => psize,
       lock_i        => plock,
       we_i          => pwe,
 
-      --Output
+      -- Output
       pma_o             => open,
       exception_o       => pma_exception,
       misaligned_o      => mem_misaligned,
@@ -632,7 +629,7 @@ begin
 
   mem_misaligned_o <= mem_misaligned;
 
-  --Hookup Physical Memory Protection Unit
+  -- Hookup Physical Memory Protection Unit
   pmpchk_inst : riscv_pmpchk
     generic map (
       XLEN => XLEN,
@@ -644,18 +641,18 @@ begin
       st_pmpaddr_i => st_pmpaddr_i,
       st_prv_i     => st_prv_i,
 
-      instruction_i => '0',    --This is a data access
-      req_i         => preq,   --Memory access request
-      adr_i         => padr,   --Physical Memory address (i.e. after translation)
-      size_i        => psize,  --Transfer size
-      we_i          => pwe,    --Read/Write enable
+      instruction_i => '0',    -- This is a data access
+      req_i         => preq,   -- Memory access request
+      adr_i         => padr,   -- Physical Memory address (i.e. after translation)
+      size_i        => psize,  -- Transfer size
+      we_i          => pwe,    -- Read/Write enable
 
       exception_o => pmp_exception
     );
 
-  --Hookup Cache, TCM, external-interface
+  -- Hookup Cache, TCM, external-interface
   generating_0 : if (DCACHE_SIZE > 0) generate
-    --Instantiate Data Cache Core
+    -- Instantiate Data Cache Core
     dcache_inst : riscv_dcache_core
       generic map (
         XLEN => XLEN,
@@ -669,14 +666,14 @@ begin
         TECHNOLOGY => TECHNOLOGY
       )
       port map (
-        --common signals
+        -- common signals
         rst_ni => rst_ni,
         clk_i  => clk_i,
 
-        --from MMU/PMA
+        -- from MMU/PMA
         mem_vreq_i => buf_req,
         mem_preq_i => is_cache_access,
-        mem_vadr_i => mem_adr_i,        --TODO Shouldn't this be buf_adr ??
+        mem_vadr_i => mem_adr_i,        -- TODO Shouldn't this be buf_adr ??
         mem_padr_i => padr,
         mem_size_i => buf_size,
         mem_lock_i => buf_lock,
@@ -689,7 +686,7 @@ begin
         flush_i    => cache_flush_i,
         flushrdy_o => dcflush_rdy_o,
 
-        --To BIU
+        -- To BIU
         biu_stb_o     => biu_stb     (CACHE),
         biu_stb_ack_i => biu_stb_ack (CACHE),
         biu_d_ack_i   => biu_d_ack   (CACHE),
@@ -705,7 +702,7 @@ begin
         biu_ack_i     => biu_ack     (CACHE),
         biu_err_i     => biu_err     (CACHE)
       );
-  elsif (DCACHE_SIZE <= 0) generate     --No cache
+  elsif (DCACHE_SIZE <= 0) generate     -- No cache
     cache_q       <= (others => '0');
     cache_ack     <= '0';
     cache_err     <= '0';
@@ -716,12 +713,12 @@ begin
   --   * TODO: speculative read (vmadr)
   --   *       needs write buffer (clear write when not qualified)
 
-  generating_2 : if (DTCM_SIZE <= 0) generate  --No TCM
+  generating_2 : if (DTCM_SIZE <= 0) generate  -- No TCM
     tcm_q   <= (others => '0');
     tcm_ack <= '0';
   end generate;
 
-  --Instantiate EXT block
+  -- Instantiate EXT block
   generating_3 : if (DCACHE_SIZE > 0) generate
     generating_4 : if (DTCM_SIZE > 0) generate
       ext_access_req <= is_ext_access;
@@ -737,8 +734,8 @@ begin
   dext_inst : riscv_dext
     generic map (
       XLEN => XLEN,
-      PLEN => PLEN,  --Physical address bus size
-      DEPTH => 2  --number of instructions in flight
+      PLEN => PLEN,  -- Physical address bus size
+      DEPTH => 2  -- number of instructions in flight
     )
     port map (
       rst_ni => rst_ni,
@@ -774,7 +771,7 @@ begin
       biu_err_i     => biu_err     (EXT)
     );
 
-  --Hookup BIU mux
+  -- Hookup BIU mux
   riscv_mux_inst : riscv_mux
     generic map (
       XLEN => XLEN,
@@ -785,20 +782,20 @@ begin
       rst_ni => rst_ni,
       clk_i  => clk_i,
 
-      biu_req_i     => biu_stb,         --access request
-      biu_req_ack_o => biu_stb_ack,     --access request acknowledge
+      biu_req_i     => biu_stb,         -- access request
+      biu_req_ack_o => biu_stb_ack,     -- access request acknowledge
       biu_d_ack_o   => biu_d_ack,
-      biu_adri_i    => biu_adri,        --access start address
-      biu_adro_o    => biu_adro,        --transfer addresss
-      biu_size_i    => biu_size,        --access data size
-      biu_type_i    => biu_type,        --access burst type
-      biu_lock_i    => biu_lock,        --access locked access
-      biu_prot_i    => biu_prot,        --access protection bits
-      biu_we_i      => biu_we,          --access write enable
-      biu_d_i       => biu_d,           --access write data
-      biu_q_o       => biu_q,           --access read data
-      biu_ack_o     => biu_ack,         --transfer acknowledge
-      biu_err_o     => biu_err,         --transfer error
+      biu_adri_i    => biu_adri,        -- access start address
+      biu_adro_o    => biu_adro,        -- transfer addresss
+      biu_size_i    => biu_size,        -- access data size
+      biu_type_i    => biu_type,        -- access burst type
+      biu_lock_i    => biu_lock,        -- access locked access
+      biu_prot_i    => biu_prot,        -- access protection bits
+      biu_we_i      => biu_we,          -- access write enable
+      biu_d_i       => biu_d,           -- access write data
+      biu_q_o       => biu_q,           -- access read data
+      biu_ack_o     => biu_ack,         -- transfer acknowledge
+      biu_err_o     => biu_err,         -- transfer error
 
       biu_req_o     => biu_stb_o,
       biu_req_ack_i => biu_stb_ack_i,
@@ -816,7 +813,7 @@ begin
       biu_err_i     => biu_err_i
     );
 
-  --Results back to CPU
+  -- Results back to CPU
   mem_ack <= ext_ack or cache_ack or tcm_ack;
   mem_err <= ext_err or cache_err or pma_exception or pmp_exception;
 
@@ -837,6 +834,6 @@ begin
     state := ext_ack & cache_ack & tcm_ack;
   end process;
 
-  --All exceptions
+  -- All exceptions
   exception <= mem_misaligned or mem_err or mem_page_fault;
 end RTL;

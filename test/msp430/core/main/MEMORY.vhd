@@ -86,71 +86,71 @@ architecture MEMORY_ARQ of MEMORY is
 
   constant PMEM_OFFSET : std_logic_vector (15 downto 0) := std_logic_vector(to_unsigned(65536 - PMEM_SIZE, 16) srl 1);
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal per_en_omsp : std_logic;
 
-  --1.RAM INTERFACE
-  --Execution unit access
+  -- 1.RAM INTERFACE
+  -- Execution unit access
   signal eu_dmem_cen  : std_logic;
   signal eu_dmem_addr : std_logic_vector (15 downto 0);
 
-  --Debug interface access
+  -- Debug interface access
   signal dbg_dmem_cen  : std_logic;
   signal dbg_dmem_addr : std_logic_vector (15 downto 0);
 
-  --2.ROM INTERFACE
-  --Execution unit access (only read access are accepted)
+  -- 2.ROM INTERFACE
+  -- Execution unit access (only read access are accepted)
   signal eu_pmem_cen  : std_logic;
   signal eu_pmem_addr : std_logic_vector (15 downto 0);
 
-  --Front-end access
+  -- Front-end access
   signal fe_pmem_cen  : std_logic;
   signal fe_pmem_addr : std_logic_vector (15 downto 0);
 
-  --Debug interface access
+  -- Debug interface access
   signal dbg_pmem_cen  : std_logic;
   signal dbg_pmem_addr : std_logic_vector (15 downto 0);
 
-  --3.PERIPHERALS
+  -- 3.PERIPHERALS
   signal dbg_per_en   : std_logic;
   signal eu_per_en    : std_logic;
   signal per_addr_ful : std_logic_vector (14 downto 0);
   signal per_dout_val : std_logic_vector (15 downto 0);
   signal per_addr_mux : std_logic_vector (PER_MSB downto 0);
 
-  --4.FRONTEND DATA MUX
-  --Detect whenever the data should be backuped and restored
+  -- 4.FRONTEND DATA MUX
+  -- Detect whenever the data should be backuped and restored
   signal fe_pmem_cen_dly : std_logic;
   signal fe_pmem_save    : std_logic;
   signal fe_pmem_restore : std_logic;
   signal mclk_bckup      : std_logic;
   signal pmem_dout_bckup : std_logic_vector (15 downto 0);
 
-  --Mux between the ROM data and the backup
+  -- Mux between the ROM data and the backup
   signal pmem_dout_bckup_sel : std_logic;
 
-  --5.EXECUTION - UNIT DATA MUX
-  --Select between peripherals, RAM and ROM     
+  -- 5.EXECUTION - UNIT DATA MUX
+  -- Select between peripherals, RAM and ROM     
   signal eu_mdb_in_sel : std_logic_vector (1 downto 0);
 
-  --6.DEBUG INTERFACE DATA MUX
-  --Select between peripherals, RAM and ROM
+  -- 6.DEBUG INTERFACE DATA MUX
+  -- Select between peripherals, RAM and ROM
   signal dbg_mem_din_sel : std_logic_vector (1 downto 0);
 
 begin
   M1_RAM_INTERFACE : block
   begin
-    --Execution unit access
+    -- Execution unit access
     eu_dmem_cen <= not (eu_mb_en and to_stdlogic(eu_mab >= std_logic_vector(to_unsigned(DMEM_BASE, 15) srl 1))
                         and to_stdlogic(eu_mab < std_logic_vector(to_unsigned(DMEM_BASE + DMEM_SIZE, 15) srl 1)));
     eu_dmem_addr <= std_logic_vector(('0' & unsigned(eu_mab)) - (to_unsigned(DMEM_BASE, 15) srl 1));
 
-    --Debug interface access    
+    -- Debug interface access    
     dbg_dmem_cen <= not (dbg_mem_en and to_stdlogic(dbg_mem_addr(15 downto 1) >= std_logic_vector(to_unsigned(DMEM_BASE, 15) srl 1))
                          and to_stdlogic(dbg_mem_addr(15 downto 1) < std_logic_vector(to_unsigned(DMEM_BASE + DMEM_SIZE, 15) srl 1)));
     dbg_dmem_addr <= std_logic_vector(('0' & unsigned(dbg_mem_addr(15 downto 1))) - (to_unsigned(DMEM_BASE, 15) srl 1));
 
-    --RAM Interface
+    -- RAM Interface
     dmem_addr <= dbg_dmem_addr(DMEM_MSB downto 0) when dbg_dmem_cen = '0' else eu_dmem_addr(DMEM_MSB downto 0);
     dmem_cen  <= dbg_dmem_cen and eu_dmem_cen;
     dmem_wen  <= not (dbg_mem_wr or eu_mb_wr);
@@ -159,19 +159,19 @@ begin
 
   M2_ROM_INTERFACE : block
   begin
-    --Execution unit access (only read access are accepted)     
+    -- Execution unit access (only read access are accepted)     
     eu_pmem_cen  <= not (eu_mb_en and not reduce_or(eu_mb_wr) and to_stdlogic(eu_mab >= PMEM_OFFSET));
     eu_pmem_addr <= std_logic_vector(unsigned(eu_mab) - unsigned(PMEM_OFFSET));
 
-    --Front-end access
+    -- Front-end access
     fe_pmem_cen  <= not (fe_mb_en and to_stdlogic(fe_mab >= PMEM_OFFSET));
     fe_pmem_addr <= std_logic_vector(unsigned(fe_mab) - unsigned(PMEM_OFFSET));
 
-    --Debug interface access
+    -- Debug interface access
     dbg_pmem_cen  <= not (dbg_mem_en and to_stdlogic(dbg_mem_addr(15 downto 1) >= PMEM_OFFSET));
     dbg_pmem_addr <= std_logic_vector(('0' & unsigned(dbg_mem_addr(15 downto 1))) - unsigned(PMEM_OFFSET));
 
-    --ROM Interface (Execution unit has priority)
+    -- ROM Interface (Execution unit has priority)
     pmem_addr <= dbg_pmem_addr(PMEM_MSB downto 0)
                  when dbg_pmem_cen = '0' else
                  eu_pmem_addr(PMEM_MSB downto 0)
@@ -209,7 +209,7 @@ begin
 
   M4_FRONTEND_DATA_MUX : block
   begin
-    --Detect whenever the data should be backuped and restored
+    -- Detect whenever the data should be backuped and restored
     R_1_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -248,7 +248,7 @@ begin
       end if;
     end process R_1i_2ci;
 
-    --Mux between the ROM data and the backup
+    -- Mux between the ROM data and the backup
     R_1c_2c_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -267,7 +267,7 @@ begin
 
   M5_EXECUTION_UNIT_DATA_MUX : block
   begin
-    --Select between peripherals, RAM and ROM
+    -- Select between peripherals, RAM and ROM
     R_1 : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -277,7 +277,7 @@ begin
       end if;
     end process R_1;
 
-    --Mux
+    -- Mux
     eu_mdb_in <= pmem_dout
                  when eu_mdb_in_sel(1) = '1' else per_dout_val
                  when eu_mdb_in_sel(0) = '1' else dmem_dout;
@@ -285,7 +285,7 @@ begin
 
   M6_DEBUG_INTERFACE_DATA_MUX : block
   begin
-    --Select between peripherals, RAM and ROM
+    -- Select between peripherals, RAM and ROM
     dbg_en_on : if (DBG_ON = '1') generate
       R_1 : process (mclk, puc_rst)
       begin
@@ -301,7 +301,7 @@ begin
       dbg_mem_din_sel <= (others => '0');
     end generate dbg_en_off;
 
-    --Mux
+    -- Mux
     dbg_mem_din <= pmem_dout
                    when dbg_mem_din_sel(1) = '1' else per_dout_val
                    when dbg_mem_din_sel(0) = '1' else dmem_dout;

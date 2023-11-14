@@ -83,138 +83,138 @@ package MSP430_PACK is
   constant TOTAL_NR : integer := 0;
   constant TOTAL_BP : integer := 4;
 
-  --BASIC SYSTEM CONFIGURATION
+  -- BASIC SYSTEM CONFIGURATION
 
-  --Program Memory Size
+  -- Program Memory Size
   constant PMEM_SIZE : integer := 16384;
 
-  --Data Memory Size
+  -- Data Memory Size
   constant DMEM_SIZE : integer := 4096;
 
-  --Include/Exclude Hardware Multiplier
+  -- Include/Exclude Hardware Multiplier
   constant MULTIPLYING : std_logic := '1';
 
-  --Include/Exclude Serial Debug interface      
+  -- Include/Exclude Serial Debug interface      
   constant DBG_ON : std_logic := '1';
 
-  --ADVANCED SYSTEM CONFIGURATION (FOR EXPERIENCED USERS)
+  -- ADVANCED SYSTEM CONFIGURATION (FOR EXPERIENCED USERS)
 
-  --Custom user version number
+  -- Custom user version number
   constant USER_VERSION : std_logic_vector (4 downto 0) := (others => '0');
 
-  --Include/Exclude Watchdog timer
+  -- Include/Exclude Watchdog timer
   constant WATCHDOG : std_logic := '1';
 
-  --Include/Exclude Non-Maskable-Interrupt support
+  -- Include/Exclude Non-Maskable-Interrupt support
   constant NMI_EN : std_logic := '1';
 
-  --Number of available IRQs
+  -- Number of available IRQs
   constant IRQ_16 : std_logic := '1';
   constant IRQ_32 : std_logic := '0';
   constant IRQ_64 : std_logic := '0';
 
-  --Input synchronizers
+  -- Input synchronizers
   constant SYNC_NMI    : std_logic := '1';
   constant SYNC_CPU_EN : std_logic := '0';
   constant SYNC_DBG_EN : std_logic := '0';
 
-  --Peripheral Memory Space
+  -- Peripheral Memory Space
   constant PER_SIZE : integer := 512;
 
-  --Defines the debugger CPU_CTL.RST_BRK_EN reset value
+  -- Defines the debugger CPU_CTL.RST_BRK_EN reset value
   constant DBG_RST_BRK_EN : std_logic := '0';
 
-  --EXPERT SYSTEM CONFIGURATION (EXPERTS ONLY)
+  -- EXPERT SYSTEM CONFIGURATION (EXPERTS ONLY)
 
-  --Select serial debug interface protocol
+  -- Select serial debug interface protocol
   constant DBG_UART : std_logic := '0';
   constant DBG_I2C  : std_logic := '1';
 
-  --Enable the I2C broadcast address
+  -- Enable the I2C broadcast address
   constant DBG_I2C_BROADCASTC : std_logic := '1';
 
-  --Number of hardware breakpoint/watchpoint units
+  -- Number of hardware breakpoint/watchpoint units
   constant DBG_HWBRK : std_logic_vector (TOTAL_BP - 1 downto 0) := (others => '1');
 
-  --Enable/Disable the hardware breakpoint RANGE mode
+  -- Enable/Disable the hardware breakpoint RANGE mode
   constant HWBRK_RANGE : std_logic := '1';
 
-  --ASIC version
+  -- ASIC version
   constant ASIC : std_logic := '1';
 
-  --ASIC SYSTEM CONFIGURATION (EXPERTS/PROFESSIONALS ONLY)
+  -- ASIC SYSTEM CONFIGURATION (EXPERTS/PROFESSIONALS ONLY)
 
-  --FINE GRAINED CLOCK GATING
+  -- FINE GRAINED CLOCK GATING
   constant CLOCK_GATING : std_logic := '1';
 
   -- ASIC CLOCKING
   constant ASIC_CLOCKING : std_logic := '1';
 
-  --LFXT CLOCK DOMAIN
+  -- LFXT CLOCK DOMAIN
   constant LFXT_DOMAIN : std_logic := '1';
 
-  --CLOCK MUXES
-  --MCLK: Clock Mux
+  -- CLOCK MUXES
+  -- MCLK: Clock Mux
   constant MCLK_MUX : std_logic := '1';
 
-  --SMCLK: Clock Mux
+  -- SMCLK: Clock Mux
   constant SMCLK_MUX : std_logic := '1';
 
-  --WATCHDOG: Clock Mux
+  -- WATCHDOG: Clock Mux
   constant WATCHDOG_MUX        : std_logic := '1';
   constant WATCHDOG_NOMUX_ACLK : std_logic := '0';
 
-  --CLOCK DIVIDERS
-  --MCLK: Clock divider
+  -- CLOCK DIVIDERS
+  -- MCLK: Clock divider
   constant MCLK_DIVIDER : std_logic := '1';
 
-  --SMCLK: Clock divider (/1/2/4/8)
+  -- SMCLK: Clock divider (/1/2/4/8)
   constant SMCLK_DIVIDER : std_logic := '1';
 
-  --ACLK: Clock divider (/1/2/4/8)
+  -- ACLK: Clock divider (/1/2/4/8)
   constant ACLK_DIVIDER : std_logic := '1';
 
-  --LOW POWER MODES
-  --LOW POWER MODE: CPUOFF
+  -- LOW POWER MODES
+  -- LOW POWER MODE: CPUOFF
   constant CPUOFF_EN : std_logic := '1';
 
-  --LOW POWER MODE: SCG
+  -- LOW POWER MODE: SCG
   constant SCG_EN_0 : std_logic := '1';
   constant SCG_EN_1 : std_logic := '1';
 
-  --LOW POWER MODE: OSCOFF
+  -- LOW POWER MODE: OSCOFF
   constant OSCOFF_EN : std_logic := '1';
 
-  --SYSTEM CONSTANTS (DO NOT EDIT)
+  -- SYSTEM CONSTANTS (DO NOT EDIT)
 
-  --PROGRAM, DATA & PERIPHERAL MEMORY CONFIGURATION
-  --Program Memory Size
+  -- PROGRAM, DATA & PERIPHERAL MEMORY CONFIGURATION
+  -- Program Memory Size
   constant PMEM_AWIDTH : integer := 13;
 
-  --Data Memory Size
+  -- Data Memory Size
   constant DMEM_AWIDTH : integer := 11;
 
-  --Peripheral Memory Size
+  -- Peripheral Memory Size
   constant PER_AWIDTH : integer := 8;
 
-  --Data Memory Base Adresses
+  -- Data Memory Base Adresses
   constant DMEM_BASE : integer := PER_SIZE;
 
-  --Program & Data Memory most significant address bit (for 16 bit words)
+  -- Program & Data Memory most significant address bit (for 16 bit words)
   constant PMEM_MSB : integer := PMEM_AWIDTH - 1;
   constant DMEM_MSB : integer := DMEM_AWIDTH - 1;
   constant PER_MSB  : integer := PER_AWIDTH - 1;
 
-  --Number of available IRQs
+  -- Number of available IRQs
   constant IRQ_NR : integer := 16;
 
-  --STATES-REGISTER FIELDS
-  --Instructions type
+  -- STATES-REGISTER FIELDS
+  -- Instructions type
   constant INST_SOC  : integer := 0;
   constant INST_JMPC : integer := 1;
   constant INST_TOC  : integer := 2;
 
-  --Single-operand arithmetic
+  -- Single-operand arithmetic
   constant RRC  : integer := 0;
   constant SWPB : integer := 1;
   constant RRA  : integer := 2;
@@ -224,7 +224,7 @@ package MSP430_PACK is
   constant RETI : integer := 6;
   constant IRQX : integer := 7;
 
-  --Conditional jump
+  -- Conditional jump
   constant JNE : integer := 0;
   constant JEQ : integer := 1;
   constant JNC : integer := 2;
@@ -234,7 +234,7 @@ package MSP430_PACK is
   constant JL  : integer := 6;
   constant JMP : integer := 7;
 
-  --Two-operand arithmetic
+  -- Two-operand arithmetic
   constant MOV  : integer := 0;
   constant ADD  : integer := 1;
   constant ADDC : integer := 2;
@@ -248,7 +248,7 @@ package MSP430_PACK is
   constant XORX : integer := 10;
   constant ANDX : integer := 11;
 
-  --Addressing modes
+  -- Addressing modes
   constant DIR     : integer := 0;
   constant IDX     : integer := 1;
   constant INDIR   : integer := 2;
@@ -258,7 +258,7 @@ package MSP430_PACK is
   constant ABSC    : integer := 6;
   constant CONST   : integer := 7;
 
-  --Instruction state machine
+  -- Instruction state machine
   constant I_IRQ_FETCH : std_logic_vector (2 downto 0) := "000";
   constant I_IRQ_DONE  : std_logic_vector (2 downto 0) := "001";
   constant I_DEC       : std_logic_vector (2 downto 0) := "010";
@@ -266,7 +266,7 @@ package MSP430_PACK is
   constant I_EXT2      : std_logic_vector (2 downto 0) := "100";
   constant I_IDLE      : std_logic_vector (2 downto 0) := "101";
 
-  --Execution state machine     
+  -- Execution state machine     
   constant E_SRC_AD : std_logic_vector (3 downto 0) := X"5";
   constant E_SRC_RD : std_logic_vector (3 downto 0) := X"6";
   constant E_SRC_WR : std_logic_vector (3 downto 0) := X"7";
@@ -285,7 +285,7 @@ package MSP430_PACK is
 
   constant E_IRQ : std_logic_matrix(4 downto 0)(3 downto 0) := (X"4", X"3", X"0", X"1", X"2");
 
-  --ALU control signals
+  -- ALU control signals
   constant ALU_SRC_INV : integer := 0;
   constant ALU_INC     : integer := 1;
   constant ALU_INC_C   : integer := 2;
@@ -299,11 +299,11 @@ package MSP430_PACK is
   constant ALU_SHIFT   : integer := 10;
   constant EXEC_NO_WR  : integer := 11;
 
-  --Debug interface
+  -- Debug interface
   constant DBG_UART_WR : integer := 18;
   constant DBG_UART_BW : integer := 17;
 
-  --Debug interface CPU_CTL register
+  -- Debug interface CPU_CTL register
   constant HALT       : integer := 0;
   constant RUN        : integer := 1;
   constant ISTEP      : integer := 2;
@@ -312,50 +312,50 @@ package MSP430_PACK is
   constant RST_BRK_EN : integer := 5;
   constant CPU_RST    : integer := 6;
 
-  --Debug interface BRKx_CTL register
+  -- Debug interface BRKx_CTL register
   constant BRK_MODE_RD : integer := 0;
   constant BRK_MODE_WR : integer := 1;
   constant BRK_EN      : integer := 2;
   constant BRK_I_EN    : integer := 3;
   constant BRK_RANGE   : integer := 4;
 
-  --Basic clock module: BCSCTL2 Control Register
+  -- Basic clock module: BCSCTL2 Control Register
   constant SELMX : integer := 7;
   constant SELS  : integer := 3;
 
   -- MCLK Clock gate
   constant MCLK_CGATE : std_logic := '1';
 
-  --SMCLK Clock gate
+  -- SMCLK Clock gate
   constant SMCLK_CGATE : std_logic := '1';
 
-  --DEBUG INTERFACE EXTRA CONFIGURATION
-  --Debug interface: CPU version
+  -- DEBUG INTERFACE EXTRA CONFIGURATION
+  -- Debug interface: CPU version
   constant CPU_VERSION : std_logic_vector (2 downto 0) := "010";
 
-  --Debug interface: Software breakpoint opcode
+  -- Debug interface: Software breakpoint opcode
   constant DBG_SWBRK_OP : std_logic_vector (15 downto 0) := X"4343";
 
-  --Debug UART interface auto data synchronization
+  -- Debug UART interface auto data synchronization
   constant DBG_UART_AUTO_SYNC : std_logic := '1';
 
-  --Counter width for the debug interface UART
+  -- Counter width for the debug interface UART
   constant DBG_UART_XFER_CNT_W : integer := 16;
 
-  --Debug UART interface data rate
+  -- Debug UART interface data rate
   constant DBG_UART_BAUD : integer                                              := 2000000;
   constant DBG_DCO_FREQ  : integer                                              := 20000000;
   constant DBG_UART_CNT  : integer                                              := (DBG_DCO_FREQ / DBG_UART_BAUD) - 1;
   constant DBG_UART_CNTB : std_logic_vector (DBG_UART_XFER_CNT_W - 1 downto 0) := std_logic_vector(to_unsigned(DBG_UART_CNT, DBG_UART_XFER_CNT_W));
 
-  --Debug interface input synchronizer
+  -- Debug interface input synchronizer
   constant SYNC_DBG_UART_RXD : std_logic := '1';
 
-  --MULTIPLIER CONFIGURATION
+  -- MULTIPLIER CONFIGURATION
   constant MPY_16X16 : std_logic := '1';
 
-  --COMPONENT
-  --omsp
+  -- COMPONENT
+  -- omsp
   component omsp_alu
     port (
       alu_stat    : out std_logic_vector (3 downto 0);
@@ -530,7 +530,7 @@ package MSP430_PACK is
       e_state_nxt  : in std_logic_vector (3 downto 0));
   end component omsp_state_machine;
 
-  --fusibles
+  -- fusibles
   component omsp_and_gate
     port (
       y : out std_logic;

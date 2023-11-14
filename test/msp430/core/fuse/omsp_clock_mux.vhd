@@ -71,7 +71,7 @@ architecture omsp_clock_mux_ARQ of omsp_clock_mux is
   signal gated_clk_in1 : std_logic;
 
 begin
-  --CLK_IN0 Selection
+  -- CLK_IN0 Selection
   in0_select <= not selection and not in1_select_ss;
 
   process (clk_in0_inv, reset)
@@ -94,7 +94,7 @@ begin
 
   in0_enable <= in0_select_ss or scan_mode;
 
-  --CLK_IN1 Selection   
+  -- CLK_IN1 Selection   
   in1_select <= selection and not in0_select_ss;
 
   process (clk_in1_inv, reset)
@@ -117,7 +117,7 @@ begin
 
   in1_enable <= in1_select_ss and not scan_mode;
 
-  --Clock MUX
+  -- Clock MUX
   clk_in0_inv   <= not clk_in0;
   clk_in1_inv   <= not clk_in1;
   gated_clk_in0 <= not (clk_in0_inv and in0_enable);

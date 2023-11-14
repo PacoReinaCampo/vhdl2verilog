@@ -100,7 +100,7 @@ end FRONTEND;
 
 architecture FRONTEND_ARQ of FRONTEND is
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal dbg_halt_st_omsp  : std_logic;
   signal decode_noirq_omsp : std_logic;
   signal exec_done_omsp    : std_logic;
@@ -119,8 +119,8 @@ architecture FRONTEND_ARQ of FRONTEND is
   signal ir_omsp         : std_logic_vector (15 downto 0);
   signal irq_num_omsp    : std_logic_vector (5 downto 0);
 
-  --1.FRONTEND STATE MACHINE
-  --The wire "conv" is used as state bits to calculate the next response
+  -- 1.FRONTEND STATE MACHINE
+  -- The wire "conv" is used as state bits to calculate the next response
   signal is_const      : std_logic;
   signal inst_sz       : std_logic_vector (1 downto 0);
   signal inst_sz_nxt   : std_logic_vector (1 downto 0);
@@ -131,111 +131,111 @@ architecture FRONTEND_ARQ of FRONTEND is
   signal e_state_nxt   : std_logic_vector (3 downto 0);
   signal sconst_nxt    : std_logic_vector (15 downto 0);
 
-  --CPU on/off through the debug interface or cpu_en port
+  -- CPU on/off through the debug interface or cpu_en port
   signal cpu_halt_cmd : std_logic;
 
   signal re_i_idle : std_logic_vector (2 downto 0);
   signal re_i_dec  : std_logic_vector (2 downto 0);
   signal re_i_ext1 : std_logic_vector (2 downto 0);
 
-  --Utility signals     
+  -- Utility signals     
   signal fetch : std_logic;
 
-  --2.INTERRUPT HANDLING & SYSTEM WAKEUP
-  --2.1.INTERRUPT HANDLING
-  --Detect other interrupts
+  -- 2.INTERRUPT HANDLING & SYSTEM WAKEUP
+  -- 2.1.INTERRUPT HANDLING
+  -- Detect other interrupts
   signal mclk_irq_num : std_logic;
 
-  --Combine all IRQs
+  -- Combine all IRQs
   signal irq_all : std_logic_vector (62 downto 0);
 
-  --Select highest priority IRQ
+  -- Select highest priority IRQ
 
-  --Generate selected IRQ vector address
+  -- Generate selected IRQ vector address
   signal irq_addr : std_logic_vector (15 downto 0);
 
-  --Interrupt request accepted
+  -- Interrupt request accepted
   signal irq_acc_all : std_logic_vector (63 downto 0);
 
-  --2.2.SYSTEM WAKEUP
-  --Wakeup condition from maskable interrupts
+  -- 2.2.SYSTEM WAKEUP
+  -- Wakeup condition from maskable interrupts
   signal mirq_wkup : std_logic;
 
-  --3.FETCH INSTRUCTION
-  --3.1.PROGRAM COUNTER & MEMORY INTERFACE
-  --Compute next PC value
+  -- 3.FETCH INSTRUCTION
+  -- 3.1.PROGRAM COUNTER & MEMORY INTERFACE
+  -- Compute next PC value
   signal mclk_pc : std_logic;
   signal pc_en   : std_logic;
   signal pc_incr : std_logic_vector (15 downto 0);
 
-  --Check if ROM has been busy in order to retry ROM access
+  -- Check if ROM has been busy in order to retry ROM access
   signal pmem_busy : std_logic;
 
-  --3.2.INSTRUCTION REGISTER
-  --Instruction register
+  -- 3.2.INSTRUCTION REGISTER
+  -- Instruction register
 
-  --Detect if source extension word is required
+  -- Detect if source extension word is required
   signal is_sext : std_logic;
 
-  --For the Symbolic addressing mode, add -2 to the extension word in order to make up for the PC address
+  -- For the Symbolic addressing mode, add -2 to the extension word in order to make up for the PC address
   signal ext_incr : std_logic_vector (15 downto 0);
   signal ext_nxt  : std_logic_vector (15 downto 0);
 
-  --Store source extension word
+  -- Store source extension word
   signal inst_sext_en   : std_logic;
   signal mclk_inst_sext : std_logic;
 
-  --Source extension word is ready
+  -- Source extension word is ready
   signal inst_sext_rdy : std_logic;
 
-  --Store destination extension word
+  -- Store destination extension word
   signal inst_dext_en   : std_logic;
   signal mclk_inst_dext : std_logic;
 
-  --Destination extension word is ready 
+  -- Destination extension word is ready 
   signal inst_dext_rdy : std_logic;
 
-  --4.DECODE INSTRUCTIONS
+  -- 4.DECODE INSTRUCTIONS
   signal mclk_decode : std_logic;
 
-  --4.2.OPCODE: SINGLE-OPERAND ARITHMETIC 
-  --Instructions are encoded in a one hot fashion as following:
+  -- 4.2.OPCODE: SINGLE-OPERAND ARITHMETIC 
+  -- Instructions are encoded in a one hot fashion as following:
   signal inst_so_nxt : std_logic_vector (7 downto 0);
 
-  --4.3.OPCODE: CONDITIONAL JUMP 
-  --Instructions are encoded in a one hot fashion as following: 
+  -- 4.3.OPCODE: CONDITIONAL JUMP 
+  -- Instructions are encoded in a one hot fashion as following: 
   signal inst_jmp_bin : std_logic_vector (2 downto 0);
 
-  --4.4.OPCODE: TWO-OPERAND ARITHMETIC
-  --Instructions are encoded in a one hot fashion as following:
+  -- 4.4.OPCODE: TWO-OPERAND ARITHMETIC
+  -- Instructions are encoded in a one hot fashion as following:
   signal inst_to_nxt  : std_logic_vector (11 downto 0);
   signal inst_to_1hot : std_logic_vector (15 downto 0);
 
-  --4.5.SOURCE AND DESTINATION REGISTERS
-  --Destination register
+  -- 4.5.SOURCE AND DESTINATION REGISTERS
+  -- Destination register
   signal inst_dest_bin : std_logic_vector (3 downto 0);
 
-  --Source register
+  -- Source register
   signal inst_src_bin : std_logic_vector (3 downto 0);
 
-  --4.6.SOURCE ADDRESSING MODES
-  --Source addressing modes are encoded in a one hot fashion as following:
+  -- 4.6.SOURCE ADDRESSING MODES
+  -- Source addressing modes are encoded in a one hot fashion as following:
   signal src_reg     : std_logic_vector (3 downto 0);
   signal inst_as_nxt : std_logic_vector (12 downto 0);
 
-  --4.7.DESTINATION ADDRESSING MODES
-  --Source addressing modes are encoded in a one hot fashion as following:
+  -- 4.7.DESTINATION ADDRESSING MODES
+  -- Source addressing modes are encoded in a one hot fashion as following:
   signal dest_reg    : std_logic_vector (3 downto 0);
   signal inst_ad_nxt : std_logic_vector (7 downto 0);
 
-  --5.EXECUTION-UNIT STATE MACHINE
+  -- 5.EXECUTION-UNIT STATE MACHINE
   signal re_e_src_ad : std_logic_vector (3 downto 0);
   signal re_e_src_rd : std_logic_vector (3 downto 0);
   signal re_e_dst_ad : std_logic_vector (3 downto 0);
   signal re_e_exec   : std_logic_vector (3 downto 0);
   signal re_e_dst_wr : std_logic_vector (3 downto 0);
 
-  --State machine control signals
+  -- State machine control signals
   signal src_acalc_pre : std_logic;
   signal src_rd_pre    : std_logic;
   signal dst_acalc_pre : std_logic;
@@ -248,11 +248,11 @@ architecture FRONTEND_ARQ of FRONTEND is
   signal exec_src_wr   : std_logic;
   signal exec_dext_rdy : std_logic;
 
-  --Execution first state
+  -- Execution first state
   signal e_first_state : std_logic_vector (3 downto 0);
 
-  --6.EXECUTION-UNIT STATE FRONTEND
-  --6.1.ALU FRONTEND SIGNALS
+  -- 6.EXECUTION-UNIT STATE FRONTEND
+  -- 6.1.ALU FRONTEND SIGNALS
   signal alu_src_inv_s  : std_logic;
   signal alu_inc_s      : std_logic;
   signal alu_inc_c_s    : std_logic;
@@ -349,8 +349,8 @@ begin
         i_state      => i_state_omsp,
         irq          => irq);
 
-    --2.2.SYSTEM WAKEUP
-    --Generate the main system clock enable signal
+    -- 2.2.SYSTEM WAKEUP
+    -- Generate the main system clock enable signal
     cpuoff_en_on : if (CPUOFF_EN = '1') generate
       mclk_enable <= cpu_en_s
                      when inst_irq_rst_omsp = '1' else
@@ -368,8 +368,8 @@ begin
 
   C3_FETCH_INSTRUCTION : block
   begin
-    --3.1.PROGRAM COUNTER & MEMORY INTERFACE
-    --Compute next PC value
+    -- 3.1.PROGRAM COUNTER & MEMORY INTERFACE
+    -- Compute next PC value
     pc_incr     <= std_logic_vector(unsigned(pc_omsp) + ((1 to 14 => '0') & fetch & '0'));
     pc_nxt_omsp <= pc_sw
                    when pc_sw_wr = '1'             else irq_addr
@@ -400,7 +400,7 @@ begin
       end if;
     end process;
 
-    --Check if ROM has been busy in order to retry ROM access
+    -- Check if ROM has been busy in order to retry ROM access
     R_1_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -410,18 +410,18 @@ begin
       end if;
     end process R_1_e;
 
-    --Memory interface
+    -- Memory interface
     mab   <= pc_nxt_omsp;
     mb_en <= fetch or pc_sw_wr or to_stdlogic(i_state_omsp = I_IRQ_FETCH) or pmem_busy or (dbg_halt_st_omsp and not cpu_halt_cmd);
 
-    --3.2.INSTRUCTION REGISTER
-    --Instruction register
+    -- 3.2.INSTRUCTION REGISTER
+    -- Instruction register
     ir_omsp <= mdb_in;
 
-    --Detect if source extension word is required
+    -- Detect if source extension word is required
     is_sext <= inst_as_omsp(IDX) or inst_as_omsp(SYMB) or inst_as_omsp(ABSC) or inst_as_omsp(IMM);
 
-    --For the Symbolic addressing mode, add -2 to the extension word in order to make up for the PC address
+    -- For the Symbolic addressing mode, add -2 to the extension word in order to make up for the PC address
     ext_incr <= X"FFFE"
                 when (i_state_omsp = I_EXT1 and inst_as_omsp(SYMB) = '1') or
                 (i_state_omsp = I_EXT2 and inst_ad_omsp(SYMB) = '1') or
@@ -430,7 +430,7 @@ begin
                 else X"0000";
     ext_nxt <= std_logic_vector(unsigned(ir_omsp) + unsigned(ext_incr));
 
-    --Store source extension word 
+    -- Store source extension word 
     clock_gating_1_on : if (CLOCK_GATING = '1') generate
       inst_sext_en <= (decode_omsp and is_const) or (decode_omsp and inst_type_nxt(INST_JMPC)) or (to_stdlogic(i_state_omsp = I_EXT1) and is_sext);
 
@@ -463,10 +463,10 @@ begin
       end if;
     end process R_1c_2c_3i_4ci;
 
-    --Source extension word is ready
+    -- Source extension word is ready
     inst_sext_rdy <= to_stdlogic(i_state_omsp = I_EXT1) and is_sext;
 
-    --Store destination extension word
+    -- Store destination extension word
     clock_gating_2_on : if (CLOCK_GATING = '1') generate
       inst_dext_en <= (to_stdlogic(i_state_omsp = I_EXT1) and not is_sext) or to_stdlogic(i_state_omsp = I_EXT2);
 
@@ -497,7 +497,7 @@ begin
       end if;
     end process R_1c_2i_3ci;
 
-    --Destination extension word is ready
+    -- Destination extension word is ready
     inst_dext_rdy <= (to_stdlogic(i_state_omsp = I_EXT1) and not is_sext) or to_stdlogic(i_state_omsp = I_EXT2);
   end block C3_FETCH_INSTRUCTION;
 
@@ -517,8 +517,8 @@ begin
       mclk_decode <= mclk;
     end generate clock_gating_off;
 
-    --4.1.OPCODE: INSTRUCTION TYPE
-    --Instructions type is encoded in a one hot fashion as following:   
+    -- 4.1.OPCODE: INSTRUCTION TYPE
+    -- Instructions type is encoded in a one hot fashion as following:   
     inst_type_nxt <= (to_stdlogic(ir_omsp(15 downto 14) /= "00") &
                       to_stdlogic(ir_omsp(15 downto 13) = "001") &
                       to_stdlogic(ir_omsp(15 downto 13) = "000"))
@@ -537,8 +537,8 @@ begin
       end if;
     end process R_1_1i_2ci;
 
-    --4.2.OPCODE: SINGLE-OPERAND ARITHMETIC
-    --Instructions are encoded in a one hot fashion as following:
+    -- 4.2.OPCODE: SINGLE-OPERAND ARITHMETIC
+    -- Instructions are encoded in a one hot fashion as following:
     inst_so_nxt <= "10000000"
                    when irq_detect_omsp = '1' else (one_hot8(ir_omsp(9 downto 7)) and (0 to 7 => inst_type_nxt(INST_SOC)));
 
@@ -555,8 +555,8 @@ begin
       end if;
     end process R_2_1i_2ci;
 
-    --4.3.OPCODE: CONDITIONAL JUMP inst_jmp_bin
-    --Instructions are encoded in a one hot fashion as following:
+    -- 4.3.OPCODE: CONDITIONAL JUMP inst_jmp_bin
+    -- Instructions are encoded in a one hot fashion as following:
     R_3_1i_2ci : process (mclk_decode, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -572,8 +572,8 @@ begin
 
     inst_jmp <= one_hot8(inst_jmp_bin) and (0 to 7 => inst_type_omsp(INST_JMPC));
 
-    --4.4.OPCODE: TWO-OPERAND ARITHMETIC
-    --Instructions are encoded in a one hot fashion as following:
+    -- 4.4.OPCODE: TWO-OPERAND ARITHMETIC
+    -- Instructions are encoded in a one hot fashion as following:
     inst_to_1hot <= one_hot16(ir_omsp(15 downto 12)) and (0 to 15 => inst_type_nxt(INST_TOC));
     inst_to_nxt  <= inst_to_1hot(15 downto 4);
 
@@ -590,8 +590,8 @@ begin
       end if;
     end process R_1_1i_2ci_e;
 
-    --4.5.SOURCE AND DESTINATION REGISTERS
-    --Destination register
+    -- 4.5.SOURCE AND DESTINATION REGISTERS
+    -- Destination register
     R_4_1i_2ci : process (mclk_decode, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -610,7 +610,7 @@ begin
                  when inst_type_omsp(INST_JMPC) = '1'                                        else X"0002"
                  when (inst_so_omsp(IRQX) or inst_so_omsp(PUSH) or inst_so_omsp(CALL)) = '1' else one_hot16(inst_dest_bin);
 
-    --Source register
+    -- Source register
     R_5_1i_2ci : process (mclk_decode, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -630,8 +630,8 @@ begin
                 when inst_so_omsp(IRQX) = '1'       else one_hot16(inst_dest_bin)
                 when inst_type_omsp(INST_SOC) = '1' else X"0000";
 
-    --4.6.SOURCE ADDRESSING MODES
-    --Source addressing modes are encoded in a one hot fashion as following:    
+    -- 4.6.SOURCE ADDRESSING MODES
+    -- Source addressing modes are encoded in a one hot fashion as following:    
     src_reg <= ir_omsp(3 downto 0) when inst_type_nxt(INST_SOC) = '1' else ir_omsp(11 downto 8);
 
     process (src_reg, ir_omsp, inst_type_nxt)
@@ -696,8 +696,8 @@ begin
       end if;
     end process;
 
-    --4.7.DESTINATION ADDRESSING MODES
-    --Destination addressing modes are encoded in a one hot fashion as following:       
+    -- 4.7.DESTINATION ADDRESSING MODES
+    -- Destination addressing modes are encoded in a one hot fashion as following:       
     dest_reg <= ir_omsp(3 downto 0);
 
     process (inst_type_nxt, dest_reg, ir_omsp)
@@ -735,8 +735,8 @@ begin
       end if;
     end process R_7_1i_2ci;
 
-    --4.8.REMAINING INSTRUCTION DECODING
-    --Operation size
+    -- 4.8.REMAINING INSTRUCTION DECODING
+    -- Operation size
     R_1_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -748,7 +748,7 @@ begin
       end if;
     end process;
 
-    --Extended instruction size
+    -- Extended instruction size
     inst_sz_nxt   <= std_logic_vector(unsigned(inst_sz_nxt_a) + unsigned(inst_sz_nxt_b));
     inst_sz_nxt_a <= '0' & (inst_as_nxt(IDX) or inst_as_nxt(SYMB) or inst_as_nxt(ABSC) or inst_as_nxt(IMM));
     inst_sz_nxt_b <= ('0' & ((inst_ad_nxt(IDX) or inst_ad_nxt(SYMB) or inst_ad_nxt(ABSC)) and not inst_type_nxt(INST_SOC)));
@@ -769,7 +769,7 @@ begin
 
   C5_EXECUTION_UNIT_STATE_MACHINE : block
   begin
-    --5.1.State machine control signals
+    -- 5.1.State machine control signals
     src_acalc_pre <= inst_as_nxt(IDX) or inst_as_nxt(SYMB) or inst_as_nxt(ABSC);
     src_rd_pre    <= inst_as_nxt(INDIR) or inst_as_nxt(INDIR_I) or inst_as_nxt(IMM) or inst_so_nxt(RETI);
     dst_acalc_pre <= inst_ad_nxt(IDX) or inst_ad_nxt(SYMB) or inst_ad_nxt(ABSC);
@@ -831,7 +831,7 @@ begin
       end if;
     end process R_4_1c_2c_e;
 
-    --Execution first state
+    -- Execution first state
     e_first_state <= E_IRQ(0)
                      when (not dbg_halt_st_omsp and inst_so_nxt(IRQX)) = '1' else E_IDLE
                      when cpu_halt_cmd = '1' or (i_state_omsp = I_IDLE)      else E_IDLE
@@ -841,8 +841,8 @@ begin
                      when dst_acalc_pre = '1'                                else E_DST_RD
                      when dst_rd_pre = '1'                                   else E_EXEC;
 
-    --5.2.State machine
-    --States Transitions
+    -- 5.2.State machine
+    -- States Transitions
     process (e_state_omsp, e_first_state, re_e_dst_ad, re_e_dst_wr, re_e_exec, re_e_src_ad, re_e_src_rd)
     begin
       case e_state_omsp is
@@ -882,7 +882,7 @@ begin
     re_e_dst_wr <= E_JUMP
                    when exec_jmp = '1' else e_first_state;
 
-    --State machine
+    -- State machine
     R_1 : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -892,7 +892,7 @@ begin
       end if;
     end process R_1;
 
-    --5.3.Frontend State machine control signals
+    -- 5.3.Frontend State machine control signals
     exec_done_omsp <= to_stdlogic(e_state_omsp = E_JUMP)
                       when exec_jmp = '1'    else to_stdlogic(e_state_omsp = E_DST_WR)
                       when exec_dst_wr = '1' else to_stdlogic(e_state_omsp = E_SRC_WR)
@@ -901,7 +901,7 @@ begin
 
   C6_EXECUTION_UNIT_STATE_FRONTEND_B6 : block
   begin
-    --ALU FRONTEND_B6 SIGNALS
+    -- ALU FRONTEND_B6 SIGNALS
     alu_src_inv_s <= inst_to_nxt(SUBB) or inst_to_nxt(SUBC) or
                      inst_to_nxt(CMP) or inst_to_nxt(BIC);
 

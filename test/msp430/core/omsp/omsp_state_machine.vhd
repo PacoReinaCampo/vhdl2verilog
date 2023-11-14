@@ -70,7 +70,7 @@ end omsp_state_machine;
 
 architecture FRONTEND_B1_ARQ of omsp_state_machine is
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal dbg_halt_st_omsp  : std_logic;
   signal decode_noirq_omsp : std_logic;
   signal decode_omsp       : std_logic;
@@ -79,11 +79,11 @@ architecture FRONTEND_B1_ARQ of omsp_state_machine is
   signal i_state_omsp      : std_logic_vector (2 downto 0);
   signal e_state_omsp      : std_logic_vector (3 downto 0);
 
-  --1.FRONTEND STATE MACHINE
-  --The wire "conv" is used as state bits to calculate the next response
+  -- 1.FRONTEND STATE MACHINE
+  -- The wire "conv" is used as state bits to calculate the next response
   signal i_state_nxt_omsp : std_logic_vector (2 downto 0);
 
-  --CPU on/off through the debug interface or cpu_en port
+  -- CPU on/off through the debug interface or cpu_en port
   signal cpu_halt_cmd_omsp : std_logic;
 
   signal re_i_idle : std_logic_vector (2 downto 0);
@@ -93,10 +93,10 @@ architecture FRONTEND_B1_ARQ of omsp_state_machine is
 begin
   C1_FRONTEND_STATE_MACHINE : block
   begin
-    --CPU on/off through the debug interface or cpu_en port
+    -- CPU on/off through the debug interface or cpu_en port
     cpu_halt_cmd_omsp <= dbg_halt_cmd or not cpu_en_s;
 
-    --States Transitions
+    -- States Transitions
     process(i_state_omsp, re_i_dec, re_i_ext1, re_i_idle)
     begin
       case i_state_omsp is
@@ -126,7 +126,7 @@ begin
                  when pc_sw_wr = '1'  else I_EXT2
                  when inst_sz /= "01" else I_DEC;
 
-    --State machine
+    -- State machine
     R_1 : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -136,12 +136,12 @@ begin
       end if;
     end process R_1;
 
-    --Utility signals   
+    -- Utility signals   
     decode_noirq_omsp <= to_stdlogic(i_state_omsp = I_DEC) and (exec_done_omsp or to_stdlogic(e_state_omsp = E_IDLE));
     decode_omsp       <= decode_noirq_omsp or irq_detect_omsp;
     fetch             <= not (to_stdlogic(i_state_omsp = I_DEC) and not (exec_done_omsp or to_stdlogic(e_state_omsp = E_IDLE))) and not to_stdlogic(e_state_nxt = E_IDLE);
 
-    --Debug interface cpu status
+    -- Debug interface cpu status
     R_1_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then

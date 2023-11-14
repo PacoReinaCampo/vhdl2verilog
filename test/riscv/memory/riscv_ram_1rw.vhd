@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/memory/riscv_ram_1rw.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -89,9 +86,9 @@ begin
   -- Module Body
   --
   generating_0 : if (TECHNOLOGY = "GENERIC") generate
-    --GENERIC -- inferrable memory
+    -- GENERIC -- inferrable memory
 
-    --initial $display ("INFO   : No memory technology specified. Using generic inferred memory (%m)");
+    -- initial $display ("INFO   : No memory technology specified. Using generic inferred memory (%m)");
 
     ram_inst : riscv_ram_1rw_generic
       generic map (

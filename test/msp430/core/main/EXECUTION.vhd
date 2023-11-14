@@ -104,7 +104,7 @@ end EXECUTION;
 
 architecture EXECUTION_ARQ of EXECUTION is
 
-  --0.INTERNAL WIRES/REGISTERS/PARAMETERS DECLARATION
+  -- 0.INTERNAL WIRES/REGISTERS/PARAMETERS DECLARATION
   signal alu_stat    : std_logic_vector (3 downto 0);
   signal alu_stat_wr : std_logic_vector (3 downto 0);
   signal status      : std_logic_vector (3 downto 0);
@@ -117,7 +117,7 @@ architecture EXECUTION_ARQ of EXECUTION is
   signal mdb_in_bw   : std_logic_vector (15 downto 0);
   signal mdb_in_val  : std_logic_vector (15 downto 0);
 
-  --1.REGISTER FILE
+  -- 1.REGISTER FILE
   signal reg_dest_wr : std_logic;
   signal reg_sp_wr   : std_logic;
   signal reg_sr_wr   : std_logic;
@@ -125,37 +125,37 @@ architecture EXECUTION_ARQ of EXECUTION is
   signal reg_pc_call : std_logic;
   signal reg_incr    : std_logic;
 
-  --2.SOURCE OPERAND MUXING
+  -- 2.SOURCE OPERAND MUXING
   signal src_reg_src_sel    : std_logic;
   signal src_reg_dest_sel   : std_logic;
   signal src_mdb_in_val_sel : std_logic;
   signal src_inst_dext_sel  : std_logic;
   signal src_inst_sext_sel  : std_logic;
 
-  --3.DESTINATION OPERAND MUXING
+  -- 3.DESTINATION OPERAND MUXING
   signal dst_inst_sext_sel : std_logic;
   signal dst_mdb_in_bw_sel : std_logic;
   signal dst_fffe_sel      : std_logic;
   signal dst_reg_dest_sel  : std_logic;
 
-  --4.ALU
+  -- 4.ALU
   signal exec_cycle : std_logic;
 
-  --5.MEMORY INTERFACE
-  --Detect memory read/write access
+  -- 5.MEMORY INTERFACE
+  -- Detect memory read/write access
   signal mb_rd_det : std_logic;
   signal mb_wr_det : std_logic;
   signal mb_wr_msk : std_logic_vector (1 downto 0);
 
-  --Memory data bus output
+  -- Memory data bus output
   signal mdb_out_nxt_en   : std_logic;
   signal mclk_mdb_out_nxt : std_logic;
   signal mdb_out_nxt      : std_logic_vector (15 downto 0);
 
-  --Format memory data bus input depending on BW
+  -- Format memory data bus input depending on BW
   signal mab_lsb : std_logic;
 
-  --Memory data bus input buffer (buffer after a source read)
+  -- Memory data bus input buffer (buffer after a source read)
   signal mdb_in_buf_en    : std_logic;
   signal mdb_in_buf_valid : std_logic;
   signal mclk_mdb_in_buf  : std_logic;
@@ -311,7 +311,7 @@ begin
 
   C5_MEMORY_INTERFACE : block
   begin
-    --Detect memory read/write access
+    -- Detect memory read/write access
     mb_rd_det <= (to_stdlogic(e_state = E_SRC_RD) and not inst_as(IMM)) or
                  (to_stdlogic(e_state = E_EXEC) and inst_so(RETI)) or
                  (to_stdlogic(e_state = E_DST_RD) and not inst_type(INST_SOC) and not inst_mov);
@@ -325,11 +325,11 @@ begin
     mb_en <= mb_rd_det or (mb_wr_det and not inst_alu(EXEC_NO_WR));
     mb_wr <= (mb_wr_det & mb_wr_det) and mb_wr_msk;
 
-    --Memory address bus
+    -- Memory address bus
     mab <= alu_out_add(15 downto 0);
 
     clock_gating_on : if (CLOCK_GATING = '1') generate
-      --Memory data bus output
+      -- Memory data bus output
       mdb_out_nxt_en <= to_stdlogic(e_state = E_DST_RD) or
                         ((to_stdlogic(e_state = E_EXEC) and not inst_so(CALL)) or
                          to_stdlogic(e_state = E_IRQ(0)) or
@@ -357,7 +357,7 @@ begin
         end if;
       end process;
 
-      --Format memory data bus input depending on BW
+      -- Format memory data bus input depending on BW
       R1_1_e : process (mclk, puc_rst)
       begin
         if (puc_rst = '1') then
@@ -371,7 +371,7 @@ begin
                    when not inst_bw = '1' else mdb_in(15 downto 8) & mdb_in(15 downto 8)
                    when mab_lsb = '1'     else mdb_in;
 
-      --Memory data bus input buffer (buffer after a source read)
+      -- Memory data bus input buffer (buffer after a source read)
       R2_1_e : process (mclk, puc_rst)
       begin
         if (puc_rst = '1') then
@@ -412,7 +412,7 @@ begin
     end generate clock_gating_on;
 
     clock_gating_off : if (CLOCK_GATING = '0') generate
-      --Memory address bus
+      -- Memory address bus
       mdb_out <= mdb_out_nxt(7 downto 0) & mdb_out_nxt(7 downto 0) when inst_bw = '1' else mdb_out_nxt;
 
       process (mclk, puc_rst)
@@ -430,7 +430,7 @@ begin
         end if;
       end process;
 
-      --Format memory data bus input depending on BW
+      -- Format memory data bus input depending on BW
       R1_1_e : process (mclk, puc_rst)
       begin
         if (puc_rst = '1') then
@@ -444,7 +444,7 @@ begin
                    when not inst_bw = '1' else mdb_in(15 downto 8) & mdb_in(15 downto 8)
                    when mab_lsb = '1'     else mdb_in;
 
-      --Memory data bus input buffer (buffer after a source read)
+      -- Memory data bus input buffer (buffer after a source read)
       R2_1_e : process (mclk, puc_rst)
       begin
         if (puc_rst = '1') then

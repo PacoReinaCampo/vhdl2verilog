@@ -64,14 +64,14 @@ end UART;
 
 architecture UART_ARQ of UART is
 
-  --0.  PARAMETER_DECLARATION
-  --0.1.        Register base address (must be aligned to decoder bit width)
+  -- 0.  PARAMETER_DECLARATION
+  -- 0.1.        Register base address (must be aligned to decoder bit width)
   constant BASE_ADDR_U : std_logic_vector (14 downto 0) := "000000010000000";
 
-  --0.2.        Decoder bit width (defines how many bits are considered for address decoding)
+  -- 0.2.        Decoder bit width (defines how many bits are considered for address decoding)
   constant DEC_WD_U : integer := 3;
 
-  --0.3.        Register addresses offset
+  -- 0.3.        Register addresses offset
   constant CTRLB    : std_logic_vector (DEC_WD_U - 1 downto 0) := std_logic_vector(to_unsigned(0, DEC_WD_U));
   constant STATUSB  : std_logic_vector (DEC_WD_U - 1 downto 0) := std_logic_vector(to_unsigned(1, DEC_WD_U));
   constant BAUD_LOB : std_logic_vector (DEC_WD_U - 1 downto 0) := std_logic_vector(to_unsigned(2, DEC_WD_U));
@@ -86,11 +86,11 @@ architecture UART_ARQ of UART is
   constant DATA_TXC : integer := to_integer(unsigned(DATA_TXB));
   constant DATA_RXC : integer := to_integer(unsigned(DATA_RXB));
 
-  --0.4.        Register one-hot decoder utilities
+  -- 0.4.        Register one-hot decoder utilities
   constant DEC_SZ_U   : integer                                   := 2**DEC_WD_U;
   constant BASE_REG_U : std_logic_vector (DEC_SZ_U - 1 downto 0) := std_logic_vector(to_unsigned(1, DEC_SZ_U));
 
-  --0.5.        Register one-hot decoder
+  -- 0.5.        Register one-hot decoder
   constant CTRL_D    : std_logic_vector (DEC_SZ_U - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_U) sll CTRLC);
   constant STATUS_D  : std_logic_vector (DEC_SZ_U - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_U) sll STATUSC);
   constant BAUD_LO_D : std_logic_vector (DEC_SZ_U - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_U) sll BAUD_LOC);
@@ -98,28 +98,28 @@ architecture UART_ARQ of UART is
   constant DATA_TX_D : std_logic_vector (DEC_SZ_U - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_U) sll DATA_TXC);
   constant DATA_RX_D : std_logic_vector (DEC_SZ_U - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_U) sll DATA_RXC);
 
-  --1.  REGISTER_DECODER
-  --1.1.        Local register selection
+  -- 1.  REGISTER_DECODER
+  -- 1.1.        Local register selection
   signal reg_sel_u : std_logic;
 
-  --1.2.        Register local address
+  -- 1.2.        Register local address
   signal reg_addr_u : std_logic_vector (DEC_WD_U - 1 downto 0);
 
-  --1.3.        Register address decode
+  -- 1.3.        Register address decode
   signal reg_dec_u : std_logic_vector (DEC_SZ_U - 1 downto 0);
 
-  --1.4.        Read/Write probes
+  -- 1.4.        Read/Write probes
   signal reg_read_u     : std_logic;
   signal reg_hi_write_u : std_logic;
   signal reg_lo_write_u : std_logic;
 
-  --1.5.        Read/Write vectors
+  -- 1.5.        Read/Write vectors
   signal reg_rd_u    : std_logic_vector (DEC_SZ_U - 1 downto 0);
   signal reg_hi_wr_u : std_logic_vector (DEC_SZ_U - 1 downto 0);
   signal reg_lo_wr_u : std_logic_vector (DEC_SZ_U - 1 downto 0);
 
-  --2.  REGISTERS
-  --2.1.        CTRL Register
+  -- 2.  REGISTERS
+  -- 2.1.        CTRL Register
   signal ctrl_wr           : std_logic;
   signal ctrl_ien_tx_empty : std_logic;
   signal ctrl_ien_tx       : std_logic;
@@ -130,7 +130,7 @@ architecture UART_ARQ of UART is
   signal ctrl              : std_logic_vector (7 downto 0);
   signal ctrl_nxt          : std_logic_vector (7 downto 0);
 
-  --2.2.        STATUS Register
+  -- 2.2.        STATUS Register
   signal status_tx_empty_pnd     : std_logic;
   signal status_tx_pnd           : std_logic;
   signal status_rx_ovflw_pnd     : std_logic;
@@ -150,28 +150,28 @@ architecture UART_ARQ of UART is
   signal status_u                : std_logic_vector (7 downto 0);
   signal status_nxt              : std_logic_vector (7 downto 0);
 
-  --2.3.        BAUD_LO Register
+  -- 2.3.        BAUD_LO Register
   signal baud_lo_wr  : std_logic;
   signal baud_lo     : std_logic_vector (7 downto 0);
   signal baud_lo_nxt : std_logic_vector (7 downto 0);
 
-  --2.4.        BAUD_HI Register
+  -- 2.4.        BAUD_HI Register
   signal baud_hi_wr  : std_logic;
   signal baud_hi     : std_logic_vector (7 downto 0);
   signal baud_hi_nxt : std_logic_vector (7 downto 0);
   signal baudrate    : std_logic_vector (15 downto 0);
 
-  --2.5.        DATA_TX Register
+  -- 2.5.        DATA_TX Register
   signal data_tx_wr  : std_logic;
   signal data_tx     : std_logic_vector (7 downto 0);
   signal data_tx_nxt : std_logic_vector (7 downto 0);
 
-  --2.6.        DATA_RX Register
+  -- 2.6.        DATA_RX Register
   signal data_rx   : std_logic_vector (7 downto 0);
   signal rxfer_buf : std_logic_vector (7 downto 0);
 
-  --3.  DATA_OUTPUT_GENERATION
-  --3.1.        Data output mux
+  -- 3.  DATA_OUTPUT_GENERATION
+  -- 3.1.        Data output mux
   signal ctrl_rd    : std_logic_vector (15 downto 0);
   signal status_rd  : std_logic_vector (15 downto 0);
   signal baud_lo_rd : std_logic_vector (15 downto 0);
@@ -179,19 +179,19 @@ architecture UART_ARQ of UART is
   signal data_tx_rd : std_logic_vector (15 downto 0);
   signal data_rx_rd : std_logic_vector (15 downto 0);
 
-  --4.  UART_CLOCK_SELECTION
+  -- 4.  UART_CLOCK_SELECTION
   signal uclk_en : std_logic;
 
-  --5.  LINE_SYNCHRONIZTION_FILTERING
-  --5.1.        Synchronize RXD input
+  -- 5.  LINE_SYNCHRONIZTION_FILTERING
+  -- 5.1.        Synchronize RXD input
   signal uart_rxd_sync_n : std_logic;
   signal not_uart_rxd    : std_logic;
   signal uart_rxd_sync   : std_logic;
 
-  --5.2.        RXD input buffer
+  -- 5.2.        RXD input buffer
   signal rxd_buf_u : std_logic_vector (1 downto 0);
 
-  --5.3.        Majority decision
+  -- 5.3.        Majority decision
   signal rxd_maj_u     : std_logic;
   signal rxd_maj_nxt_u : std_logic;
   signal rxd_s_u       : std_logic;
@@ -201,52 +201,52 @@ architecture UART_ARQ of UART is
   signal zero_buf_u_0  : std_logic_vector (1 downto 0);
   signal zero_buf_u_1  : std_logic_vector (1 downto 0);
 
-  --6.  UART_RECEIVE
-  --6.1.        RX Transfer counter
+  -- 6.  UART_RECEIVE
+  -- 6.1.        RX Transfer counter
   signal rxfer_start   : std_logic;
   signal rxfer_bit_inc : std_logic;
   signal rxfer_done    : std_logic;
   signal rxfer_bit     : std_logic_vector (3 downto 0);
   signal rxfer_cnt     : std_logic_vector (15 downto 0);
 
-  --6.2.        Receive buffer
+  -- 6.2.        Receive buffer
   signal rxfer_buf_nxt : std_logic_vector (7 downto 0);
 
-  --6.3.        Status flags
+  -- 6.3.        Status flags
   signal rxfer_done_dly : std_logic;
 
-  --7.  UART_TRANSMIT
-  --7.1.        TX Transfer start detection
+  -- 7.  UART_TRANSMIT
+  -- 7.1.        TX Transfer start detection
   signal txfer_triggered : std_logic;
   signal txfer_start     : std_logic;
 
-  --7.2.        TX Transfer counter
+  -- 7.2.        TX Transfer counter
   signal txfer_bit_inc : std_logic;
   signal txfer_done    : std_logic;
   signal txfer_bit     : std_logic_vector (3 downto 0);
   signal txfer_cnt     : std_logic_vector (15 downto 0);
 
-  --7.3.        Transmit buffer
+  -- 7.3.        Transmit buffer
   signal txfer_buf     : std_logic_vector (8 downto 0);
   signal txfer_buf_nxt : std_logic_vector (8 downto 0);
 
-  --7.4.        Status flags
+  -- 7.4.        Status flags
   signal txfer_done_dly : std_logic;
 
-  --8.  INTERRUPTS
-  --8.1.        Receive interrupt
-  --8.2.        Transmit interrupt
+  -- 8.  INTERRUPTS
+  -- 8.1.        Receive interrupt
+  -- 8.2.        Transmit interrupt
 
 begin
   REGISTER_DECODER : block
   begin
-    --1.1.      Local register selection
+    -- 1.1.      Local register selection
     reg_sel_u <= per_en and to_stdlogic(per_addr(13 downto DEC_WD_U - 1) = BASE_ADDR_U(14 downto DEC_WD_U));
 
-    --1.2.      Register local address
+    -- 1.2.      Register local address
     reg_addr_u <= '0' & per_addr(DEC_WD_U - 2 downto 0);
 
-    --1.3.      Register address decode
+    -- 1.3.      Register address decode
     reg_dec_u <= (CTRL_D and (0 to DEC_SZ_U - 1 => to_stdlogic(reg_addr_u =
                                                              std_logic_vector(unsigned(CTRLB) srl 1)))) or
                  (STATUS_D and (0 to DEC_SZ_U - 1 => to_stdlogic(reg_addr_u =
@@ -260,12 +260,12 @@ begin
                  (DATA_RX_D and (0 to DEC_SZ_U - 1 => to_stdlogic(reg_addr_u =
                                                                 std_logic_vector(unsigned(DATA_RXB) srl 1))));
 
-    --1.4.      Read/Write probes
+    -- 1.4.      Read/Write probes
     reg_hi_write_u <= per_we(0) and reg_sel_u;
     reg_lo_write_u <= per_we(1) and reg_sel_u;
     reg_read_u     <= not reduce_or(per_we) and reg_sel_u;
 
-    --1.5.      Read/Write vectors
+    -- 1.5.      Read/Write vectors
     reg_hi_wr_u <= reg_dec_u and (0 to DEC_SZ_U - 1 => reg_hi_write_u);
     reg_lo_wr_u <= reg_dec_u and (0 to DEC_SZ_U - 1 => reg_lo_write_u);
     reg_rd_u    <= reg_dec_u and (0 to DEC_SZ_U - 1 => reg_read_u);
@@ -273,7 +273,7 @@ begin
 
   REGISTERS : block
   begin
-    --2.1.      CTRL Register
+    -- 2.1.      CTRL Register
     ctrl_wr  <= reg_hi_wr_u(CTRLC)   when CTRLB(0) = '1' else reg_lo_wr_u(CTRLC);
     ctrl_nxt <= per_din(15 downto 8) when CTRLB(0) = '1' else per_din(7 downto 0);
 
@@ -295,7 +295,7 @@ begin
     ctrl_smclk_sel    <= ctrl(1);
     ctrl_en           <= ctrl(0);
 
-    --2.2.      STATUS Register
+    -- 2.2.      STATUS Register
     status_wr               <= reg_hi_wr_u(STATUSC) when STATUSB(0) = '1' else reg_lo_wr_u(STATUSC);
     status_nxt              <= per_din(15 downto 8) when STATUSB(0) = '1' else per_din(7 downto 0);
     status_tx_empty_pnd_clr <= status_wr and status_nxt(7);
@@ -357,7 +357,7 @@ begin
 
     status_u <= status_tx_empty_pnd & status_tx_pnd & status_rx_ovflw_pnd & status_rx_pnd &
                 status_tx_full & status_tx_busy & '0' & status_rx_busy;
-    --2.3.      BAUD_LO Register
+    -- 2.3.      BAUD_LO Register
     baud_lo_wr  <= reg_hi_wr_u(BAUD_LOC) when BAUD_LOB(0) = '1' else reg_lo_wr_u(BAUD_LOC);
     baud_lo_nxt <= per_din(15 downto 8)  when BAUD_LOB(0) = '1' else per_din(7 downto 0);
 
@@ -372,7 +372,7 @@ begin
       end if;
     end process R1_1c;
 
-    --2.4.      BAUD_HI Register
+    -- 2.4.      BAUD_HI Register
     baud_hi_wr  <= reg_hi_wr_u(BAUD_LOC) when BAUD_HIB(0) = '1' else reg_hi_wr_u(BAUD_HIC);
     baud_hi_nxt <= per_din(15 downto 8)  when BAUD_HIB(0) = '1' else per_din(7 downto 0);
 
@@ -389,7 +389,7 @@ begin
 
     baudrate <= baud_hi & baud_lo;
 
-    --2.5.      DATA_TX Register
+    -- 2.5.      DATA_TX Register
     data_tx_wr  <= reg_hi_wr_u(DATA_TXC) when DATA_TXB(0) = '1' else reg_lo_wr_u(DATA_TXC);
     data_tx_nxt <= per_din(15 downto 8)  when DATA_TXB(0) = '1' else per_din(7 downto 0);
 
@@ -404,7 +404,7 @@ begin
       end if;
     end process R3_1c;
 
-    --2.6.      DATA_RX Register
+    -- 2.6.      DATA_RX Register
     R4_1c : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -419,7 +419,7 @@ begin
 
   DATA_OUTPUT_GENERATION : block
   begin
-    --3.1.      Data output mux
+    -- 3.1.      Data output mux
     ctrl_rd <= std_logic_vector((X"00" & (unsigned(ctrl) and (0 to 7 => reg_rd_u(CTRLC))))
                                  sll to_integer((0 to 3 => CTRLB (0)) and to_unsigned(8, 4)));
 
@@ -449,7 +449,7 @@ begin
 
   LINE_SYNCHRONIZTION_FILTERING : block
   begin
-    --5.1.      Synchronize RXD input
+    -- 5.1.      Synchronize RXD input
     sync_cell_uart_rxd : omsp_sync_cell
       port map (
         data_out => uart_rxd_sync_n,
@@ -460,7 +460,7 @@ begin
     not_uart_rxd  <= not uart_rxd;
     uart_rxd_sync <= not uart_rxd_sync_n;
 
-    --5.2.      RXD input buffer
+    -- 5.2.      RXD input buffer
     R_1 : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -470,7 +470,7 @@ begin
       end if;
     end process R_1;
 
-    --5.3.      Majority decision
+    -- 5.3.      Majority decision
     zero_sync    <= '0' & uart_rxd_sync;
     zero_buf_u_0 <= '0' & rxd_buf_u(0);
     zero_buf_u_1 <= '0' & rxd_buf_u(1);
@@ -496,7 +496,7 @@ begin
 
   UART_RECEIVE : block
   begin
-    --6.1.      RX Transfer counter
+    -- 6.1.      RX Transfer counter
     rxfer_start   <= to_stdlogic(rxfer_bit = X"0") and rxd_fe_u;
     rxfer_bit_inc <= to_stdlogic(rxfer_bit /= X"0") and to_stdlogic(rxfer_cnt = X"0000");
     rxfer_done    <= to_stdlogic(rxfer_bit = X"A");
@@ -539,7 +539,7 @@ begin
       end if;
     end process;
 
-    --6.2.      Receive buffer
+    -- 6.2.      Receive buffer
     rxfer_buf_nxt <= rxd_s_u & rxfer_buf(7 downto 1);
 
     process (mclk, puc_rst)
@@ -557,7 +557,7 @@ begin
       end if;
     end process;
 
-    --6.3.      Status flags    
+    -- 6.3.      Status flags    
     R_1_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -574,7 +574,7 @@ begin
 
   UART_TRANSMIT : block
   begin
-    --7.1.      TX Transfer start detection
+    -- 7.1.      TX Transfer start detection
     R_1c_2c_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -588,7 +588,7 @@ begin
       end if;
     end process R_1c_2c_e;
 
-    --7.2.      TX Transfer counter
+    -- 7.2.      TX Transfer counter
     txfer_start   <= to_stdlogic(txfer_bit = X"0") and txfer_triggered;
     txfer_bit_inc <= to_stdlogic(txfer_bit /= X"0") and to_stdlogic(txfer_cnt = X"0000");
     txfer_done    <= to_stdlogic(txfer_bit = X"B");
@@ -632,7 +632,7 @@ begin
       end if;
     end process;
 
-    --7.3.      Transmit buffer
+    -- 7.3.      Transmit buffer
     txfer_buf_nxt <= '1' & txfer_buf(8 downto 1);
 
     process (mclk, puc_rst)
@@ -654,7 +654,7 @@ begin
 
     uart_txd <= txfer_buf(0);
 
-    --7.4.      Status flags
+    -- 7.4.      Status flags
     R_1_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -672,10 +672,10 @@ begin
 
   INTERRUPTS : block
   begin
-    --8.1.      Receive interrupt
+    -- 8.1.      Receive interrupt
     irq_uart_rx <= (status_rx_pnd and ctrl_ien_rx) or
                    (status_rx_ovflw_pnd and ctrl_ien_rx_ovflw);
-    --8.2.      Transmit interrupt
+    -- 8.2.      Transmit interrupt
     irq_uart_tx <= (status_tx_pnd and ctrl_ien_tx) or
                    (status_tx_empty_pnd and ctrl_ien_tx_empty);
   end block INTERRUPTS;

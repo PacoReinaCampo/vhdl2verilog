@@ -92,19 +92,19 @@ end GPIO;
 
 architecture GPIO_ARQ of GPIO is
 
-  --0.  PARAMETER DECLARATION
-  --0.1.        Register base address (must be aligned to decoder bit width)
+  -- 0.  PARAMETER DECLARATION
+  -- 0.1.        Register base address (must be aligned to decoder bit width)
   constant BASE_ADDR_G : std_logic_vector (14 downto 0) := (others => '0');
 
-  --0.2.        Register addresses offset
+  -- 0.2.        Register addresses offset
   constant DEC_WD_G : integer := 6;
 
-  --0.3.        Register one-hot decoder utilities
+  -- 0.3.        Register one-hot decoder utilities
   constant DEC_SZ_G   : integer := 2**DEC_WD_G;
 
   constant BASE_REG_G : std_logic_vector (DEC_SZ_G - 1 downto 0) := std_logic_vector(to_unsigned(1, DEC_SZ_G));
 
-  --0.7.        Masks
+  -- 0.7.        Masks
   constant P_EN : std_logic_vector (DEC_WD_G - 1 downto 0) := "111111";
 
   constant P_IN   : std_logic_matrix (DEC_WD_G - 1 downto 0)(DEC_WD_G - 1 downto 0) := ("110100", "110000", "011100", "011000", "101000", "100000");
@@ -116,82 +116,82 @@ architecture GPIO_ARQ of GPIO is
   constant P_IES : std_logic_matrix (DEC_WD_G - 5 downto 0)(DEC_WD_G - 1 downto 0) := ("101100", "100100");
   constant P_IE  : std_logic_matrix (DEC_WD_G - 5 downto 0)(DEC_WD_G - 1 downto 0) := ("101101", "100101");
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal p_dout    : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
   signal p_dout_en : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
   signal p_sel     : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
   signal p_din     : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
   signal p_din_en  : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
 
-  --1.  REGISTER_DECODER
-  --1.1.        Local register selection
+  -- 1.  REGISTER_DECODER
+  -- 1.1.        Local register selection
   signal reg_sel_g : std_logic;
 
-  --1.2.        Register local address
+  -- 1.2.        Register local address
   signal reg_addr_g : std_logic_vector (DEC_WD_G - 1 downto 0);
 
-  --1.3.        Register address decode
+  -- 1.3.        Register address decode
   signal reg_dec_g : std_logic_vector (DEC_SZ_G - 1 downto 0);
 
-  --1.4.        Read/Write probes
+  -- 1.4.        Read/Write probes
   signal reg_lo_write_g : std_logic;
   signal reg_hi_write_g : std_logic;
   signal reg_read_g     : std_logic;
 
-  --1.5.        Read/Write vectors
+  -- 1.5.        Read/Write vectors
   signal reg_hi_wr_g : std_logic_vector (DEC_SZ_G - 1 downto 0);
   signal reg_lo_wr_g : std_logic_vector (DEC_SZ_G - 1 downto 0);
   signal reg_rd_g    : std_logic_vector (DEC_SZ_G - 1 downto 0);
 
-  --2.  REGISTERS       
-  --2.1.        PIN Register
+  -- 2.  REGISTERS       
+  -- 2.1.        PIN Register
   signal pin : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
 
-  --2.2.        POUT Register
+  -- 2.2.        POUT Register
   signal pout_wr  : std_logic_vector (DEC_SZ_G - 1 downto 0);
   signal pout     : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
   signal pout_nxt : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
 
-  --2.3.        PDIR Register
+  -- 2.3.        PDIR Register
   signal pdir_wr  : std_logic_vector (DEC_SZ_G - 1 downto 0);
   signal pdir     : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
   signal pdir_nxt : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
 
-  --2.4.        PIFG Register
+  -- 2.4.        PIFG Register
   signal pifg_wr  : std_logic_vector (DEC_SZ_G - 5 downto 0);
   signal pifg     : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
   signal pifg_nxt : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
   signal pifg_set : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
 
-  --2.5.        PIES Register
+  -- 2.5.        PIES Register
   signal pies_wr  : std_logic_vector (DEC_SZ_G - 5 downto 0);
   signal pies     : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
   signal pies_nxt : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
 
-  --2.6.        PIE Register
+  -- 2.6.        PIE Register
   signal pie_wr  : std_logic_vector (DEC_SZ_G - 5 downto 0);
   signal pie     : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
   signal pie_nxt : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
 
-  --2.7.        PSEL Register
+  -- 2.7.        PSEL Register
   signal psel_wr  : std_logic_vector (DEC_SZ_G - 5 downto 0);
   signal psel     : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
   signal psel_nxt : std_logic_matrix (DEC_WD_G - 1 downto 0)(7 downto 0);
 
-  --3.  INTERRRUPT_GENERATION
+  -- 3.  INTERRRUPT_GENERATION
   signal irq_port : std_logic_vector (1 downto 0);
 
-  --3.1.        Delay input
+  -- 3.1.        Delay input
   signal p_in_dly : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
 
-  --3.2.        Edge detection
+  -- 3.2.        Edge detection
   signal p_in_re : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
   signal p_in_fe : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
 
-  --3.3.        Set interrupt flag
-  --3.4.        Generate CPU interrupt
-  --4.  DATA_OUTPUT_GENERATION
-  --4.1.        Data output mux
+  -- 3.3.        Set interrupt flag
+  -- 3.4.        Generate CPU interrupt
+  -- 4.  DATA_OUTPUT_GENERATION
+  -- 4.1.        Data output mux
   signal p_in_rd  : std_logic_matrix (DEC_WD_G - 1 downto 0)(15 downto 0);
   signal p_out_rd : std_logic_matrix (DEC_WD_G - 1 downto 0)(15 downto 0);
   signal p_dir_rd : std_logic_matrix (DEC_WD_G - 1 downto 0)(15 downto 0);
@@ -240,13 +240,13 @@ architecture GPIO_ARQ of GPIO is
 begin
   REGISTER_DECODER : block
   begin
-    --1.1.      Local register selection
+    -- 1.1.      Local register selection
     reg_sel_g <= per_en and to_stdlogic(per_addr(13 downto DEC_WD_G - 1) = BASE_ADDR_G(14 downto DEC_WD_G));
 
-    --1.2.      Register local address
+    -- 1.2.      Register local address
     reg_addr_g <= '0' & per_addr(DEC_WD_G-2 downto 0);
 
-    --1.3.      Register address decode
+    -- 1.3.      Register address decode
     process (reg_addr_g)
       variable P_IN_D   : std_logic_matrix (DEC_WD_G - 1 downto 0)(DEC_SZ_G - 1 downto 0);
       variable P_OUT_D  : std_logic_matrix (DEC_WD_G - 1 downto 0)(DEC_SZ_G - 1 downto 0);
@@ -306,12 +306,12 @@ begin
                    matrixB5G_or(P_IE_DX);
     end process;
 
-    --1.4.      Read/Write probes
+    -- 1.4.      Read/Write probes
     reg_lo_write_g <= per_we(0) and reg_sel_g;
     reg_hi_write_g <= per_we(1) and reg_sel_g;
     reg_read_g     <= not reduce_or(per_we) and reg_sel_g;
 
-    --1.5.      Read/Write vectors
+    -- 1.5.      Read/Write vectors
     reg_hi_wr_g <= reg_dec_g and (0 to DEC_SZ_G - 1 => reg_hi_write_g);
     reg_lo_wr_g <= reg_dec_g and (0 to DEC_SZ_G - 1 => reg_lo_write_g);
     reg_rd_g    <= reg_dec_g and (0 to DEC_SZ_G - 1 => reg_read_g);
@@ -320,7 +320,7 @@ begin
   REGISTERS : block
   begin
     RD_DEC_WD_G1 : for i in DEC_WD_G - 1 downto 0 generate
-      --2.1.    PIN Register
+      -- 2.1.    PIN Register
       sync_cell_pin_j : for j in 7 downto 0 generate
         sync_cell_pin : omsp_sync_cell
           port map (
@@ -332,7 +332,7 @@ begin
         p_din_en(i)(j) <= p_din(i)(j) and P_EN(i);
       end generate sync_cell_pin_j;
 
-      --2.2.    POUT Register           
+      -- 2.2.    POUT Register           
       pout_wr (i) <= reg_hi_wr_g(to_integer(unsigned(P_OUT(i))))
                      when P_OUT(i)(0) = '1' else reg_lo_wr_g(to_integer(unsigned(P_OUT(i))));
       pout_nxt (i) <= per_din(15 downto 8)
@@ -351,7 +351,7 @@ begin
 
       p_dout(i) <= pout(i);
 
-      --2.3.    PDIR Register                   
+      -- 2.3.    PDIR Register                   
       pdir_wr (i) <= reg_hi_wr_g(to_integer(unsigned(P_DIR(i))))
                      when P_DIR(i)(0) = '1' else reg_lo_wr_g(to_integer(unsigned(P_DIR(i))));
       pdir_nxt (i) <= per_din(15 downto 8)
@@ -370,7 +370,7 @@ begin
 
       p_dout_en(i) <= pdir(i);
 
-      --2.7.    PSEL Register                   
+      -- 2.7.    PSEL Register                   
       psel_wr (i) <= reg_hi_wr_g(to_integer(unsigned(P_SELC(i))))
                      when P_SELC(i)(0) = '1' else reg_lo_wr_g(to_integer(unsigned(P_SELC(i))));
       psel_nxt (i) <= per_din(15 downto 8)
@@ -391,7 +391,7 @@ begin
     end generate RD_DEC_WD_G1;
 
     RD_DEC_WD_G5 : for i in DEC_WD_G - 5 downto 0 generate
-      --2.4.    PIFG Register
+      -- 2.4.    PIFG Register
       pifg_wr (i) <= reg_hi_wr_g(to_integer(unsigned(P_IFG(i))))
                      when P_IFG(i)(0) = '1' else reg_lo_wr_g(to_integer(unsigned(P_IFG(i))));
       pifg_nxt (i) <= per_din(15 downto 8)
@@ -410,7 +410,7 @@ begin
         end if;
       end process;
 
-      --2.5.    PIES Register                   
+      -- 2.5.    PIES Register                   
       pies_wr (i) <= reg_hi_wr_g(to_integer(unsigned(P_IES(i))))
                      when P_IES(i)(0) = '1' else reg_lo_wr_g(to_integer(unsigned(P_IES(i))));
       pies_nxt (i) <= per_din(15 downto 8)
@@ -427,7 +427,7 @@ begin
         end if;
       end process;
 
-      --2.6.    PIE Register                    
+      -- 2.6.    PIE Register                    
       pie_wr (i) <= reg_hi_wr_g(to_integer(unsigned(P_IE(i))))
                     when P_IE(i)(0) = '1' else reg_lo_wr_g(to_integer(unsigned(P_IE(i))));
       pie_nxt (i) <= per_din(15 downto 8)
@@ -449,7 +449,7 @@ begin
   INTERRRUPT_GENERATION : block
   begin
     IG_DEC_WD_G5 : for i in DEC_WD_G - 5 downto 0 generate
-      --3.1.    Delay input
+      -- 3.1.    Delay input
       process (mclk, puc_rst)
       begin
         if (puc_rst = '1') then
@@ -459,11 +459,11 @@ begin
         end if;
       end process;
 
-      --3.2.    Edge detection
+      -- 3.2.    Edge detection
       p_in_re(i) <= pin(i) and not p_in_dly(i);
       p_in_fe(i) <= not pin(i) and p_in_dly(i);
 
-      --3.3.    Set interrupt flag
+      -- 3.3.    Set interrupt flag
       process (p_in_fe, p_in_re, pies)
         variable dout : std_logic_matrix (DEC_WD_G - 5 downto 0)(7 downto 0);
       begin
@@ -478,7 +478,7 @@ begin
         pifg_set(i) <= dout(i) and (0 to 7 => P_EN(i));
       end process;
 
-      --3.4.    Generate CPU interrupt
+      -- 3.4.    Generate CPU interrupt
       irq_port(i) <= ((pie(i)(0) and pifg(i)(0)) or
                       (pie(i)(1) and pifg(i)(1)) or
                       (pie(i)(2) and pifg(i)(2)) or
@@ -495,7 +495,7 @@ begin
 
   DATA_OUTPUT_GENERATION : block
   begin
-    --4.1.      Data output mux
+    -- 4.1.      Data output mux
     data_output_mux_1 : for i in DEC_WD_G - 1 downto 0 generate
       p_in_rd (i) <= std_logic_vector((X"00" & (unsigned(pin(i)) and
                                                  (0 to 7 => reg_rd_g(to_integer(unsigned(P_IN (i)))))))

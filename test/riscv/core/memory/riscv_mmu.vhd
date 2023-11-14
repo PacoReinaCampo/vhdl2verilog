@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/core/memory/riscv_mmu.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -57,23 +54,23 @@ entity riscv_mmu is
   port (
     rst_ni : in std_logic;
     clk_i  : in std_logic;
-    clr_i  : in std_logic;  --clear pending request
+    clr_i  : in std_logic;  -- clear pending request
 
-    --Mode
-    --input  logic [XLEN-1:0] st_satp;
+    -- Mode
+    -- input  logic [XLEN-1:0] st_satp;
 
-    --CPU side
-    vreq_i  : in std_logic;  --Request from CPU
-    vadr_i  : in std_logic_vector(XLEN-1 downto 0);  --Virtual Memory Address
+    -- CPU side
+    vreq_i  : in std_logic;  -- Request from CPU
+    vadr_i  : in std_logic_vector(XLEN-1 downto 0);  -- Virtual Memory Address
     vsize_i : in std_logic_vector(2 downto 0);
     vlock_i : in std_logic;
     vprot_i : in std_logic_vector(2 downto 0);
     vwe_i   : in std_logic;
     vd_i    : in std_logic_vector(XLEN-1 downto 0);
 
-    --Memory system side
+    -- Memory system side
     preq_o  : out std_logic;
-    padr_o  : out std_logic_vector(PLEN-1 downto 0);  --Physical Memory Address
+    padr_o  : out std_logic_vector(PLEN-1 downto 0);  -- Physical Memory Address
     psize_o : out std_logic_vector(2 downto 0);
     plock_o : out std_logic;
     pprot_o : out std_logic_vector(2 downto 0);
@@ -82,7 +79,7 @@ entity riscv_mmu is
     pq_i    : in  std_logic_vector(XLEN-1 downto 0);
     pack_i  : in  std_logic;
 
-    --Exception
+    -- Exception
     page_fault_o : out std_logic
   );
 end riscv_mmu;
@@ -96,13 +93,13 @@ begin
   processing_0 : process (clk_i)
   begin
     if (rising_edge(clk_i)) then
-      if (vreq_i = '1') then  --TODO: actual translation
+      if (vreq_i = '1') then  -- TODO: actual translation
         padr_o <= vadr_i;
       end if;
     end if;
   end process;
 
-  --Insert state machine here
+  -- Insert state machine here
   processing_1 : process (clk_i)
   begin
     if (rising_edge(clk_i)) then
@@ -124,7 +121,7 @@ begin
     end if;
   end process;
 
-  --MMU does not write data
+  -- MMU does not write data
   processing_3 : process (clk_i)
   begin
     if (rising_edge(clk_i)) then
@@ -132,6 +129,6 @@ begin
     end if;
   end process;
 
-  --No page fault yet
+  -- No page fault yet
   page_fault_o <= '0';
 end RTL;

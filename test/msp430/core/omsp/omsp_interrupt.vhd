@@ -68,20 +68,20 @@ end omsp_interrupt;
 
 architecture FRONTEND_B2_ARQ of omsp_interrupt is
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal inst_irq_rst_omsp : std_logic;
   signal irq_detect_omsp   : std_logic;
   signal irq_num_omsp      : std_logic_vector (5 downto 0);
 
-  --2.INTERRUPT HANDLING & SYSTEM WAKEUP
-  --2.1.INTERRUPT HANDLING
-  --Detect other interrupts
+  -- 2.INTERRUPT HANDLING & SYSTEM WAKEUP
+  -- 2.1.INTERRUPT HANDLING
+  -- Detect other interrupts
   signal mclk_irq_num : std_logic;
 
-  --Combine all IRQs
+  -- Combine all IRQs
   signal irq_all : std_logic_vector (62 downto 0);
 
-  --Interrupt request accepted
+  -- Interrupt request accepted
   signal irq_acc_all : std_logic_vector (63 downto 0);
 
   function to_natural (entrada : unsigned) return natural is
@@ -141,8 +141,8 @@ architecture FRONTEND_B2_ARQ of omsp_interrupt is
 begin
   C2_INTERRUPT_HANDLING_AND_SYSTEM_WAKEUP : block
   begin
-    --2.1.INTERRUPT HANDLING
-    --Detect reset interrupt
+    -- 2.1.INTERRUPT HANDLING
+    -- Detect reset interrupt
     R_1c_e : process (mclk, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -154,7 +154,7 @@ begin
       end if;
     end process R_1c_e;
 
-    --Detect other interrupts
+    -- Detect other interrupts
     irq_detect_omsp <= (nmi_pnd or ((reduce_or(irq) or wdt_irq) and gie))
                        and not cpu_halt_cmd and not dbg_halt_st and (exec_done or to_stdlogic(i_state = I_IDLE));
 
@@ -173,7 +173,7 @@ begin
       mclk_irq_num <= mclk;
     end generate clock_gating_off;
 
-    --Combine all IRQs
+    -- Combine all IRQs
     combine_irq_16 : if (IRQ_16 = '1' and IRQ_32 = '0' and IRQ_64 = '0') generate
       irq_all <= (nmi_pnd & irq & (0 to 47 => '0')) or ("0000" & wdt_irq & (0 to 57 => '0'));
     end generate combine_irq_16;
@@ -186,7 +186,7 @@ begin
       irq_all <= (nmi_pnd & irq) or ("0000" & wdt_irq & (57 downto 0 => '0'));
     end generate combine_irq_64;
 
-    --Select highest priority IRQ
+    -- Select highest priority IRQ
     R_1i_2ci : process (mclk_irq_num, puc_rst)
     begin
       if (puc_rst = '1') then
@@ -200,10 +200,10 @@ begin
 
     irq_num <= irq_num_omsp;
 
-    --Generate selected IRQ vector address
+    -- Generate selected IRQ vector address
     irq_addr <= (7 to 15 => '1') & irq_num_omsp & '0';
 
-    --Interrupt request accepted
+    -- Interrupt request accepted
     irq_acc_all <= one_hot64(irq_num_omsp) and (0 to 63 => to_stdlogic(i_state = I_IRQ_FETCH));
     irq_acc     <= irq_acc_all(61 downto 64 - IRQ_NR);
     nmi_acc     <= irq_acc_all(62);

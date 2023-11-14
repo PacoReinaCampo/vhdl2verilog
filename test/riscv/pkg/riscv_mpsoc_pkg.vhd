@@ -1,5 +1,3 @@
--- Converted from pkg/riscv_mpsoc_pkg.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -50,13 +47,13 @@ use ieee.math_real.all;
 
 package riscv_mpsoc_pkg is
 
-  --core parameters
+  -- core parameters
   constant XLEN                   : integer := 64;
   constant PLEN                   : integer := 64;
   constant FLEN                   : integer := 64;
 
-  constant PC_INIT                : std_logic_vector(XLEN-1 downto 0) := X"0000000080000000";  --Start here after reset
-  constant BASE                   : std_logic_vector(XLEN-1 downto 0) := PC_INIT;  --offset where to load program in memory
+  constant PC_INIT                : std_logic_vector(XLEN-1 downto 0) := X"0000000080000000";  -- Start here after reset
+  constant BASE                   : std_logic_vector(XLEN-1 downto 0) := PC_INIT;  -- offset where to load program in memory
 
   constant INIT_FILE              : string    := "test.hex";
 
@@ -80,29 +77,29 @@ package riscv_mpsoc_pkg is
 
   constant MULT_LATENCY           : integer := 1;
 
-  constant HTIF                   : std_logic := '0';  --Host-interface
+  constant HTIF                   : std_logic := '0';  -- Host-interface
 
   constant TOHOST                 : std_logic_vector(XLEN-1 downto 0) := X"0000000080001000";
   constant UART_TX                : std_logic_vector(XLEN-1 downto 0) := X"0000000080001080";
 
-  constant BREAKPOINTS            : integer := 8;  --Number of hardware breakpoints
+  constant BREAKPOINTS            : integer := 8;  -- Number of hardware breakpoints
 
   constant PMA_CNT                : integer := 4;
-  constant PMP_CNT                : integer := 16;  --Number of Physical Memory Protection entries
+  constant PMP_CNT                : integer := 16;  -- Number of Physical Memory Protection entries
 
   constant BP_GLOBAL_BITS         : integer := 2;
   constant BP_LOCAL_BITS          : integer := 10;
   constant BP_LOCAL_BITS_LSB      : integer := 2; 
 
-  constant ICACHE_SIZE            : integer := 64;  --in KBytes
-  constant ICACHE_BLOCK_SIZE      : integer := 64;  --in Bytes
+  constant ICACHE_SIZE            : integer := 64;  -- in KBytes
+  constant ICACHE_BLOCK_SIZE      : integer := 64;  -- in Bytes
   constant ICACHE_WAYS            : integer := 2;  --'n'-way set associative
 
   constant ICACHE_REPLACE_ALG     : std_logic := '0';
   constant ITCM_SIZE              : integer := 0;
 
-  constant DCACHE_SIZE            : integer := 64;  --in KBytes
-  constant DCACHE_BLOCK_SIZE      : integer := 64;  --in Bytes
+  constant DCACHE_SIZE            : integer := 64;  -- in KBytes
+  constant DCACHE_BLOCK_SIZE      : integer := 64;  -- in Bytes
   constant DCACHE_WAYS            : integer := 2;  --'n'-way set associative
   constant WRITEBUFFER_SIZE       : integer := 8;
 
@@ -136,19 +133,19 @@ package riscv_mpsoc_pkg is
 
   constant BUFFER_DEPTH           : integer := 4;
 
-  --RF access
+  -- RF access
   constant RDPORTS                : integer := 2;
   constant WRPORTS                : integer := 1;
   constant AR_BITS                : integer := 5;
 
-  --RV12 Definitions Package
+  -- RV12 Definitions Package
   constant ARCHID       : integer := 12;
   constant REVPRV_MAJOR : integer := 1;
   constant REVPRV_MINOR : integer := 10;
   constant REVUSR_MAJOR : integer := 2;
   constant REVUSR_MINOR : integer := 2;
 
-  --BIU Constants Package
+  -- BIU Constants Package
   constant BYTE       : std_logic_vector(2 downto 0) := "000";
   constant HWORD      : std_logic_vector(2 downto 0) := "001";
   constant WORD       : std_logic_vector(2 downto 0) := "010";
@@ -166,7 +163,7 @@ package riscv_mpsoc_pkg is
   constant INCR16      : std_logic_vector(2 downto 0) := "111";
   constant UNDEF_BURST : std_logic_vector(2 downto 0) := "XXX";
 
-  --Enumeration Codes
+  -- Enumeration Codes
   constant PROT_INSTRUCTION  : std_logic_vector(2 downto 0) := "000";
   constant PROT_DATA         : std_logic_vector(2 downto 0) := "001";
   constant PROT_USER         : std_logic_vector(2 downto 0) := "000";
@@ -174,7 +171,7 @@ package riscv_mpsoc_pkg is
   constant PROT_NONCACHEABLE : std_logic_vector(2 downto 0) := "000";
   constant PROT_CACHEABLE    : std_logic_vector(2 downto 0) := "100";
 
-  --Complex Enumerations
+  -- Complex Enumerations
   constant NONCACHEABLE_USER_INSTRUCTION       : std_logic_vector(2 downto 0) := "000";
   constant NONCACHEABLE_USER_DATA              : std_logic_vector(2 downto 0) := "001";
   constant NONCACHEABLE_PRIVILEGED_INSTRUCTION : std_logic_vector(2 downto 0) := "010";
@@ -184,7 +181,7 @@ package riscv_mpsoc_pkg is
   constant CACHEABLE_PRIVILEGED_INSTRUCTION    : std_logic_vector(2 downto 0) := "110";
   constant CACHEABLE_PRIVILEGED_DATA           : std_logic_vector(2 downto 0) := "111";
 
-  --One Debug Unit per Hardware Thread (hart)
+  -- One Debug Unit per Hardware Thread (hart)
   constant DU_ADDR_SIZE : integer := 12;  -- 12bit internal address bus
 
   constant MAX_BREAKPOINTS : integer := 8;
@@ -220,28 +217,28 @@ package riscv_mpsoc_pkg is
   --  * 1 1110 BP7 Ctrl
   --  * 1 1111 BP7 Data
 
-  constant DBG_CTRL    : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"000";  --debug control
-  constant DBG_HIT     : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"001";  --debug HIT register
-  constant DBG_IE      : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"002";  --debug interrupt enable (which exception halts the CPU?)
-  constant DBG_CAUSE   : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"003";  --debug cause (which exception halted the CPU?)
-  constant DBG_BPCTRL0 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"010";  --hardware breakpoint0 control
-  constant DBG_BPDATA0 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"011";  --hardware breakpoint0 data
-  constant DBG_BPCTRL1 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"012";  --hardware breakpoint1 control
-  constant DBG_BPDATA1 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"013";  --hardware breakpoint1 data
-  constant DBG_BPCTRL2 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"014";  --hardware breakpoint2 control
-  constant DBG_BPDATA2 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"015";  --hardware breakpoint2 data
-  constant DBG_BPCTRL3 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"016";  --hardware breakpoint3 control
-  constant DBG_BPDATA3 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"017";  --hardware breakpoint3 data
-  constant DBG_BPCTRL4 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"018";  --hardware breakpoint4 control
-  constant DBG_BPDATA4 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"019";  --hardware breakpoint4 data
-  constant DBG_BPCTRL5 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01A";  --hardware breakpoint5 control
-  constant DBG_BPDATA5 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01B";  --hardware breakpoint5 data
-  constant DBG_BPCTRL6 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01C";  --hardware breakpoint6 control
-  constant DBG_BPDATA6 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01D";  --hardware breakpoint6 data
-  constant DBG_BPCTRL7 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01E";  --hardware breakpoint7 control
-  constant DBG_BPDATA7 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01F";  --hardware breakpoint7 data
+  constant DBG_CTRL    : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"000";  -- debug control
+  constant DBG_HIT     : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"001";  -- debug HIT register
+  constant DBG_IE      : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"002";  -- debug interrupt enable (which exception halts the CPU?)
+  constant DBG_CAUSE   : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"003";  -- debug cause (which exception halted the CPU?)
+  constant DBG_BPCTRL0 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"010";  -- hardware breakpoint0 control
+  constant DBG_BPDATA0 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"011";  -- hardware breakpoint0 data
+  constant DBG_BPCTRL1 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"012";  -- hardware breakpoint1 control
+  constant DBG_BPDATA1 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"013";  -- hardware breakpoint1 data
+  constant DBG_BPCTRL2 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"014";  -- hardware breakpoint2 control
+  constant DBG_BPDATA2 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"015";  -- hardware breakpoint2 data
+  constant DBG_BPCTRL3 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"016";  -- hardware breakpoint3 control
+  constant DBG_BPDATA3 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"017";  -- hardware breakpoint3 data
+  constant DBG_BPCTRL4 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"018";  -- hardware breakpoint4 control
+  constant DBG_BPDATA4 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"019";  -- hardware breakpoint4 data
+  constant DBG_BPCTRL5 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01A";  -- hardware breakpoint5 control
+  constant DBG_BPDATA5 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01B";  -- hardware breakpoint5 data
+  constant DBG_BPCTRL6 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01C";  -- hardware breakpoint6 control
+  constant DBG_BPDATA6 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01D";  -- hardware breakpoint6 data
+  constant DBG_BPCTRL7 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01E";  -- hardware breakpoint7 control
+  constant DBG_BPDATA7 : std_logic_vector(DU_ADDR_SIZE-1 downto 0) := X"01F";  -- hardware breakpoint7 data
 
-  --Debug Codes
+  -- Debug Codes
   constant DEBUG_SINGLE_STEP_TRACE : integer := 0;
   constant DEBUG_BRANCH_TRACE      : integer := 1;
   constant BP_CTRL_IMP             : integer := 0;
@@ -268,11 +265,11 @@ package riscv_mpsoc_pkg is
   --  *
   --  * Direct mapping to the 12bit CSR address space
 
-  --RISCV Opcodes Package
+  -- RISCV Opcodes Package
   constant ILEN      : integer := 64;
   constant INSTR_NOP : std_logic_vector(ILEN-1 downto 0) := X"0000000000000013";
 
-  --Opcodes
+  -- Opcodes
   constant OPC_LOAD     : std_logic_vector(6 downto 2) := "00000";
   constant OPC_LOAD_FP  : std_logic_vector(6 downto 2) := "00001";
   constant OPC_MISC_MEM : std_logic_vector(6 downto 2) := "00011";
@@ -302,7 +299,7 @@ package riscv_mpsoc_pkg is
   constant OPC0_JAL     : std_logic_vector(7 downto 2) := "001011";
   constant OPC0_JALR    : std_logic_vector(7 downto 2) := "011001";
 
-  --RV32/RV64 Base instructions
+  -- RV32/RV64 Base instructions
   constant LUI   : std_logic_vector(15 downto 0) := "XXXXXXXXXXX01101";
   constant AUIPC : std_logic_vector(15 downto 0) := "XXXXXXXXXXX00101";
   constant JAL   : std_logic_vector(15 downto 0) := "XXXXXXXXXXX11011";
@@ -353,11 +350,11 @@ package riscv_mpsoc_pkg is
   constant SRAX  : std_logic_vector(15 downto 0) := "X010000010101100";
   constant SRAW  : std_logic_vector(15 downto 0) := "X010000010101110";
 
-  --pseudo instructions
-  constant SYSTEM  : std_logic_vector(15 downto 0) := "0XXXXXXX00011100";  --excludes RDxxx instructions
+  -- pseudo instructions
+  constant SYSTEM  : std_logic_vector(15 downto 0) := "0XXXXXXX00011100";  -- excludes RDxxx instructions
   constant MISCMEM : std_logic_vector(15 downto 0) := "0XXXXXXXXXX00011";
 
-  --SYSTEM/MISC_MEM opcodes
+  -- SYSTEM/MISC_MEM opcodes
   constant FENCE     : std_logic_vector(63 downto 0) := "000000000000000000000000000000000000XXXXXXXX00000000000000001111";
   constant SFENCE_VM : std_logic_vector(63 downto 0) := "00000000000000000000000000000000000100000100XXXXX000000001110011";
   constant FENCE_I   : std_logic_vector(63 downto 0) := "0000000000000000000000000000000000000000000000000001000000001111";
@@ -380,7 +377,7 @@ package riscv_mpsoc_pkg is
   constant CSRRSI : std_logic_vector(15 downto 0) := "0XXXXXXX11011100";
   constant CSRRCI : std_logic_vector(15 downto 0) := "0XXXXXXX11111100";
 
-  --RV32/RV64 A-Extensions instructions
+  -- RV32/RV64 A-Extensions instructions
   constant LRW      : std_logic_vector(14 downto 0) := "00010XX01001011";
   constant SCW      : std_logic_vector(14 downto 0) := "00011XX01001011";
   constant AMOSWAPW : std_logic_vector(14 downto 0) := "00001XX01001011";
@@ -405,7 +402,7 @@ package riscv_mpsoc_pkg is
   constant AMOMINUD : std_logic_vector(14 downto 0) := "11000XX01101011";
   constant AMOMAXUD : std_logic_vector(14 downto 0) := "11100XX01101011";
 
-  --RV32/RV64 M-Extensions instructions
+  -- RV32/RV64 M-Extensions instructions
   constant MUL    : std_logic_vector(15 downto 0) := "X000000100001100";
   constant MULH   : std_logic_vector(15 downto 0) := "X000000100101100";
   constant MULW   : std_logic_vector(15 downto 0) := "X000000100001110";
@@ -420,9 +417,9 @@ package riscv_mpsoc_pkg is
   constant REMU   : std_logic_vector(15 downto 0) := "X000000111101100";
   constant REMUW  : std_logic_vector(15 downto 0) := "0000000111101110";
 
-  --Per Supervisor Spec draft 1.10
+  -- Per Supervisor Spec draft 1.10
 
-  --PMP-CFG Register
+  -- PMP-CFG Register
   constant OFF   : std_logic_vector(1 downto 0) := "00";
   constant TOR   : std_logic_vector(1 downto 0) := "01";
   constant NA4   : std_logic_vector(1 downto 0) := "10";
@@ -430,90 +427,90 @@ package riscv_mpsoc_pkg is
 
   constant PMPCFG_MASK : std_logic_vector(7 downto 0) := X"9F";
 
-  --CSR mapping
-  --User
-  --User Trap Setup
+  -- CSR mapping
+  -- User
+  -- User Trap Setup
   constant USTATUS      : std_logic_vector(11 downto 0) := X"000";
   constant UIE          : std_logic_vector(11 downto 0) := X"004";
   constant UTVEC        : std_logic_vector(11 downto 0) := X"005";
-  --User Trap Handling
+  -- User Trap Handling
   constant USCRATCH     : std_logic_vector(11 downto 0) := X"040";
   constant UEPC         : std_logic_vector(11 downto 0) := X"041";
   constant UCAUSE       : std_logic_vector(11 downto 0) := X"042";
   constant UBADADDR     : std_logic_vector(11 downto 0) := X"043";
   constant UTVAL        : std_logic_vector(11 downto 0) := X"043";
   constant UIP          : std_logic_vector(11 downto 0) := X"044";
-  --User Floating-Point CSRs
+  -- User Floating-Point CSRs
   constant FFLAGS       : std_logic_vector(11 downto 0) := X"001";
   constant FRM          : std_logic_vector(11 downto 0) := X"002";
   constant FCSR         : std_logic_vector(11 downto 0) := X"003";
-  --User Counters/Timers
+  -- User Counters/Timers
   constant CYCLE        : std_logic_vector(11 downto 0) := X"C00";
   constant TIMEX        : std_logic_vector(11 downto 0) := X"C01";
   constant INSTRET      : std_logic_vector(11 downto 0) := X"C02";
-  constant HPMCOUNTER3  : std_logic_vector(11 downto 0) := X"C03";  --until HPMCOUNTER31='hC1F
+  constant HPMCOUNTER3  : std_logic_vector(11 downto 0) := X"C03";  -- until HPMCOUNTER31='hC1F
   constant CYCLEH       : std_logic_vector(11 downto 0) := X"C80";
   constant TIMEH        : std_logic_vector(11 downto 0) := X"C81";
   constant INSTRETH     : std_logic_vector(11 downto 0) := X"C82";
-  constant HPMCOUNTER3H : std_logic_vector(11 downto 0) := X"C83";  --until HPMCONTER31='hC9F
+  constant HPMCOUNTER3H : std_logic_vector(11 downto 0) := X"C83";  -- until HPMCONTER31='hC9F
 
-  --Supervisor
-  --Supervisor Trap Setup
+  -- Supervisor
+  -- Supervisor Trap Setup
   constant SSTATUS    : std_logic_vector(11 downto 0) := X"100";
   constant SEDELEG    : std_logic_vector(11 downto 0) := X"102";
   constant SIDELEG    : std_logic_vector(11 downto 0) := X"103";
   constant SIE        : std_logic_vector(11 downto 0) := X"104";
   constant STVEC      : std_logic_vector(11 downto 0) := X"105";
   constant SCOUNTEREN : std_logic_vector(11 downto 0) := X"106";
-  --Supervisor Trap Handling
+  -- Supervisor Trap Handling
   constant SSCRATCH   : std_logic_vector(11 downto 0) := X"140";
   constant SEPC       : std_logic_vector(11 downto 0) := X"141";
   constant SCAUSE     : std_logic_vector(11 downto 0) := X"142";
   constant STVAL      : std_logic_vector(11 downto 0) := X"143";
   constant SIP        : std_logic_vector(11 downto 0) := X"144";
-  --Supervisor Protection and Translation
+  -- Supervisor Protection and Translation
   constant SATP       : std_logic_vector(11 downto 0) := X"180";
 
-  --Hypervisor
-  --Hypervisor trap setup
+  -- Hypervisor
+  -- Hypervisor trap setup
   constant HSTATUS    : std_logic_vector(11 downto 0) := X"200";
   constant HEDELEG    : std_logic_vector(11 downto 0) := X"202";
   constant HIDELEG    : std_logic_vector(11 downto 0) := X"203";
   constant HIE        : std_logic_vector(11 downto 0) := X"204";
   constant HTVEC      : std_logic_vector(11 downto 0) := X"205";
-  --Hypervisor Trap Handling
+  -- Hypervisor Trap Handling
   constant HSCRATCH   : std_logic_vector(11 downto 0) := X"240";
   constant HEPC       : std_logic_vector(11 downto 0) := X"241";
   constant HCAUSE     : std_logic_vector(11 downto 0) := X"242";
   constant HTVAL      : std_logic_vector(11 downto 0) := X"243";
   constant HIP        : std_logic_vector(11 downto 0) := X"244";
 
-  --Machine
-  --Machine Information
+  -- Machine
+  -- Machine Information
   constant MVENDORID  : std_logic_vector(11 downto 0) := X"F11";
   constant MARCHID    : std_logic_vector(11 downto 0) := X"F12";
   constant MIMPID     : std_logic_vector(11 downto 0) := X"F13";
   constant MHARTID    : std_logic_vector(11 downto 0) := X"F14";
-  --Machine Trap Setup
+  -- Machine Trap Setup
   constant MSTATUS    : std_logic_vector(11 downto 0) := X"300";
   constant MISA       : std_logic_vector(11 downto 0) := X"301";
   constant MEDELEG    : std_logic_vector(11 downto 0) := X"302";
   constant MIDELEG    : std_logic_vector(11 downto 0) := X"303";
   constant MIE        : std_logic_vector(11 downto 0) := X"304";
-  constant MNMIVEC    : std_logic_vector(11 downto 0) := X"7C0";  --ROALOGIC NMI Vector
+  constant MNMIVEC    : std_logic_vector(11 downto 0) := X"7C0";  -- ROALOGIC NMI Vector
   constant MTVEC      : std_logic_vector(11 downto 0) := X"305";
   constant MCOUNTEREN : std_logic_vector(11 downto 0) := X"306";
-  --Machine Trap Handling
+  -- Machine Trap Handling
   constant MSCRATCH   : std_logic_vector(11 downto 0) := X"340";
   constant MEPC       : std_logic_vector(11 downto 0) := X"341";
   constant MCAUSE     : std_logic_vector(11 downto 0) := X"342";
   constant MTVAL      : std_logic_vector(11 downto 0) := X"343";
   constant MIP        : std_logic_vector(11 downto 0) := X"344";
-  --Machine Protection and Translation
+  -- Machine Protection and Translation
   constant PMPCFG0    : std_logic_vector(11 downto 0) := X"3A0";
-  constant PMPCFG1    : std_logic_vector(11 downto 0) := X"3A1";  --RV32 only
+  constant PMPCFG1    : std_logic_vector(11 downto 0) := X"3A1";  -- RV32 only
   constant PMPCFG2    : std_logic_vector(11 downto 0) := X"3A2";
-  constant PMPCFG3    : std_logic_vector(11 downto 0) := X"3A3";  --RV32 only
+  constant PMPCFG3    : std_logic_vector(11 downto 0) := X"3A3";  -- RV32 only
   constant PMPADDR0   : std_logic_vector(11 downto 0) := X"3B0";
   constant PMPADDR1   : std_logic_vector(11 downto 0) := X"3B1";
   constant PMPADDR2   : std_logic_vector(11 downto 0) := X"3B2";
@@ -531,18 +528,18 @@ package riscv_mpsoc_pkg is
   constant PMPADDR14  : std_logic_vector(11 downto 0) := X"3BE";
   constant PMPADDR15  : std_logic_vector(11 downto 0) := X"3BF";
 
-  --Machine Counters/Timers
+  -- Machine Counters/Timers
   constant MCYCLE        : std_logic_vector(11 downto 0) := X"B00";
   constant MINSTRET      : std_logic_vector(11 downto 0) := X"B02";
-  constant MHPMCOUNTER3  : std_logic_vector(11 downto 0) := X"B03";  --until MHPMCOUNTER31='hB1F
+  constant MHPMCOUNTER3  : std_logic_vector(11 downto 0) := X"B03";  -- until MHPMCOUNTER31='hB1F
   constant MCYCLEH       : std_logic_vector(11 downto 0) := X"B80";
   constant MINSTRETH     : std_logic_vector(11 downto 0) := X"B82";
-  constant MHPMCOUNTER3H : std_logic_vector(11 downto 0) := X"B83";  --until MHPMCOUNTER31H='hB9F
+  constant MHPMCOUNTER3H : std_logic_vector(11 downto 0) := X"B83";  -- until MHPMCOUNTER31H='hB9F
 
-  --Machine Counter Setup
-  constant MHPEVENT3 : std_logic_vector(11 downto 0) := X"323";  --until MHPEVENT31 = 'h33f
+  -- Machine Counter Setup
+  constant MHPEVENT3 : std_logic_vector(11 downto 0) := X"323";  -- until MHPEVENT31 = 'h33f
 
-  --Debug
+  -- Debug
   constant TSELECT  : std_logic_vector(11 downto 0) := X"7A0";
   constant TDATA1   : std_logic_vector(11 downto 0) := X"7A1";
   constant TDATA2   : std_logic_vector(11 downto 0) := X"7A2";
@@ -551,19 +548,19 @@ package riscv_mpsoc_pkg is
   constant DPC      : std_logic_vector(11 downto 0) := X"7B1";
   constant DSCRATCH : std_logic_vector(11 downto 0) := X"7B2";
 
-  --MXL mapping
+  -- MXL mapping
   constant RV32I  : std_logic_vector(1 downto 0) := "01";
   constant RV32E  : std_logic_vector(1 downto 0) := "01";
   constant RV64I  : std_logic_vector(1 downto 0) := "10";
   constant RV128I : std_logic_vector(1 downto 0) := "11";
 
-  --Privilege Levels
+  -- Privilege Levels
   constant PRV_M : std_logic_vector(1 downto 0) := "11";
   constant PRV_H : std_logic_vector(1 downto 0) := "10";
   constant PRV_S : std_logic_vector(1 downto 0) := "01";
   constant PRV_U : std_logic_vector(1 downto 0) := "00";
 
-  --Virtualisation
+  -- Virtualisation
   constant VM_MBARE : std_logic_vector(3 downto 0) := "0000";
   constant VM_SV32  : std_logic_vector(3 downto 0) := "0001";
   constant VM_SV39  : std_logic_vector(3 downto 0) := "1000";
@@ -571,7 +568,7 @@ package riscv_mpsoc_pkg is
   constant VM_SV57  : std_logic_vector(3 downto 0) := "1010";
   constant VM_SV64  : std_logic_vector(3 downto 0) := "1011";
 
-  --MIE MIP
+  -- MIE MIP
   constant MEI : integer := 11;
   constant HEI : integer := 10;
   constant SEI : integer := 9;
@@ -585,12 +582,12 @@ package riscv_mpsoc_pkg is
   constant SSI : integer := 1;
   constant USI : integer := 0;
 
-  --Performance Counters
+  -- Performance Counters
   constant CY : integer := 0;
   constant TM : integer := 1;
   constant IR : integer := 2;
 
-  --Exception Causes
+  -- Exception Causes
   constant EXCEPTION_SIZE : integer := 16;
 
   constant CAUSE_MISALIGNED_INSTRUCTION   : integer := 0;
@@ -632,21 +629,21 @@ package riscv_mpsoc_pkg is
   constant AMO_TYPE_LOGICAL    : std_logic_vector(1 downto 0) := "10";
   constant AMO_TYPE_ARITHMETIC : std_logic_vector(1 downto 0) := "11";
 
-  --AHB3 Lite Package
+  -- AHB3 Lite Package
 
-  --HTRANS
+  -- HTRANS
   constant HTRANS_IDLE   : std_logic_vector(1 downto 0) := "00";
   constant HTRANS_BUSY   : std_logic_vector(1 downto 0) := "01";
   constant HTRANS_NONSEQ : std_logic_vector(1 downto 0) := "10";
   constant HTRANS_SEQ    : std_logic_vector(1 downto 0) := "11";
 
-  --HSIZE
+  -- HSIZE
   constant HSIZE_B8    : std_logic_vector(2 downto 0) := "000";
   constant HSIZE_B16   : std_logic_vector(2 downto 0) := "001";
   constant HSIZE_B32   : std_logic_vector(2 downto 0) := "010";
   constant HSIZE_B64   : std_logic_vector(2 downto 0) := "011";
-  constant HSIZE_B128  : std_logic_vector(2 downto 0) := "100";  --4-word line
-  constant HSIZE_B256  : std_logic_vector(2 downto 0) := "101";  --8-word line
+  constant HSIZE_B128  : std_logic_vector(2 downto 0) := "100";  -- 4-word line
+  constant HSIZE_B256  : std_logic_vector(2 downto 0) := "101";  -- 8-word line
   constant HSIZE_B512  : std_logic_vector(2 downto 0) := "110";
   constant HSIZE_B1024 : std_logic_vector(2 downto 0) := "111";
   constant HSIZE_BYTE  : std_logic_vector(2 downto 0) := HSIZE_B8;
@@ -654,7 +651,7 @@ package riscv_mpsoc_pkg is
   constant HSIZE_WORD  : std_logic_vector(2 downto 0) := HSIZE_B32;
   constant HSIZE_DWORD : std_logic_vector(2 downto 0) := HSIZE_B64;
 
-  --HBURST
+  -- HBURST
   constant HBURST_SINGLE : std_logic_vector(2 downto 0) := "000";
   constant HBURST_INCR   : std_logic_vector(2 downto 0) := "001";
   constant HBURST_WRAP4  : std_logic_vector(2 downto 0) := "010";
@@ -664,7 +661,7 @@ package riscv_mpsoc_pkg is
   constant HBURST_WRAP16 : std_logic_vector(2 downto 0) := "110";
   constant HBURST_INCR16 : std_logic_vector(2 downto 0) := "111";
 
-  --HPROT
+  -- HPROT
   constant HPROT_OPCODE         : std_logic_vector(3 downto 0) := "0000";
   constant HPROT_DATA           : std_logic_vector(3 downto 0) := "0001";
   constant HPROT_USER           : std_logic_vector(3 downto 0) := "0000";
@@ -674,7 +671,7 @@ package riscv_mpsoc_pkg is
   constant HPROT_NON_CACHEABLE  : std_logic_vector(3 downto 0) := "0000";
   constant HPROT_CACHEABLE      : std_logic_vector(3 downto 0) := "1000";
 
-  --HRESP
+  -- HRESP
   constant HRESP_OKAY  : std_logic := '0';
   constant HRESP_ERROR : std_logic := '1';
 

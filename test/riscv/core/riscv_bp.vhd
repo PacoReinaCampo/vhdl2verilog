@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/core/riscv_bp.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -69,15 +66,15 @@ entity riscv_bp is
     rst_ni : in std_logic;
     clk_i  : in std_logic;
 
-    --Read side
+    -- Read side
     id_stall_i      : in  std_logic;
     if_parcel_pc_i  : in  std_logic_vector(XLEN-1 downto 0);
     bp_bp_predict_o : out std_logic_vector(1 downto 0);
 
-    --Write side
+    -- Write side
     ex_pc_i         : in std_logic_vector(XLEN-1 downto 0);
-    bu_bp_history_i : in std_logic_vector(BP_GLOBAL_BITS-1 downto 0);  --branch history
-    bu_bp_predict_i : in std_logic_vector(1 downto 0);  --prediction bits for branch
+    bu_bp_history_i : in std_logic_vector(BP_GLOBAL_BITS-1 downto 0);  -- branch history
+    bu_bp_predict_i : in std_logic_vector(1 downto 0);  -- prediction bits for branch
     bu_bp_btaken_i  : in std_logic;
     bu_bp_update_i  : in std_logic
   );
@@ -108,7 +105,7 @@ architecture RTL of riscv_bp is
   --////////////////////////////////////////////////////////////////
   --
   -- Constants
-  --
+  ------------------------------------------------------------------------------
   constant ADR_BITS     : integer := BP_GLOBAL_BITS+BP_LOCAL_BITS;
   constant MEMORY_DEPTH : integer := 2**ADR_BITS;
 
@@ -162,13 +159,13 @@ begin
       rst_ni => rst_ni,
       clk_i  => clk_i,
 
-      --Write side
+      -- Write side
       waddr_i => wadr,
       din_i   => new_prediction,
       we_i    => bu_bp_update_i,
       be_i    => std_logic_vector(to_unsigned(1, (2+7)/8)),
 
-      --Read side
+      -- Read side
       raddr_i => radr,
       re_i    => '1',
       dout_o  => old_prediction

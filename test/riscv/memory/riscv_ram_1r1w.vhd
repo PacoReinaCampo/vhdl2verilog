@@ -1,5 +1,3 @@
--- Converted from memory/riscv_ram_1r1w.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -57,13 +54,13 @@ entity riscv_ram_1r1w is
     rst_ni : in std_logic;
     clk_i  : in std_logic;
 
-    --Write side
+    -- Write side
     waddr_i : in std_logic_vector(ABITS-1 downto 0);
     din_i   : in std_logic_vector(DBITS-1 downto 0);
     we_i    : in std_logic;
     be_i    : in std_logic_vector((DBITS+7)/8-1 downto 0);
 
-    --Read side
+    -- Read side
     raddr_i : in  std_logic_vector(ABITS-1 downto 0);
     re_i    : in  std_logic;
     dout_o  : out std_logic_vector(DBITS-1 downto 0)
@@ -105,9 +102,9 @@ begin
 -- Module Body
 --
   generating_0 : if (TECHNOLOGY = "GENERIC") generate
-    --GENERIC  -- inferrable memory
+    -- GENERIC  -- inferrable memory
 
-    --initial $display ("INFO   : No memory technology specified. Using generic inferred memory (%m)");
+    -- initial $display ("INFO   : No memory technology specified. Using generic inferred memory (%m)");
     ram_inst : riscv_ram_1r1w_generic
       generic map (
         ABITS => ABITS,
@@ -127,11 +124,11 @@ begin
       );
   end generate;
 
-  --TODO Handle 'be' ... requires partial old, partial new data
+  -- TODO Handle 'be' ... requires partial old, partial new data
 
-  --now ... write-first; we'll still need some bypass logic
+  -- now ... write-first; we'll still need some bypass logic
   contention <= re_i
-                when ((we_i = '1') and (raddr_i = waddr_i)) else '0';  --prevent 'x' from propagating from eASIC memories
+                when ((we_i = '1') and (raddr_i = waddr_i)) else '0';  -- prevent 'x' from propagating from eASIC memories
 
   processing_0 : process (clk_i)
   begin

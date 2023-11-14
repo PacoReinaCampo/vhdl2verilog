@@ -37,7 +37,6 @@
 -- =============================================================================
 -- Author(s):
 --   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
---
 
 library IEEE;
 use IEEE.STD_LOGIC_1164 .all;
@@ -66,9 +65,9 @@ end omsp_dbg_uart;
 
 architecture omsp_dbg_uart_ARQ of omsp_dbg_uart is
 
-  --8.          UART_COMMUNICATION      
-  --8.2.                UART STATE MACHINE      
-  --8.2.2.      State machine definition
+  -- 8.          UART_COMMUNICATION      
+  -- 8.2.                UART STATE MACHINE      
+  -- 8.2.2.      State machine definition
   constant RX_SYNC  : std_logic_vector (2 downto 0) := "000";
   constant RX_CMD   : std_logic_vector (2 downto 0) := "001";
   constant RX_DATA1 : std_logic_vector (2 downto 0) := "010";
@@ -76,17 +75,17 @@ architecture omsp_dbg_uart_ARQ of omsp_dbg_uart is
   constant TX_DATA1 : std_logic_vector (2 downto 0) := "100";
   constant TX_DATA2 : std_logic_vector (2 downto 0) := "101";
 
-  --8.          UART_COMMUNICATION                                              
-  --8.1.                UART RECEIVE LINE SYNCHRONIZTION & FILTERING
-  --8.1.1.      Synchronize RXD input
+  -- 8.          UART_COMMUNICATION                                              
+  -- 8.1.                UART RECEIVE LINE SYNCHRONIZTION & FILTERING
+  -- 8.1.1.      Synchronize RXD input
   signal uart_rxd         : std_logic;
   signal uart_rxd_n       : std_logic;
   signal not_dbg_uart_rxd : std_logic;
 
-  --8.1.2.      RXD input buffer
+  -- 8.1.2.      RXD input buffer
   signal rxd_buf : std_logic_vector (1 downto 0);
 
-  --8.1.3.      Majority decision
+  -- 8.1.3.      Majority decision
   signal rxd_maj     : std_logic;
   signal rxd_maj_nxt : std_logic;
   signal rxd_s       : std_logic;
@@ -94,8 +93,8 @@ architecture omsp_dbg_uart_ARQ of omsp_dbg_uart is
   signal rxd_re      : std_logic;
   signal rxd_edge    : std_logic;
 
-  --8.2.                UART STATE MACHINE
-  --8.2.1.      Receive state
+  -- 8.2.                UART STATE MACHINE
+  -- 8.2.1.      Receive state
   signal sync_done      : std_logic;
   signal xfer_done      : std_logic;
   signal uart_state     : std_logic_vector (2 downto 0);
@@ -103,7 +102,7 @@ architecture omsp_dbg_uart_ARQ of omsp_dbg_uart is
   signal xfer_buf       : std_logic_vector (19 downto 0);
   signal xfer_buf_nxt   : std_logic_vector (19 downto 0);
 
-  --8.2.2.      State machine definition
+  -- 8.2.2.      State machine definition
   signal re_rx_cmd : std_logic_vector (2 downto 0);
 
   signal re_0_rx_cmd : std_logic_vector (2 downto 0);
@@ -118,20 +117,20 @@ architecture omsp_dbg_uart_ARQ of omsp_dbg_uart is
   signal re_0_rx_data2 : std_logic_vector (2 downto 0);
   signal re_0_tx_data2 : std_logic_vector (2 downto 0);
 
-  --8.2.3.      State transition
-  --8.2.4.      State machine
-  --8.2.5.      Utility signals
+  -- 8.2.3.      State transition
+  -- 8.2.4.      State machine
+  -- 8.2.5.      Utility signals
   signal cmd_valid : std_logic;
   signal rx_active : std_logic;
   signal tx_active : std_logic;
 
-  --8.3.                UART SYNCHRONIZATION
+  -- 8.3.                UART SYNCHRONIZATION
   signal sync_busy   : std_logic;
   signal sync_cnt    : std_logic_vector (DBG_UART_XFER_CNT_W+2 downto 0);
   signal bit_cnt_max : std_logic_vector (DBG_UART_XFER_CNT_W-1 downto 0);
 
-  --8.4.                UART RECEIVE / TRANSMIT
-  --8.4.1.      Transfer counter
+  -- 8.4.                UART RECEIVE / TRANSMIT
+  -- 8.4.1.      Transfer counter
   signal txd_start    : std_logic;
   signal rxd_start    : std_logic;
   signal xfer_bit_inc : std_logic;
@@ -139,17 +138,17 @@ architecture omsp_dbg_uart_ARQ of omsp_dbg_uart is
   signal xfer_bit : std_logic_vector (3 downto 0);
   signal xfer_cnt : std_logic_vector (DBG_UART_XFER_CNT_W-1 downto 0);
 
-  --8.4.2.      Receive/Transmit buffer
-  --8.4.3.      Generate TXD output
-  --8.5.                INTERFACE TO DEBUG REGISTERS
+  -- 8.4.2.      Receive/Transmit buffer
+  -- 8.4.3.      Generate TXD output
+  -- 8.5.                INTERFACE TO DEBUG REGISTERS
   signal dbg_bw     : std_logic;
   signal dbg_din_bw : std_logic;
 
 begin
   P8_UART_COMMUNICATION : block
   begin
-    --8.1.              UART RECEIVE LINE SYNCHRONIZTION & FILTERING
-    --8.1.1.    Synchronize RXD input
+    -- 8.1.              UART RECEIVE LINE SYNCHRONIZTION & FILTERING
+    -- 8.1.1.    Synchronize RXD input
     sync_dbg_uart_rxd_on : if (SYNC_DBG_UART_RXD = '1') generate
       sync_cell_uart_rxd : omsp_sync_cell
         port map (
@@ -166,7 +165,7 @@ begin
       uart_rxd <= dbg_uart_rxd;
     end generate sync_dbg_uart_rxd_off;
 
-    --8.1.2.    RXD input buffer
+    -- 8.1.2.    RXD input buffer
     R1_2 : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -176,7 +175,7 @@ begin
       end if;
     end process R1_2;
 
-    --8.1.3.    Majority decision
+    -- 8.1.3.    Majority decision
     rxd_maj_nxt <= (uart_rxd and rxd_buf(0)) or (uart_rxd and rxd_buf(1)) or (rxd_buf(0) and rxd_buf(1));
 
     R1_2_e : process (dbg_clk, dbg_rst)
@@ -193,10 +192,10 @@ begin
     rxd_re   <= not rxd_maj and rxd_maj_nxt;
     rxd_edge <= rxd_maj xor rxd_maj_nxt;
 
-    --8.2.              UART STATE MACHINE
-    --8.2.1.    Receive state
-    --8.2.2.    State machine definition
-    --8.2.3.    State transition
+    -- 8.2.              UART STATE MACHINE
+    -- 8.2.1.    Receive state
+    -- 8.2.2.    State machine definition
+    -- 8.2.3.    State transition
     process(uart_state, re_rx_cmd, re_rx_data2, re_tx_data2)
     begin
       case uart_state is
@@ -238,7 +237,7 @@ begin
     re_0_tx_data2 <= TX_DATA2
                      when mem_bw = '1' else TX_DATA1;
 
-    --8.2.4.    State machine
+    -- 8.2.4.    State machine
     R_1c : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -250,12 +249,12 @@ begin
       end if;
     end process R_1c;
 
-    --8.2.5.    Utility signals
+    -- 8.2.5.    Utility signals
     cmd_valid <= to_stdlogic(uart_state = RX_CMD) and xfer_done;
     rx_active <= to_stdlogic(uart_state = RX_DATA1) or to_stdlogic(uart_state = RX_DATA2) or to_stdlogic(uart_state = RX_CMD);
     tx_active <= to_stdlogic(uart_state = TX_DATA1) or to_stdlogic(uart_state = TX_DATA2);
 
-    --8.3.              UART SYNCHRONIZATION
+    -- 8.3.              UART SYNCHRONIZATION
     R_1c_2c_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -290,8 +289,8 @@ begin
       bit_cnt_max <= DBG_UART_CNTB;
     end generate dbg_uart_auto_sync_off;
 
-    --8.4.              UART RECEIVE / TRANSMIT
-    --8.4.1.    Transfer counter
+    -- 8.4.              UART RECEIVE / TRANSMIT
+    -- 8.4.1.    Transfer counter
     txd_start    <= dbg_rd_rdy or (xfer_done and to_stdlogic(uart_state = TX_DATA1));
     rxd_start    <= to_stdlogic(xfer_bit = X"0") and rxd_fe and to_stdlogic(uart_state /= RX_SYNC);
     xfer_bit_inc <= to_stdlogic(xfer_bit /= X"0") and to_stdlogic(xfer_cnt = (0 to DBG_UART_XFER_CNT_W - 1 => '0'));
@@ -327,7 +326,7 @@ begin
       end if;
     end process R2_1c_2c_3c;
 
-    --8.4.2.    Receive/Transmit buffer
+    -- 8.4.2.    Receive/Transmit buffer
     xfer_buf_nxt <= rxd_s & xfer_buf(19 downto 1);
 
     R_1c_2c : process (dbg_clk, dbg_rst)
@@ -343,7 +342,7 @@ begin
       end if;
     end process R_1c_2c;
 
-    --8.4.3.    Generate TXD output
+    -- 8.4.3.    Generate TXD output
     R_1c_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -355,7 +354,7 @@ begin
       end if;
     end process R_1c_e;
 
-    --8.5.              INTERFACE TO DEBUG REGISTERS
+    -- 8.5.              INTERFACE TO DEBUG REGISTERS
     R2_1c : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then

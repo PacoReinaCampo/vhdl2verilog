@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/core/memory/riscv_memmisaligned.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 
 library ieee;
@@ -58,13 +55,13 @@ entity riscv_memmisaligned is
   port (
     clk_i : in std_logic;
 
-    --CPU side
+    -- CPU side
     instruction_i : in std_logic;
     req_i         : in std_logic;
     adr_i         : in std_logic_vector(XLEN-1 downto 0);
     size_i        : in std_logic_vector(2 downto 0);
 
-    --To memory subsystem
+    -- To memory subsystem
     misaligned_o : out std_logic
     );
 end riscv_memmisaligned;

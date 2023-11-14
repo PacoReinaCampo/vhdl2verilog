@@ -46,41 +46,41 @@ use WORK.MSP430_PACK .all;
 
 entity MSP430_CORE is
   port (
-    --FRONTEND - SCAN
+    -- FRONTEND - SCAN
     scan_enable : in std_logic;
     scan_mode   : in std_logic;
 
-    --FRONTEND - INTERRUPTION
+    -- FRONTEND - INTERRUPTION
     irq_acc : out std_logic_vector (IRQ_NR - 3 downto 0);
     nmi     : in  std_logic;
     irq     : in  std_logic_vector (IRQ_NR - 3 downto 0);
 
-    --FRONTEND - RESET
+    -- FRONTEND - RESET
     puc_rst : out std_logic;
     reset_n : in  std_logic;
 
-    --DATA MEMORY
+    -- DATA MEMORY
     dmem_cen  : out std_logic;
     dmem_wen  : out std_logic_vector (1 downto 0);
     dmem_din  : out std_logic_vector (15 downto 0);
     dmem_addr : out std_logic_vector (DMEM_MSB downto 0);
     dmem_dout : in  std_logic_vector (15 downto 0);
 
-    --INSTRUCTION MEMORY
+    -- INSTRUCTION MEMORY
     pmem_cen  : out std_logic;
     pmem_wen  : out std_logic_vector (1 downto 0);
     pmem_din  : out std_logic_vector (15 downto 0);
     pmem_addr : out std_logic_vector (PMEM_MSB downto 0);
     pmem_dout : in  std_logic_vector (15 downto 0);
 
-    --PERIPHERAL MEMORY
+    -- PERIPHERAL MEMORY
     per_en   : out std_logic;
     per_we   : out std_logic_vector (1 downto 0);
     per_addr : out std_logic_vector (13 downto 0);
     per_din  : out std_logic_vector (15 downto 0);
     per_dout : in  std_logic_vector (15 downto 0);
 
-    --EXECUTION - REGISTERS
+    -- EXECUTION - REGISTERS
     r0  : out std_logic_vector (15 downto 0);
     r1  : out std_logic_vector (15 downto 0);
     r2  : out std_logic_vector (15 downto 0);
@@ -112,22 +112,22 @@ entity MSP430_CORE is
 
     nodiv_smclk : out std_logic;
 
-    --DBG
+    -- DBG
     dbg_freeze : out std_logic;
     dbg_en     : in  std_logic;
 
-    --DBG - I2C
+    -- DBG - I2C
     dbg_i2c_sda_out   : out std_logic;
     dbg_i2c_scl       : in  std_logic;
     dbg_i2c_sda_in    : in  std_logic;
     dbg_i2c_addr      : in  std_logic_vector (6 downto 0);
     dbg_i2c_broadcast : in  std_logic_vector (6 downto 0);
 
-    --DBG - UART
+    -- DBG - UART
     dbg_uart_txd : out std_logic;
     dbg_uart_rxd : in  std_logic;
 
-    --BCM
+    -- BCM
     aclk        : out std_logic;
     aclk_en     : out std_logic;
     dco_enable  : out std_logic;
@@ -145,24 +145,24 @@ end MSP430_CORE;
 
 architecture MSP430_CORE_ARQ of MSP430_CORE is
 
-  --SIGNAL INOUT--
-  --FRONTEND - INTERRUPTION
+  -- SIGNAL INOUT--
+  -- FRONTEND - INTERRUPTION
   signal irq_acc_omsp : std_logic_vector (IRQ_NR - 3 downto 0);
 
-  --FRONTEND - RESET
+  -- FRONTEND - RESET
   signal puc_rst_omsp : std_logic;
 
-  --PERIPHERAL MEMORY   
+  -- PERIPHERAL MEMORY   
   signal per_en_omsp   : std_logic;
   signal per_we_omsp   : std_logic_vector (1 downto 0);
   signal per_addr_omsp : std_logic_vector (13 downto 0);
   signal per_din_omsp  : std_logic_vector (15 downto 0);
   signal per_dout_omsp : std_logic_vector (15 downto 0);
 
-  --DBG
+  -- DBG
   signal dbg_freeze_omsp : std_logic;
 
-  --BCM
+  -- BCM
   signal aclk_omsp     : std_logic;
   signal aclk_en_omsp  : std_logic;
   signal dbg_clk_omsp  : std_logic;
@@ -171,8 +171,8 @@ architecture MSP430_CORE_ARQ of MSP430_CORE is
   signal smclk_omsp    : std_logic;
   signal smclk_en_omsp : std_logic;
 
-  --OMSP--
-  --FRONTEND
+  -- OMSP--
+  -- FRONTEND
   signal dbg_halt_st  : std_logic;
   signal decode_noirq : std_logic;
   signal exec_done    : std_logic;
@@ -198,13 +198,13 @@ architecture MSP430_CORE_ARQ of MSP430_CORE is
   signal pc_omsp      : std_logic_vector (15 downto 0);
   signal pc_nxt       : std_logic_vector (15 downto 0);
 
-  --MEMORY
+  -- MEMORY
   signal fe_pmem_wait : std_logic;
   signal dbg_mem_din  : std_logic_vector (15 downto 0);
   signal eu_mdb_in    : std_logic_vector (15 downto 0);
   signal fe_mdb_in    : std_logic_vector (15 downto 0);
 
-  --EXECUTION
+  -- EXECUTION
   signal cpuoff      : std_logic;
   signal eu_mb_en    : std_logic;
   signal gie         : std_logic;
@@ -218,7 +218,7 @@ architecture MSP430_CORE_ARQ of MSP430_CORE is
   signal eu_mdb_out  : std_logic_vector (15 downto 0);
   signal pc_sw       : std_logic_vector (15 downto 0);
 
-  --DBG
+  -- DBG
   signal dbg_cpu_reset : std_logic;
   signal dbg_halt_cmd  : std_logic;
   signal dbg_mem_en    : std_logic;
@@ -227,17 +227,17 @@ architecture MSP430_CORE_ARQ of MSP430_CORE is
   signal dbg_mem_addr  : std_logic_vector (15 downto 0);
   signal dbg_mem_dout  : std_logic_vector (15 downto 0);
 
-  --BCM 
+  -- BCM 
   signal cpu_en_s     : std_logic;
   signal dbg_en_s     : std_logic;
   signal por          : std_logic;
   signal puc_pnd_set  : std_logic;
   signal per_dout_clk : std_logic_vector (15 downto 0);
 
-  --MULTIPLIER
+  -- MULTIPLIER
   signal per_dout_mpy : std_logic_vector (15 downto 0);
 
-  --SFR
+  -- SFR
   signal nmi_pnd       : std_logic;
   signal nmi_wkup      : std_logic;
   signal wdtie         : std_logic;
@@ -248,7 +248,7 @@ architecture MSP430_CORE_ARQ of MSP430_CORE is
   signal per_dout_sfr  : std_logic_vector (15 downto 0);
   signal cpu_id        : std_logic_vector (31 downto 0);
 
-  --T_WATCHDOG  
+  -- T_WATCHDOG  
   signal wdt_irq       : std_logic;
   signal wdt_reset     : std_logic;
   signal wdt_wkup      : std_logic;
@@ -259,7 +259,7 @@ architecture MSP430_CORE_ARQ of MSP430_CORE is
 
   signal per_dout_or : std_logic_vector (15 downto 0);
 
-  --MAIN        
+  -- MAIN        
   component FRONTEND
     port (
       dbg_halt_st  : out std_logic;
@@ -447,7 +447,7 @@ architecture MSP430_CORE_ARQ of MSP430_CORE is
       cpu_id            : in std_logic_vector (31 downto 0));
   end component DBG;
 
-  --INTERNAL PERIPHERAL
+  -- INTERNAL PERIPHERAL
   component BCM
     port (
       aclk          : out std_logic;
@@ -903,26 +903,26 @@ begin
                    per_dout_wdog or
                    per_dout_mpy;
 
-    --FRONTEND - INTERRUPTION
+    -- FRONTEND - INTERRUPTION
     irq_acc <= irq_acc_omsp;
 
-    --FRONTEND - RESET
+    -- FRONTEND - RESET
     puc_rst <= puc_rst_omsp;
 
     e_state <= e_state_omsp;
     pc      <= pc_omsp;
 
-    --PERIPHERAL MEMORY 
+    -- PERIPHERAL MEMORY 
     per_en        <= per_en_omsp;
     per_we        <= per_we_omsp;
     per_din       <= per_din_omsp;
     per_addr      <= per_addr_omsp;
     per_dout_omsp <= per_dout;
 
-    --DBG
+    -- DBG
     dbg_freeze <= dbg_freeze_omsp;
 
-    --BCM
+    -- BCM
     aclk     <= aclk_omsp;
     aclk_en  <= aclk_en_omsp;
     dbg_clk  <= dbg_clk_omsp;

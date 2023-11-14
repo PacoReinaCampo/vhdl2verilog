@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/core/riscv_du.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -66,7 +63,7 @@ entity riscv_du is
     rstn : in std_logic;
     clk  : in std_logic;
 
-    --Debug Port interface
+    -- Debug Port interface
     dbg_stall : in  std_logic;
     dbg_strb  : in  std_logic;
     dbg_we    : in  std_logic;
@@ -76,7 +73,7 @@ entity riscv_du is
     dbg_ack   : out std_logic;
     dbg_bp    : out std_logic;
 
-    --CPU signals
+    -- CPU signals
     du_stall     : out std_logic;
     du_stall_dly : out std_logic;
     du_flush     : out std_logic;
@@ -106,7 +103,7 @@ entity riscv_du is
     dmem_ack      : in std_logic;
     ex_stall      : in std_logic;
 
-    --From state
+    -- From state
     du_exceptions : in std_logic_vector(31 downto 0)
     );
 end riscv_du;
@@ -115,7 +112,7 @@ architecture RTL of riscv_du is
   --//////////////////////////////////////////////////////////////
   --
   -- Constants
-  --
+  ------------------------------------------------------------------------------
   constant DBG_ADDR_INTERNAL : std_logic_vector(63 downto 0) := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX0000XXXXXXXXXXXX";
   constant DBG_ADDR_GPR      : std_logic_vector(63 downto 0) := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX00010000000XXXXX";
   constant DBG_ADDR_FPR      : std_logic_vector(63 downto 0) := "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX00010001000XXXXX";
@@ -169,7 +166,7 @@ begin
   -- Module Body
   --
 
-  --Debugger Interface
+  -- Debugger Interface
 
   -- Decode incoming address
   du_bank_addr    <= dbg_addr(PLEN-1 downto DU_ADDR_SIZE);
@@ -177,7 +174,7 @@ begin
   du_sel_gprs     <= to_stdlogic(du_bank_addr(15 downto 12) = DBG_GPRS);
   du_sel_csrs     <= to_stdlogic(du_bank_addr(15 downto 12) = DBG_CSRS);
 
-  --generate 1 cycle pulse strobe
+  -- generate 1 cycle pulse strobe
   processing_0 : process (clk)
   begin
     if (rising_edge(clk)) then
@@ -185,7 +182,7 @@ begin
     end if;
   end process;
 
-  --generate (write) access signals
+  -- generate (write) access signals
   du_access <= (dbg_strb and dbg_stall) or (dbg_strb and du_sel_internal);
   du_we     <= du_access and not dbg_strb_dly and dbg_we;
 
@@ -205,7 +202,7 @@ begin
 
   dbg_ack <= du_ack(0);
 
-  --actual BreakPoint signal
+  -- actual BreakPoint signal
   processing_2 : process (clk, rstn)
   begin
     if (rstn = '0') then
@@ -215,7 +212,7 @@ begin
     end if;
   end process;
 
-  --CPU Interface
+  -- CPU Interface
 
   -- assign CPU signals
   du_stall <= dbg_stall;
@@ -326,9 +323,9 @@ begin
     end if;
   end process;
 
-  --Registers
+  -- Registers
 
-  --DBG CTRL
+  -- DBG CTRL
   processing_7 : process (clk, rstn)
   begin
     if (rstn = '0') then
@@ -342,7 +339,7 @@ begin
     end if;
   end process;
 
-  --DBG HIT
+  -- DBG HIT
   processing_8 : process (clk, rstn)
   begin
     if (rstn = '0') then
@@ -377,10 +374,10 @@ begin
       end process;
     end generate generating_1;
   end generate generating_0;
-  --else //n >= BREAKPOINTS
-  --assign dbg_bp_hit[n] = 1'b0;
+  -- else //n >= BREAKPOINTS
+  -- assign dbg_bp_hit[n] = 1'b0;
 
-  --DBG IE
+  -- DBG IE
   processing_10 : process (clk, rstn)
   begin
     if (rstn = '0') then
@@ -392,10 +389,10 @@ begin
     end if;
   end process;
 
-  --send to Thread-State
+  -- send to Thread-State
   du_ie <= dbg_ies;
 
-  --DBG CAUSE
+  -- DBG CAUSE
   processing_11 : process (clk, rstn)
   begin
     if (rstn = '0') then
@@ -403,7 +400,7 @@ begin
     elsif (rising_edge(clk)) then
       if (du_we_internal = '1' and du_addr_sgn = DBG_CAUSE) then
         dbg_causes <= du_dato_sgn;
-      elsif (reduce_or(du_exceptions(15 downto 0)) = '1') then   --traps
+      elsif (reduce_or(du_exceptions(15 downto 0)) = '1') then   -- traps
         case ((du_exceptions(15 downto 0))) is
           when X"0001" =>
             dbg_causes <= X"0000000000000000";
@@ -440,7 +437,7 @@ begin
           when others =>
             dbg_causes <= X"0000000000000000";
         end case;
-      elsif (reduce_or(du_exceptions(31 downto 16)) = '1') then  --Interrupts
+      elsif (reduce_or(du_exceptions(31 downto 16)) = '1') then  -- Interrupts
         case ((du_exceptions(31 downto 16))) is
           when X"0001" =>
             dbg_causes <= std_logic_vector(to_unsigned(1, XLEN) sll (XLEN-1)) or X"0000000000000000";
@@ -481,7 +478,7 @@ begin
     end if;
   end process;
 
-  --DBG BPCTRL / DBG BPDATA
+  -- DBG BPCTRL / DBG BPDATA
   generating_2 : for n in 0 to MAX_BREAKPOINTS - 1 generate
     generating_3 : if (n < BREAKPOINTS) generate
       dbg_implemented(n) <= '1';
@@ -510,12 +507,12 @@ begin
       end process;
     end generate generating_3;
   end generate generating_2;
-  --else begin
-  --assign dbg_cc                [(n+1)*3-1:n*3] = 'h0;
-  --assign dbg_enabled                       [n] = 'h0;
-  --assign dbg_implemented                   [n] = 'h0;
-  --assign dbg_data        [(n+1)*XLEN-1:n*XLEN] = 'h0;
-  --end
+  -- else begin
+  -- assign dbg_cc                [(n+1)*3-1:n*3] = 'h0;
+  -- assign dbg_enabled                       [n] = 'h0;
+  -- assign dbg_implemented                   [n] = 'h0;
+  -- assign dbg_data        [(n+1)*XLEN-1:n*XLEN] = 'h0;
+  -- end
 
   --  * BreakPoints
   --  *
@@ -525,7 +522,7 @@ begin
   bp_instr_hit  <= dbg_instr_break_ena and not if_bubble;
   bp_branch_hit <= dbg_branch_break_ena and not if_bubble and to_stdlogic(if_instr(6 downto 2) = OPC_BRANCH);
 
-  --Memory access
+  -- Memory access
   mem_read  <= reduce_nor(mem_exception) and not mem_bubble and to_stdlogic(mem_instr(6 downto 2) = OPC_LOAD);
   mem_write <= reduce_nor(mem_exception) and not mem_bubble and to_stdlogic(mem_instr(6 downto 2) = OPC_STORE);
 
@@ -545,9 +542,9 @@ begin
               bp_hit(n) <= to_stdlogic(mem_memadr = dbg_data(n)) and dmem_ack and mem_write;
             when BP_CTRL_CC_LDST_ADR =>
               bp_hit(n) <= to_stdlogic(mem_memadr = dbg_data(n)) and dmem_ack and (mem_read or mem_write);
-            --BP_CTRL_CC_LD_ADR   : bp_hit[n] = (mem_adr == dbg_data[(n+1)*XLEN-1:n*XLEN]) & mem_req & ~mem_we;
-            --BP_CTRL_CC_ST_ADR   : bp_hit[n] = (mem_adr == dbg_data[(n+1)*XLEN-1:n*XLEN]) & mem_req &  mem_we;
-            --BP_CTRL_CC_LDST_ADR : bp_hit[n] = (mem_adr == dbg_data[(n+1)*XLEN-1:n*XLEN]) & mem_req;
+            -- BP_CTRL_CC_LD_ADR   : bp_hit[n] = (mem_adr == dbg_data[(n+1)*XLEN-1:n*XLEN]) & mem_req & ~mem_we;
+            -- BP_CTRL_CC_ST_ADR   : bp_hit[n] = (mem_adr == dbg_data[(n+1)*XLEN-1:n*XLEN]) & mem_req &  mem_we;
+            -- BP_CTRL_CC_LDST_ADR : bp_hit[n] = (mem_adr == dbg_data[(n+1)*XLEN-1:n*XLEN]) & mem_req;
             when others =>
               bp_hit(n) <= '0';
           end case;

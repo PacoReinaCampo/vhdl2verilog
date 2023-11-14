@@ -37,7 +37,6 @@
 -- =============================================================================
 -- Author(s):
 --   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
---
 
 library IEEE;
 use IEEE.STD_LOGIC_1164 .all;
@@ -90,7 +89,7 @@ end BCM;
 
 architecture BCM_ARQ of BCM is
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal cpu_en_s_omsp    : std_logic;
   signal dbg_en_s_omsp    : std_logic;
   signal dbg_rst_omsp     : std_logic;
@@ -100,74 +99,74 @@ architecture BCM_ARQ of BCM is
   signal por_omsp         : std_logic;
   signal puc_rst_omsp     : std_logic;
 
-  --0.  PARAMETER DECLARATION
-  --0.1.        Register base address (must be aligned to decoder bit width)
+  -- 0.  PARAMETER DECLARATION
+  -- 0.1.        Register base address (must be aligned to decoder bit width)
   constant BASE_ADDR_B : std_logic_vector (14 downto 0) := "000000001010000";
 
-  --0.2.        Decoder bit width (defines how many bits are considered for address decoding)
+  -- 0.2.        Decoder bit width (defines how many bits are considered for address decoding)
   constant DEC_WD_B : integer := 4;
 
-  --0.3.        Register addresses offset
+  -- 0.3.        Register addresses offset
   constant BCSCTL1B : std_logic_vector (DEC_WD_B - 1 downto 0) := X"7";
   constant BCSCTL2B : std_logic_vector (DEC_WD_B - 1 downto 0) := X"8";
 
   constant BCSCTL1C : integer := to_integer(unsigned(BCSCTL1B));
   constant BCSCTL2C : integer := to_integer(unsigned(BCSCTL2B));
 
-  --0.4.        Register one-hot decoder utilities
+  -- 0.4.        Register one-hot decoder utilities
   constant DEC_SZ_B   : integer                                   := 2**DEC_WD_B;
   constant BASE_REG_B : std_logic_vector (DEC_SZ_B - 1 downto 0) := std_logic_vector(to_unsigned(1, DEC_SZ_B));
 
-  --0.5.        Register one-hot decoder        
+  -- 0.5.        Register one-hot decoder        
   constant BCSCTL1C_D : std_logic_vector (DEC_SZ_B - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_B) sll BCSCTL1C);
   constant BCSCTL2C_D : std_logic_vector (DEC_SZ_B - 1 downto 0) := std_logic_vector(unsigned(BASE_REG_B) sll BCSCTL2C);
 
-  --0.6.        Local wire declarations
+  -- 0.6.        Local wire declarations
   signal nodiv_mclk       : std_logic;
   signal nodiv_mclk_n     : std_logic;
   signal nodiv_smclk_omsp : std_logic;
 
-  --1.  REGISTER DECODER
-  --1.1.        Local register selection
+  -- 1.  REGISTER DECODER
+  -- 1.1.        Local register selection
   signal reg_sel_b : std_logic;
 
-  --1.2.        Register local address
+  -- 1.2.        Register local address
   signal reg_addr_b : std_logic_vector (DEC_WD_B - 1 downto 0);
 
-  --1.3.        Register address decode
+  -- 1.3.        Register address decode
   signal reg_dec_b : std_logic_vector (DEC_SZ_B - 1 downto 0);
 
-  --1.4.        Read/Write probes
+  -- 1.4.        Read/Write probes
   signal reg_lo_write_b : std_logic;
   signal reg_hi_write_b : std_logic;
   signal reg_read_b     : std_logic;
 
-  --1.5.        Read/Write vectors
+  -- 1.5.        Read/Write vectors
   signal reg_hi_wr_b : std_logic_vector (DEC_SZ_B - 1 downto 0);
   signal reg_lo_wr_b : std_logic_vector (DEC_SZ_B - 1 downto 0);
   signal reg_rd_b    : std_logic_vector (DEC_SZ_B - 1 downto 0);
 
-  --2.  REGISTERS
-  --2.1.        BCSCTL1C Register
+  -- 2.  REGISTERS
+  -- 2.1.        BCSCTL1C Register
   signal bcsctl_wr  : std_logic_vector (1 downto 0);
   signal divax_mask : std_logic_vector (7 downto 0);
   signal bcsctl     : std_logic_matrix (1 downto 0)(7 downto 0);
   signal bcsctl_nxt : std_logic_matrix (1 downto 0)(7 downto 0);
 
-  --2.2.        BCSCTL2C Register
+  -- 2.2.        BCSCTL2C Register
   signal selmx_mask : std_logic_vector (7 downto 0);
   signal divmx_mask : std_logic_vector (7 downto 0);
   signal sels_mask  : std_logic_vector (7 downto 0);
   signal divsx_mask : std_logic_vector (7 downto 0);
 
-  --3.  DATA OUTPUT GENERATION
-  --3.1.        Data output mux
+  -- 3.  DATA OUTPUT GENERATION
+  -- 3.1.        Data output mux
   signal bcsctl_rd : std_logic_matrix (1 downto 0)(15 downto 0);
 
-  --4.  DCO_CLK / LFXT_CLK INTERFACES (WAKEUP, ENABLE, ...)
+  -- 4.  DCO_CLK / LFXT_CLK INTERFACES (WAKEUP, ENABLE, ...)
   signal cpuoff_and_mclk_enable : std_logic;
 
-  --4.1.        HIGH SPEED SYSTEM CLOCK GENERATOR (DCO_CLK)
+  -- 4.1.        HIGH SPEED SYSTEM CLOCK GENERATOR (DCO_CLK)
   signal por_a                  : std_logic;
   signal cpu_en_wkup            : std_logic;
   signal cpu_enabled_with_dco   : std_logic;
@@ -185,7 +184,7 @@ architecture BCM_ARQ of BCM is
   signal dco_wkup_n             : std_logic;
   signal not_dco_disable        : std_logic;
 
-  --4.2.        LOW FREQUENCY CRYSTAL CLOCK GENERATOR (LFXT_CLK)
+  -- 4.2.        LOW FREQUENCY CRYSTAL CLOCK GENERATOR (LFXT_CLK)
   --            ASIC MODE
   signal cpu_enabled_with_lfxt   : std_logic;
   signal lfxt_not_enabled_by_dbg : std_logic;
@@ -207,8 +206,8 @@ architecture BCM_ARQ of BCM is
   signal lfxt_clk_dly : std_logic;
   signal lfxt_clk_en  : std_logic;
 
-  --5.  CLOCK GENERATION
-  --5.1.        GLOBAL CPU ENABLE
+  -- 5.  CLOCK GENERATION
+  -- 5.1.        GLOBAL CPU ENABLE
   --            Synchronize CPU_EN signal to the MCLK domain
   --            Synchronize CPU_EN signal to the ACLK domain
   signal cpu_en_aux_s : std_logic;
@@ -216,7 +215,7 @@ architecture BCM_ARQ of BCM is
   --            Synchronize CPU_EN signal to the SMCLK domain
   signal cpu_en_sm_s : std_logic;
 
-  --5.2.        MCLK GENERATION
+  -- 5.2.        MCLK GENERATION
   --            Clock MUX
   --            Wakeup synchronizer
   signal mclk_wkup_s : std_logic;
@@ -228,7 +227,7 @@ architecture BCM_ARQ of BCM is
   signal mclk_div        : std_logic_vector (2 downto 0);
 
   --            Generate main system clock
-  --5.3.        ACLK GENERATION
+  -- 5.3.        ACLK GENERATION
   --            ASIC MODE
   signal nodiv_aclk        : std_logic;
   signal puc_lfxt_rst      : std_logic;
@@ -244,7 +243,7 @@ architecture BCM_ARQ of BCM is
   signal aclk_en_nxt_and : std_logic;
   signal aclk_div        : std_logic_vector (2 downto 0);
 
-  --5.4.        SMCLK GENERATION
+  -- 5.4.        SMCLK GENERATION
   --            ASIC MODE
   signal puc_sm_noscan_n  : std_logic;
   signal puc_sm_rst       : std_logic;
@@ -261,7 +260,7 @@ architecture BCM_ARQ of BCM is
   signal smclk_en_nxt_and : std_logic;
   signal smclk_div        : std_logic_vector (2 downto 0);
 
-  --5.5.        DEBUG INTERFACE CLOCK GENERATION (DBG_CLK)
+  -- 5.5.        DEBUG INTERFACE CLOCK GENERATION (DBG_CLK)
   --            Synchronize DBG_EN signal to MCLK domain
   signal dbg_en_n_s  : std_logic;
   signal dbg_rst_nxt : std_logic;
@@ -269,14 +268,14 @@ architecture BCM_ARQ of BCM is
 
   --            Serial Debug Interface Clock gate
 
-  --6.  RESET GENERATION
-  --6.1.        Generate synchronized POR to MCLK domain
+  -- 6.  RESET GENERATION
+  -- 6.1.        Generate synchronized POR to MCLK domain
   signal por_noscan : std_logic;
 
-  --6.2.        Generate synchronized reset for the SDI
+  -- 6.2.        Generate synchronized reset for the SDI
   signal dbg_rst_noscan : std_logic;
 
-  --6.3.        Generate main system reset (PUC_RST)
+  -- 6.3.        Generate main system reset (PUC_RST)
   signal puc_noscan_n : std_logic;
   signal puc_a_scan   : std_logic;
   signal puc_a        : std_logic;
@@ -286,22 +285,22 @@ architecture BCM_ARQ of BCM is
 begin
   REGISTER_DECODER : block
   begin
-    --1.1.      Local register selection
+    -- 1.1.      Local register selection
     reg_sel_b <= per_en and to_stdlogic(per_addr(13 downto DEC_WD_B - 1) = BASE_ADDR_B(14 downto DEC_WD_B));
 
-    --1.2.      Register local address
+    -- 1.2.      Register local address
     reg_addr_b <= '0' & per_addr(DEC_WD_B - 2 downto 0);
 
-    --1.3.      Register address decode
+    -- 1.3.      Register address decode
     reg_dec_b <= (BCSCTL1C_D and (0 to DEC_SZ_B - 1 => to_stdlogic(reg_addr_b = std_logic_vector(unsigned(BCSCTL1B) srl 1)))) or
                  (BCSCTL2C_D and (0 to DEC_SZ_B - 1 => to_stdlogic(reg_addr_b = std_logic_vector(unsigned(BCSCTL2B) srl 1))));
 
-    --1.4.      Read/Write probes
+    -- 1.4.      Read/Write probes
     reg_lo_write_b <= per_we(0) and reg_sel_b;
     reg_hi_write_b <= per_we(1) and reg_sel_b;
     reg_read_b     <= not (per_we(0) or per_we(1)) and reg_sel_b;
 
-    --1.5.      Read/Write vectors
+    -- 1.5.      Read/Write vectors
     reg_hi_wr_b <= reg_dec_b and (0 to DEC_SZ_B - 1 => reg_hi_write_b);
     reg_lo_wr_b <= reg_dec_b and (0 to DEC_SZ_B - 1 => reg_lo_write_b);
     reg_rd_b    <= reg_dec_b and (0 to DEC_SZ_B - 1 => reg_read_b);
@@ -309,7 +308,7 @@ begin
 
   REGISTERS : block
   begin
-    --2.1.      BCSCTL1C Register
+    -- 2.1.      BCSCTL1C Register
     bcsctl_wr(0)  <= reg_hi_wr_b(BCSCTL1C) when BCSCTL1B(0) = '1' else reg_lo_wr_b(BCSCTL1C);
     bcsctl_nxt(0) <= per_din(15 downto 8)  when BCSCTL1B(0) = '1' else per_din(7 downto 0);
 
@@ -332,7 +331,7 @@ begin
       end if;
     end process R1_1c;
 
-    --2.2.      BCSCTL2C Register
+    -- 2.2.      BCSCTL2C Register
     bcsctl_wr(1)  <= reg_hi_wr_b(BCSCTL2C) when BCSCTL2B(0) = '1' else reg_lo_wr_b(BCSCTL2C);
     bcsctl_nxt(1) <= per_din(15 downto 8)  when BCSCTL2B(0) = '1' else per_din(7 downto 0);
 
@@ -363,7 +362,7 @@ begin
 
   DATA_OUTPUT_GENERATION : block
   begin
-    --3.1.      Data output mux
+    -- 3.1.      Data output mux
     bcsctl_rd(0) <= std_logic_vector((X"00" & (unsigned(bcsctl(0)) and (0 to 7 => reg_rd_b(BCSCTL1C))))
                                       sll to_integer((0 to 3                    => BCSCTL1B(0)) and to_unsigned(8, 4)));
     bcsctl_rd(1) <= std_logic_vector((X"00" & (unsigned(bcsctl(1)) and (0 to 7 => reg_rd_b(BCSCTL2C))))
@@ -377,7 +376,7 @@ begin
       cpuoff_and_mclk_enable <= cpuoff and mclk_enable;
     end generate asic_clocking_1_on;
 
-    --4.1.      HIGH SPEED SYSTEM CLOCK GENERATOR (DCO_CLK)
+    -- 4.1.      HIGH SPEED SYSTEM CLOCK GENERATOR (DCO_CLK)
     scg0_en_on : if (SCG_EN_0 = '1') generate
       cpu_enabled_with_dco   <= not bcsctl(1)(SELMX) and cpuoff_and_mclk_enable;
       dco_not_enabled_by_dbg <= not dbg_en_s_omsp and not cpu_enabled_with_dco;
@@ -439,7 +438,7 @@ begin
       dco_wkup        <= '1';
     end generate scg0_en_off;
 
-    --4.2.      LOW FREQUENCY CRYSTAL CLOCK GENERATOR (LFXT_CLK)        
+    -- 4.2.      LOW FREQUENCY CRYSTAL CLOCK GENERATOR (LFXT_CLK)        
     --          ASIC MODE
     asic_clocking_2_on : if (ASIC_CLOCKING = '1') generate
       oscoff_en_on : if (OSCOFF_EN = '1') generate
@@ -522,7 +521,7 @@ begin
 
   CLOCK_GENERATION : block
   begin
-    --5.1.      GLOBAL CPU ENABLE
+    -- 5.1.      GLOBAL CPU ENABLE
     --          Synchronize CPU_EN signal to the MCLK domain
     sync_cpu_en_on : if (SYNC_CPU_EN = '1') generate
       sync_cell_cpu_en : omsp_sync_cell
@@ -570,7 +569,7 @@ begin
       end generate smclk_mux_off;
     end generate asic_clocking_on;
 
-    --5.2.      MCLK GENERATION
+    -- 5.2.      MCLK GENERATION
     --          Clock MUX
     mclk_mux_on : if (MCLK_MUX = '1') generate
       clock_mux_mclk : omsp_clock_mux
@@ -651,7 +650,7 @@ begin
       mclk_omsp <= nodiv_mclk;
     end generate mclk_cgate_off;
 
-    --5.3.      ACLK GENERATION
+    -- 5.3.      ACLK GENERATION
     --          ASIC MODE
     asic_on : if (ASIC_CLOCKING = '1') generate
       aclk_divider_on : if (ACLK_DIVIDER = '1') generate
@@ -770,7 +769,7 @@ begin
       aclk <= mclk_omsp;
     end generate asic_off;
 
-    --5.4.      SMCLK GENERATION
+    -- 5.4.      SMCLK GENERATION
     smclk_mux_on : if (SMCLK_MUX = '1') generate
       clock_mux_smclk : omsp_clock_mux
         port map (
@@ -914,7 +913,7 @@ begin
       smclk <= mclk_omsp;
     end generate asic_clocking_off;
 
-    --5.5.      DEBUG INTERFACE CLOCK GENERATION (DBG_CLK)
+    -- 5.5.      DEBUG INTERFACE CLOCK GENERATION (DBG_CLK)
     --          Synchronize DBG_EN signal to MCLK domain
     dbg_en_1_on : if (DBG_ON = '1') generate
       sync_dbg_en_1_on : if (SYNC_DBG_EN = '1') generate
@@ -964,7 +963,7 @@ begin
 
   RESET_GENERATION : block
   begin
-    --6.1.      Generate synchronized POR to MCLK domain
+    -- 6.1.      Generate synchronized POR to MCLK domain
     por_a <= not reset_n;
 
     sync_reset_por : omsp_sync_reset
@@ -986,7 +985,7 @@ begin
       por_omsp <= por_noscan;
     end generate asic_1_off;
 
-    --6.2.      Generate synchronized reset for the SDI
+    -- 6.2.      Generate synchronized reset for the SDI
     dbg_en_on : if (DBG_ON = '1') generate
 
       R2_3_e : process (mclk_omsp, por_omsp)
@@ -1017,7 +1016,7 @@ begin
       dbg_rst_omsp   <= '1';
     end generate dbg_en_off;
 
-    --6.3.      Generate main system reset (PUC_RST)
+    -- 6.3.      Generate main system reset (PUC_RST)
     puc_a <= por_omsp or wdt_reset;
     puc_s <= dbg_cpu_reset or (dbg_en_s_omsp and dbg_rst_noscan and not puc_noscan_n);
 

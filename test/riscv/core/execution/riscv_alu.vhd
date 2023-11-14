@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/core/execution/riscv_alu.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -62,27 +59,27 @@ entity riscv_alu is
 
     ex_stall : in std_logic;
 
-    --Program counter
+    -- Program counter
     id_pc : in std_logic_vector(XLEN-1 downto 0);
 
-    --Instruction
+    -- Instruction
     id_bubble : in std_logic;
     id_instr  : in std_logic_vector(ILEN-1 downto 0);
 
-    --Operands
+    -- Operands
     opA : in std_logic_vector(XLEN-1 downto 0);
     opB : in std_logic_vector(XLEN-1 downto 0);
 
-    --to WB
+    -- to WB
     alu_bubble : out std_logic;
     alu_r      : out std_logic_vector(XLEN-1 downto 0);
 
-    --To State
+    -- To State
     ex_csr_reg  : out std_logic_vector(11 downto 0);
     ex_csr_wval : out std_logic_vector(XLEN-1 downto 0);
     ex_csr_we   : out std_logic;
 
-    --From State
+    -- From State
     st_csr_rval : in std_logic_vector(XLEN-1 downto 0);
     st_xlen     : in std_logic_vector(1 downto 0)
   );
@@ -108,7 +105,7 @@ architecture RTL of riscv_alu is
   --//////////////////////////////////////////////////////////////
   --
   -- Constants
-  --
+  ------------------------------------------------------------------------------
   constant SBITS : integer := integer(log2(real(XLEN)));
 
   --//////////////////////////////////////////////////////////////
@@ -122,7 +119,7 @@ architecture RTL of riscv_alu is
   signal xlen32    : std_logic;
   signal has_rvc_s : std_logic;
 
-  --Operand generation
+  -- Operand generation
   signal opA32   : std_logic_vector(31 downto 0);
   signal opB32   : std_logic_vector(31 downto 0);
   signal shamt   : std_logic_vector(SBITS-1 downto 0);
@@ -135,7 +132,7 @@ begin
   -- Module Body
   --
 
-  --Instruction
+  -- Instruction
   func7  <= id_instr(31 downto 25);
   func3  <= id_instr(14 downto 12);
   opcode <= id_instr(6 downto 2);
@@ -148,7 +145,7 @@ begin
   shamt   <= opB(SBITS-1 downto 0);
   shamt32 <= opB(4 downto 0);
 
-  --ALU operations
+  -- ALU operations
   processing_0 : process (clk, rstn)
     variable operations : std_logic_vector(15 downto 0);
   begin
@@ -159,7 +156,7 @@ begin
         operations := xlen32 & func7 & func3 & opcode;
         case (operations) is
           when (LUI) =>
-            --actually just opB, but simplify encoding
+            -- actually just opB, but simplify encoding
             alu_r <= std_logic_vector(unsigned(opA)+unsigned(opB));
           when (AUIPC) =>
             alu_r <= std_logic_vector(unsigned(opA)+unsigned(opB));
@@ -167,21 +164,21 @@ begin
             alu_r <= std_logic_vector(unsigned(id_pc)+X"0000000000000004");
           when (JALR) =>
             alu_r <= std_logic_vector(unsigned(id_pc)+X"0000000000000004");
-          --logical operators
+          -- logical operators
           when (ADDI) =>
             alu_r <= std_logic_vector(unsigned(opA)+unsigned(opB));
           when (ADDX) =>
             alu_r <= std_logic_vector(unsigned(opA)+unsigned(opB));
           when (ADDIW) =>
-            --RV64
+            -- RV64
             alu_r <= sext32(std_logic_vector(unsigned(opA32)+unsigned(opB32)));
           when (ADDW) =>
-            --RV64
+            -- RV64
             alu_r <= sext32(std_logic_vector(unsigned(opA32)+unsigned(opB32)));
           when (SUBX) =>
             alu_r <= std_logic_vector(unsigned(opA)+unsigned(opB));
           when (SUBW) =>
-            --RV64
+            -- RV64
             alu_r <= sext32(std_logic_vector(unsigned(opA32)-unsigned(opB32)));
           when (XORI) =>
             alu_r <= opA xor opB;
@@ -200,10 +197,10 @@ begin
           when (SLLX) =>
             alu_r <= std_logic_vector(unsigned(opA) sll to_integer(unsigned(shamt)));
           when (SLLIW) =>
-            --RV64
+            -- RV64
             alu_r <= sext32(std_logic_vector(unsigned(opA32) sll to_integer(unsigned(shamt32))));
           when (SLLW) =>
-            --RV64
+            -- RV64
             alu_r <= sext32(std_logic_vector(unsigned(opA32) sll to_integer(unsigned(shamt32))));
           when (SLTI) =>
             if (not opA(XLEN-1) & opA(XLEN-2 downto 0)) < (not opB(XLEN-1) & opB(XLEN-2 downto 0)) then
@@ -234,10 +231,10 @@ begin
           when (SRLX) =>
             alu_r <= std_logic_vector(unsigned(opA) srl to_integer(unsigned(shamt)));
           when (SRLIW) =>
-            --RV64
+            -- RV64
             alu_r <= sext32(std_logic_vector(unsigned(opA32) srl to_integer(unsigned(shamt32))));
           when (SRLW) =>
-            --RV64
+            -- RV64
             alu_r <= sext32(std_logic_vector(unsigned(opA32) srl to_integer(unsigned(shamt32))));
           when (SRAI) =>
             alu_r <= std_logic_vector(signed(opA) srl to_integer(unsigned(shamt)));
@@ -247,7 +244,7 @@ begin
             alu_r <= std_logic_vector(signed(sext32(opA32)) srl to_integer(unsigned(shamt32)));
           when (SRAW) =>
             alu_r <= std_logic_vector(signed(sext32(opA32)) srl to_integer(unsigned(shamt32)));
-          --CSR access
+          -- CSR access
           when (CSRRW) =>
             alu_r <= (alu_r'range => '0') or st_csr_rval;
           when (CSRRWI) =>
@@ -284,7 +281,7 @@ begin
             alu_bubble <= id_bubble;
           when (JALR) =>
             alu_bubble <= id_bubble;
-          --logical operators
+          -- logical operators
           when (ADDI) =>
             alu_bubble <= id_bubble;
           when (ADDX) =>
@@ -341,7 +338,7 @@ begin
             alu_bubble <= id_bubble;
           when (SRAW) =>
             alu_bubble <= id_bubble;
-          --CSR access
+          -- CSR access
           when (CSRRW) =>
             alu_bubble <= id_bubble;
           when (CSRRWI) =>
@@ -361,7 +358,7 @@ begin
     end if;
   end process;
 
-  --CSR
+  -- CSR
   ex_csr_reg <= id_instr(31 downto 20);
   csri       <= ((XLEN-1 downto 5 => '0') & opB(4 downto 0));
 

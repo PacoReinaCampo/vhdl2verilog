@@ -65,55 +65,55 @@ end omsp_alu;
 
 architecture omsp_alu_ARQ of omsp_alu is
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal alu_out_omsp : std_logic_vector (15 downto 0);
 
-  --4.ALU       
-  --4.1.INSTRUCTION FETCH/DECODE CONTROL STATE MACHINE
-  --Invert source for substract and compare instructions
+  -- 4.ALU       
+  -- 4.1.INSTRUCTION FETCH/DECODE CONTROL STATE MACHINE
+  -- Invert source for substract and compare instructions
   signal op_src_inv_cmd : std_logic;
   signal op_src_inv     : std_logic_vector (15 downto 0);
 
-  --Mask the bit 8 for the Byte instructions for correct flags generation
+  -- Mask the bit 8 for the Byte instructions for correct flags generation
   signal op_bit8_msk : std_logic;
   signal op_src_in   : std_logic_vector (16 downto 0);
   signal op_dst_in   : std_logic_vector (16 downto 0);
 
-  --Clear the source operand (= jump offset) for conditional jumps
+  -- Clear the source operand (= jump offset) for conditional jumps
   signal jmp_not_taken : std_logic;
   signal op_src_in_jmp : std_logic_vector (16 downto 0);
 
-  --Adder / AND / OR / XOR
+  -- Adder / AND / OR / XOR
   signal alu_add_s : std_logic_vector (16 downto 0);
   signal alu_and_s : std_logic_vector (16 downto 0);
   signal alu_or_s  : std_logic_vector (16 downto 0);
   signal alu_xor_s : std_logic_vector (16 downto 0);
 
-  --Incrementer
+  -- Incrementer
   signal alu_inc_s   : std_logic;
   signal alu_add_inc : std_logic_vector (16 downto 0);
 
-  --Decimal adder (DADD) 
+  -- Decimal adder (DADD) 
   signal alu_dadd_s   : std_logic_vector (16 downto 0);
   signal alu_dadd_v_s : std_logic_matrix (3 downto 0)(4 downto 0);
 
-  --Shifter for rotate instructions (RRC & RRA) 
+  -- Shifter for rotate instructions (RRC & RRA) 
   signal alu_shift_msb : std_logic;
   signal alu_shift_7_s : std_logic;
   signal alu_shift_s   : std_logic_vector (16 downto 0);
 
-  --Swap bytes / Extend Sign 
+  -- Swap bytes / Extend Sign 
   signal alu_swpb : std_logic_vector (16 downto 0);
   signal alu_sxt  : std_logic_vector (16 downto 0);
 
-  --Combine short paths toghether to simplify final ALU mux 
+  -- Combine short paths toghether to simplify final ALU mux 
   signal alu_short_thro : std_logic;
   signal alu_short      : std_logic_vector (16 downto 0);
 
-  --ALU output mux
+  -- ALU output mux
   signal alu_out_nxt : std_logic_vector (16 downto 0);
 
-  --4.2.STATUS FLAG GENERATION
+  -- 4.2.STATUS FLAG GENERATION
   signal V_xor : std_logic;
   signal V     : std_logic;
   signal N     : std_logic;
@@ -146,17 +146,17 @@ architecture omsp_alu_ARQ of omsp_alu is
 
 begin
 
-  --4.1.INSTRUCTION FETCH/DECODE CONTROL STATE MACHINE
-  --Invert source for substract and compare instructions.
+  -- 4.1.INSTRUCTION FETCH/DECODE CONTROL STATE MACHINE
+  -- Invert source for substract and compare instructions.
   op_src_inv_cmd <= exec_cycle and (inst_alu(ALU_SRC_INV));
   op_src_inv     <= (0 to 15 => op_src_inv_cmd) xor op_src;
 
-  --Mask the bit 8 for the Byte instructions for correct flags generation
+  -- Mask the bit 8 for the Byte instructions for correct flags generation
   op_bit8_msk <= not exec_cycle or not inst_bw;
   op_src_in   <= '0' & (op_src_inv (15 downto 8) and (8 to 15 => op_bit8_msk)) & op_src_inv (7 downto 0);
   op_dst_in   <= '0' & (op_dst     (15 downto 8) and (8 to 15 => op_bit8_msk)) & op_dst (7 downto 0);
 
-  --Clear the source operand (= jump offset) for conditional jumps
+  -- Clear the source operand (= jump offset) for conditional jumps
   jmp_not_taken <= (inst_jmp(JL) and not (status(3) xor status(2))) or
                    (inst_jmp(JGE) and (status(3) xor status(2))) or
                    (inst_jmp(JN) and not status(2)) or
@@ -166,17 +166,17 @@ begin
                    (inst_jmp(JNE) and status(1));
   op_src_in_jmp <= op_src_in and (0 to 16 => not jmp_not_taken);
 
-  --Adder / AND / OR / XOR
+  -- Adder / AND / OR / XOR
   alu_add_s <= std_logic_vector(unsigned(op_src_in_jmp) + unsigned(op_dst_in));
   alu_and_s <= op_src_in and op_dst_in;
   alu_or_s  <= op_src_in or op_dst_in;
   alu_xor_s <= op_src_in xor op_dst_in;
 
-  --Incrementer
+  -- Incrementer
   alu_inc_s   <= exec_cycle and ((inst_alu(ALU_INC_C) and status(0)) or inst_alu(ALU_INC));
   alu_add_inc <= std_logic_vector(unsigned(alu_add_s) + ((1 to 16 => '0') & alu_inc_s));
 
-  --Decimal adder (DADD)
+  -- Decimal adder (DADD)
   alu_dadd_v_s(0) <= bcd_add(op_src_in(03 downto 00), op_dst_in(03 downto 00), status(0));
   alu_dadd_v_s(1) <= bcd_add(op_src_in(07 downto 04), op_dst_in(07 downto 04), alu_dadd_v_s(0)(4));
   alu_dadd_v_s(2) <= bcd_add(op_src_in(11 downto 08), op_dst_in(11 downto 08), alu_dadd_v_s(1)(4));
@@ -184,7 +184,7 @@ begin
 
   alu_dadd_s <= (alu_dadd_v_s(3) & alu_dadd_v_s(2)(3 downto 0) & alu_dadd_v_s(1)(3 downto 0) & alu_dadd_v_s(0)(3 downto 0));
 
-  --Shifter for rotate instructions (RRC AND RRA)
+  -- Shifter for rotate instructions (RRC AND RRA)
   alu_shift_msb <= status(0)
                    when inst_so(RRC) = '1' else op_src(07)
                    when inst_bw = '1'      else op_src(15);
@@ -193,11 +193,11 @@ begin
 
   alu_shift_s <= ('0' & alu_shift_msb & op_src(15 downto 9) & alu_shift_7_s & op_src(7 downto 1));
 
-  --Swap bytes / Extend Sign
+  -- Swap bytes / Extend Sign
   alu_swpb <= ('0' & op_src(7 downto 0) & op_src(15 downto 8));
   alu_sxt  <= ('0' & (8 to 15 => op_src(7)) & op_src(07 downto 0));
 
-  --Combine short paths toghether to simplify final ALU mux
+  -- Combine short paths toghether to simplify final ALU mux
   alu_short_thro <= not (inst_alu(ALU_AND) or inst_alu(ALU_OR) or inst_alu(ALU_XOR) or
                          inst_alu(ALU_SHIFT) or inst_so(SWPB) or inst_so(SXTC));
 
@@ -209,7 +209,7 @@ begin
                ((0 to 16 => inst_so(SXTC)) and alu_sxt) or
                ((0 to 16 => alu_short_thro) and op_src_in);
 
-  --ALU output mux
+  -- ALU output mux
   alu_out_nxt <= alu_add_inc
                  when (inst_so(IRQX) or dbg_halt_st or inst_alu(ALU_ADD)) = '1' else alu_dadd_s
                  when inst_alu(ALU_DADD) = '1'                                  else alu_short;
@@ -218,7 +218,7 @@ begin
   alu_out_add  <= alu_add_s (15 downto 0);
   alu_out      <= alu_out_omsp;
 
-  --4.2.STATUS FLAG GENERATION
+  -- 4.2.STATUS FLAG GENERATION
   V_xor <= (op_src_in(7) and op_dst_in(7)) when inst_bw = '1' else (op_src_in(15) and op_dst_in(15));
 
   V <= ((not op_src_in(07) and not op_dst_in(07) and alu_out_omsp(07)) or

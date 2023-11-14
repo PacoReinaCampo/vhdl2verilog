@@ -1,5 +1,3 @@
--- Converted from rtl/verilog/memory/riscv_ram_1r1w_generic.sv
--- by verilog2vhdl - QueenField
 
 --//////////////////////////////////////////////////////////////////////////////
 --                                            __ _      _     _               //
@@ -40,8 +38,7 @@
 -- *
 -- * =============================================================================
 -- * Author(s):
--- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
--- */
+-- *   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech> */
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -58,13 +55,13 @@ entity riscv_ram_1r1w_generic is
     rst_ni : in std_logic;
     clk_i  : in std_logic;
 
-    --Write side
+    -- Write side
     waddr_i : in std_logic_vector(ABITS-1 downto 0);
     din_i   : in std_logic_vector(DBITS-1 downto 0);
     we_i    : in std_logic;
     be_i    : in std_logic_vector((DBITS+7)/8-1 downto 0);
 
-    --Read side
+    -- Read side
     raddr_i : in  std_logic_vector(ABITS-1 downto 0);
     dout_o  : out std_logic_vector(DBITS-1 downto 0)
   );
@@ -75,7 +72,7 @@ architecture RTL of riscv_ram_1r1w_generic is
   --
   -- Variables
   --
-  signal mem_array : std_logic_matrix(2**ABITS-1 downto 0)(DBITS-1 downto 0);  --memory array
+  signal mem_array : std_logic_matrix(2**ABITS-1 downto 0)(DBITS-1 downto 0);  -- memory array
 
 begin
   --////////////////////////////////////////////////////////////////
@@ -83,7 +80,7 @@ begin
   -- Module Body
   --
 
-  --write side
+  -- write side
   generating_0 : for i in 0 to (DBITS+7)/8 - 1 generate
     generating_1 : if (i*8+8 > DBITS) generate
       processing_0 : process (clk_i)
@@ -107,9 +104,9 @@ begin
     end generate;
   end generate;
 
-  --read side
+  -- read side
 
-  --per Altera's recommendations. Prevents bypass logic
+  -- per Altera's recommendations. Prevents bypass logic
   processing_2 : process (clk_i)
   begin
     if (rising_edge(clk_i)) then

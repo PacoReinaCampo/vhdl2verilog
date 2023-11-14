@@ -64,7 +64,7 @@ end omsp_dbg_hwbrk;
 
 architecture omsp_dbg_hwbrk_ARQ of omsp_dbg_hwbrk is
 
-  --0. WIRE & PARAMETER DECLARATION
+  -- 0. WIRE & PARAMETER DECLARATION
   signal range_wr_set : std_logic;
   signal range_rd_set : std_logic;
   signal addr1_wr_set : std_logic;
@@ -77,31 +77,31 @@ architecture omsp_dbg_hwbrk_ARQ of omsp_dbg_hwbrk is
   constant BRK_ADDR0C : integer := 2;
   constant BRK_ADDR1C : integer := 3;
 
-  --1.CONFIGURATION REGISTERS
-  --BRK_CTL Register
+  -- 1.CONFIGURATION REGISTERS
+  -- BRK_CTL Register
   signal brk_ctl_wr   : std_logic;
   signal brk_ctl      : std_logic_vector (4 downto 0);
   signal brk_ctl_full : std_logic_vector (7 downto 0);
 
-  --BRK_STAT Register
+  -- BRK_STAT Register
   signal brk_stat_wr   : std_logic;
   signal brk_stat_set  : std_logic_vector (5 downto 0);
   signal brk_stat      : std_logic_vector (5 downto 0);
   signal brk_stat_clr  : std_logic_vector (5 downto 0);
   signal brk_stat_full : std_logic_vector (7 downto 0);
 
-  --BRK_ADDR0 Register
+  -- BRK_ADDR0 Register
   signal brk_addr_wr : std_logic_vector (1 downto 0);
   signal brk_addr    : std_logic_matrix (1 downto 0)(15 downto 0);
 
-  --2.DATA OUTPUT GENERATION
+  -- 2.DATA OUTPUT GENERATION
   signal brk_ctl_rd   : std_logic_vector (15 downto 0);
   signal brk_stat_rd  : std_logic_vector (15 downto 0);
   signal brk_addr0_rd : std_logic_vector (15 downto 0);
   signal brk_addr1_rd : std_logic_vector (15 downto 0);
 
-  --3.BREAKPOINT / WATCHPOINT GENERATION
-  --Comparators
+  -- 3.BREAKPOINT / WATCHPOINT GENERATION
+  -- Comparators
   signal equ_d_addr0 : std_logic;
   signal equ_d_addr1 : std_logic;
   signal equ_d_range : std_logic;
@@ -110,7 +110,7 @@ architecture omsp_dbg_hwbrk_ARQ of omsp_dbg_hwbrk is
   signal equ_i_addr1 : std_logic;
   signal equ_i_range : std_logic;
 
-  --Detect accesses
+  -- Detect accesses
   signal i_addr0_rd : std_logic;
   signal i_addr1_rd : std_logic;
   signal i_range_rd : std_logic;
@@ -126,7 +126,7 @@ architecture omsp_dbg_hwbrk_ARQ of omsp_dbg_hwbrk is
 begin
   CONFIGURATION_REGISTERS : block
   begin
-    --BRK_CTL Register
+    -- BRK_CTL Register
     brk_ctl_wr <= brk_reg_wr(BRK_CTLC);
 
     process (dbg_clk, dbg_rst)
@@ -142,7 +142,7 @@ begin
 
     brk_ctl_full <= "000" & brk_ctl;
 
-    --BRK_STAT Register
+    -- BRK_STAT Register
     brk_stat_wr  <= brk_reg_wr(BRK_STATC);
     brk_stat_set <= (range_wr_set and HWBRK_RANGE) & (range_rd_set and HWBRK_RANGE) & addr1_wr_set &
                     addr1_rd_set & addr0_wr_set & addr0_rd_set;
@@ -164,7 +164,7 @@ begin
     brk_stat_full <= "00" & brk_stat;
     brk_pnd       <= reduce_or(brk_stat);
 
-    --BRK_ADDR0 Register
+    -- BRK_ADDR0 Register
     brk_addr_wr(0) <= brk_reg_wr(BRK_ADDR0C);
 
     process (dbg_clk, dbg_rst)
@@ -178,7 +178,7 @@ begin
       end if;
     end process;
 
-    --BRK_ADDR1/DATA0 Register  
+    -- BRK_ADDR1/DATA0 Register  
     brk_addr_wr(1) <= brk_reg_wr(BRK_ADDR1C);
 
     process (dbg_clk, dbg_rst)
@@ -204,7 +204,7 @@ begin
 
   BREAKPOINT_WATCHPOINT_GENERATION : block
   begin
-    --Comparators
+    -- Comparators
     equ_d_addr0 <= eu_mb_en and to_stdlogic(eu_mab = brk_addr(0)) and not brk_ctl(BRK_RANGE);
     equ_d_addr1 <= eu_mb_en and to_stdlogic(eu_mab = brk_addr(1)) and not brk_ctl(BRK_RANGE);
     equ_d_range <= eu_mb_en and (to_stdlogic(eu_mab >= brk_addr(0)) and to_stdlogic(eu_mab <= brk_addr(1))) and brk_ctl(BRK_RANGE) and HWBRK_RANGE;
@@ -213,7 +213,7 @@ begin
     equ_i_addr1 <= decode_noirq and to_stdlogic(pc = brk_addr(1)) and not brk_ctl(BRK_RANGE);
     equ_i_range <= decode_noirq and (to_stdlogic(pc >= brk_addr(0)) and to_stdlogic(pc <= brk_addr(1))) and brk_ctl(BRK_RANGE) and HWBRK_RANGE;
 
-    --Detect accesses   
+    -- Detect accesses   
     i_addr0_rd <= equ_i_addr0 and brk_ctl(BRK_I_EN);
     i_addr1_rd <= equ_i_addr1 and brk_ctl(BRK_I_EN);
     i_range_rd <= equ_i_range and brk_ctl(BRK_I_EN);

@@ -37,7 +37,6 @@
 -- =============================================================================
 -- Author(s):
 --   Francisco Javier Reina Campo <pacoreinacampo@queenfield.tech>
---
 
 library IEEE;
 use IEEE.STD_LOGIC_1164 .all;
@@ -87,13 +86,13 @@ architecture DBG_ARQ of DBG is
   type M_TOTAL_BP1_15 is array (TOTAL_BP - 1 downto 0) of std_logic_vector (15 downto 0);
   type M_TOTAL_BP1_I is array (TOTAL_BP - 1 downto 0) of natural;
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal dbg_mem_en_omsp : std_logic;
   signal dbg_reg_wr_omsp : std_logic;
   signal dbg_mem_wr_omsp : std_logic_vector (1 downto 0);
 
-  --0.          PARAMETER_DECLARATION
-  --0.1.                Diverse wires and registers
+  -- 0.          PARAMETER_DECLARATION
+  -- 0.1.                Diverse wires and registers
   signal dbg_wr         : std_logic;
   signal mem_burst      : std_logic;
   signal dbg_reg_rd     : std_logic;
@@ -109,10 +108,10 @@ architecture DBG_ARQ of DBG is
   signal brk_pnd        : std_logic_vector (TOTAL_BP - 1 downto 0);
   signal brk_dout       : M_TOTAL_BP1_15;
 
-  --0.2.                Number of registers
+  -- 0.2.                Number of registers
   constant NR_REG : integer := 25;
 
-  --0.3.                Register addresses      
+  -- 0.3.                Register addresses      
   constant CPU_ID_LO : integer := 00;
   constant CPU_ID_HI : integer := 01;
   constant CPU_CTL   : integer := 02;
@@ -195,7 +194,7 @@ architecture DBG_ARQ of DBG is
                                          BRK1_ADDR1,
                                          BRK0_ADDR1);
 
-  --0.4.                Register one-hot decoder
+  -- 0.4.                Register one-hot decoder
   constant BASE_D : std_logic_vector (NR_REG - 1 downto 0) := (0 => '1', others => '0');
 
   constant CPU_ID_LO_D : std_logic_vector (NR_REG - 1 downto 0) := std_logic_vector(unsigned(BASE_D) srl CPU_ID_LO);
@@ -229,26 +228,26 @@ architecture DBG_ARQ of DBG is
 
   constant CPU_NR_D : std_logic_vector (NR_REG - 1 downto 0) := std_logic_vector(unsigned(BASE_D) sll CPU_NR);
 
-  --1.          REGISTER_DECODER
-  --1.1.                Select Data register during a burst
+  -- 1.          REGISTER_DECODER
+  -- 1.1.                Select Data register during a burst
   signal dbg_addr_in : std_logic_vector (5 downto 0);
 
-  --1.2.                Register address decode
+  -- 1.2.                Register address decode
   signal reg_dec : std_logic_vector (NR_REG - 1 downto 0);
 
-  --1.3.                Read/Write probes
+  -- 1.3.                Read/Write probes
   signal reg_write : std_logic;
   signal reg_read  : std_logic;
 
-  --1.4.                Read/Write vectors
+  -- 1.4.                Read/Write vectors
   signal reg_wr : std_logic_vector (NR_REG - 1 downto 0);
   signal reg_rd : std_logic_vector (NR_REG - 1 downto 0);
 
-  --2.          REGISTER_CORE_INTERFACE
-  --2.1.                CPU_NR Register
+  -- 2.          REGISTER_CORE_INTERFACE
+  -- 2.1.                CPU_NR Register
   signal cpu_nr_s : std_logic_vector (15 downto 0);
 
-  --2.2.                CPU_CTL Register
+  -- 2.2.                CPU_CTL Register
   signal cpu_ctl_wr   : std_logic;
   signal halt_cpu     : std_logic;
   signal run_cpu      : std_logic;
@@ -256,45 +255,45 @@ architecture DBG_ARQ of DBG is
   signal cpu_ctl_s    : std_logic_vector (6 downto 3);
   signal cpu_ctl_full : std_logic_vector (7 downto 0);
 
-  --2.3.                CPU_STAT Register
+  -- 2.3.                CPU_STAT Register
   signal cpu_stat_wr   : std_logic;
   signal cpu_stat_s    : std_logic_vector (3 downto 2);
   signal cpu_stat_set  : std_logic_vector (3 downto 2);
   signal cpu_stat_clr  : std_logic_vector (3 downto 2);
   signal cpu_stat_full : std_logic_vector (7 downto 0);
 
-  --3.          REGISTER_MEMORY_INTERFACE
-  --3.1.                MEM_CTL Register
+  -- 3.          REGISTER_MEMORY_INTERFACE
+  -- 3.1.                MEM_CTL Register
   signal mem_ctl_wr   : std_logic;
   signal mem_bw       : std_logic;
   signal mem_start    : std_logic;
   signal mem_ctl_s    : std_logic_vector (3 downto 1);
   signal mem_ctl_full : std_logic_vector (7 downto 0);
 
-  --3.2.                MEM_DATA Register
+  -- 3.2.                MEM_DATA Register
   signal mem_access     : std_logic;
   signal mem_data_wr    : std_logic;
   signal mem_data_s     : std_logic_vector (15 downto 0);
   signal mem_addr_s     : std_logic_vector (15 downto 0);
   signal dbg_mem_din_bw : std_logic_vector (15 downto 0);
 
-  --3.3.                MEM_ADDR Register
+  -- 3.3.                MEM_ADDR Register
   signal mem_addr_wr  : std_logic;
   signal dbg_mem_acc  : std_logic;
   signal dbg_reg_acc  : std_logic;
   signal mem_cnt_s    : std_logic_vector (15 downto 0);
   signal mem_addr_inc : std_logic_vector (15 downto 0);
 
-  --3.4.                MEM_CNT Register
+  -- 3.4.                MEM_CNT Register
   signal mem_cnt_wr  : std_logic;
   signal mem_cnt_dec : std_logic_vector (15 downto 0);
 
-  --4.          BREAKPOINTS_/_WATCHPOINTS
-  --4.1.                Hardware Breakpoint/Watchpoint Register write/read select
+  -- 4.          BREAKPOINTS_/_WATCHPOINTS
+  -- 4.1.                Hardware Breakpoint/Watchpoint Register write/read select
   signal brk_reg_rd : M_TOTAL_BP1_3;
   signal brk_reg_wr : M_TOTAL_BP1_3;
 
-  --5.          DATA_OUTPUT_GENERATION
+  -- 5.          DATA_OUTPUT_GENERATION
   signal cpu_id_lo_rd : std_logic_vector (15 downto 0);
   signal cpu_id_hi_rd : std_logic_vector (15 downto 0);
   signal cpu_ctl_rd   : std_logic_vector (15 downto 0);
@@ -309,42 +308,42 @@ architecture DBG_ARQ of DBG is
   signal cpu_id_lo_s : std_logic_vector (15 downto 0);
   signal cpu_id_hi_s : std_logic_vector (15 downto 0);
 
-  --5.1.                Tell UART/I2C interface that the data is ready to be read
+  -- 5.1.                Tell UART/I2C interface that the data is ready to be read
 
-  --6.          CPU_CONTROL
-  --6.1.                Reset CPU       
-  --6.2.                Beak after reset
+  -- 6.          CPU_CONTROL
+  -- 6.1.                Reset CPU       
+  -- 6.2.                Beak after reset
   signal halt_rst : std_logic;
 
-  --6.3.                Freeze peripherals      
-  --6.4.                Software break
+  -- 6.3.                Freeze peripherals      
+  -- 6.4.                Software break
   signal inc_step : std_logic_vector (1 downto 0);
 
-  --6.5.                Single step
-  --6.6.                Run / Halt
+  -- 6.5.                Single step
+  -- 6.6.                Run / Halt
   signal halt_flag     : std_logic;
   signal mem_halt_cpu  : std_logic;
   signal mem_run_cpu   : std_logic;
   signal halt_flag_clr : std_logic;
   signal halt_flag_set : std_logic;
 
-  --7.          MEMORY_CONTROL
-  --7.1.                Control Memory bursts
+  -- 7.          MEMORY_CONTROL
+  -- 7.1.                Control Memory bursts
   signal mem_burst_start : std_logic;
   signal mem_burst_end   : std_logic;
 
-  --7.1.1.      Detect when burst is on going 
-  --7.1.2.      Control signals for UART/I2C interface 
-  --7.1.3.      Trigger CPU Register or memory access during a burst
+  -- 7.1.1.      Detect when burst is on going 
+  -- 7.1.2.      Control signals for UART/I2C interface 
+  -- 7.1.3.      Trigger CPU Register or memory access during a burst
   signal mem_startb    : std_logic;
   signal mem_seq_start : std_logic;
 
-  --7.1.4.      Combine single and burst memory start of sequence 
-  --7.2.                Memory access state machine
+  -- 7.1.4.      Combine single and burst memory start of sequence 
+  -- 7.2.                Memory access state machine
   signal mem_state     : std_logic_vector (1 downto 0);
   signal mem_state_nxt : std_logic_vector (1 downto 0);
 
-  --7.2.1.      State machine definition
+  -- 7.2.1.      State machine definition
   signal re_m_idle    : std_logic_vector (1 downto 0);
   signal re_m_set_brk : std_logic_vector (1 downto 0);
 
@@ -353,14 +352,14 @@ architecture DBG_ARQ of DBG is
   constant M_ACCESS_BRK : std_logic_vector (1 downto 0) := "10";
   constant M_ACCESS     : std_logic_vector (1 downto 0) := "11";
 
-  --7.2.2.      State transition 
-  --7.2.3.      State machine 
-  --7.2.4.      Utility signals 
-  --7.3.                Interface to CPU Registers and Memory bacbkone
+  -- 7.2.2.      State transition 
+  -- 7.2.3.      State machine 
+  -- 7.2.4.      Utility signals 
+  -- 7.3.                Interface to CPU Registers and Memory bacbkone
   signal dbg_mem_rd       : std_logic;
   signal dbg_mem_wr_msk_s : std_logic_vector (1 downto 0);
 
-  --7.3.1.      It takes one additional cycle to read from Memory as from registers
+  -- 7.3.1.      It takes one additional cycle to read from Memory as from registers
 
   function matrix_or (matrix : M_TOTAL_BP1_15) return std_logic_vector is
     variable RESULT : std_logic_vector (15 downto 0) := (others => '0');
@@ -374,10 +373,10 @@ architecture DBG_ARQ of DBG is
 begin
   P1_REGISTER_DECODER : block
   begin
-    --1.1.              Select Data register during a burst
+    -- 1.1.              Select Data register during a burst
     dbg_addr_in <= std_logic_vector(to_unsigned(MEM_DATA, 6)) when mem_burst = '1' else dbg_addr;
 
-    --1.2.              Register address decode
+    -- 1.2.              Register address decode
     address_decode_01 : if (TOTAL_BP = 1) generate
       process(dbg_addr_in)
       begin
@@ -505,21 +504,21 @@ begin
       end process;
     end generate address_decode_04;
 
-    --1.3.              Read/Write probes
+    -- 1.3.              Read/Write probes
     reg_write <= dbg_wr;
     reg_read  <= '1';
 
-    --1.4.              Read/Write vectors
+    -- 1.4.              Read/Write vectors
     reg_wr <= reg_dec and (0 to NR_REG - 1 => reg_write);
     reg_rd <= reg_dec and (0 to NR_REG - 1 => reg_read);
   end block P1_REGISTER_DECODER;
 
   P2_REGISTER_CORE_INTERFACE : block
   begin
-    --2.1.              CPU_NR Register
+    -- 2.1.              CPU_NR Register
     cpu_nr_s <= cpu_nr_total & cpu_nr_inst;
 
-    --2.2.              CPU_CTL Register
+    -- 2.2.              CPU_CTL Register
     cpu_ctl_wr <= reg_wr(CPU_CTL);
 
     R_0i_1c : process (dbg_clk, dbg_rst)
@@ -542,7 +541,7 @@ begin
     run_cpu      <= cpu_ctl_wr and dbg_din(RUN) and dbg_halt_st;
     istep_s      <= cpu_ctl_wr and dbg_din(ISTEP) and dbg_halt_st;
 
-    --2.3.              CPU_STAT Register
+    -- 2.3.              CPU_STAT Register
     cpu_stat_wr  <= reg_wr(CPU_STAT);
     cpu_stat_set <= dbg_swbrk & puc_pnd_set;
     cpu_stat_clr <= not dbg_din(3 downto 2);
@@ -565,7 +564,7 @@ begin
 
   P3_REGISTER_MEMORY_INTERFACE : block
   begin
-    --3.1.              MEM_CTL Register
+    -- 3.1.              MEM_CTL Register
     mem_ctl_wr <= reg_wr(MEM_CTL);
 
     R_1c : process (dbg_clk, dbg_rst)
@@ -592,7 +591,7 @@ begin
 
     mem_bw <= mem_ctl_s(3);
 
-    --3.2.              MEM_DATA Register
+    -- 3.2.              MEM_DATA Register
     mem_data_wr    <= reg_wr(MEM_DATA);
     dbg_mem_din_bw <= dbg_mem_din
                       when mem_bw = '0'        else X"00" & dbg_mem_din(15 downto 8)
@@ -613,7 +612,7 @@ begin
       end if;
     end process R1_1c_2c_3c;
 
-    --3.3.              MEM_ADDR Register
+    -- 3.3.              MEM_ADDR Register
     mem_addr_wr <= reg_wr(MEM_ADDR);
     dbg_mem_acc <= (dbg_mem_wr_omsp(0) or dbg_mem_wr_omsp(1)) or (dbg_rd_rdy and not mem_ctl_s(2));
     dbg_reg_acc <= dbg_reg_wr_omsp or (dbg_rd_rdy and mem_ctl_s(2));
@@ -636,7 +635,7 @@ begin
       end if;
     end process R1_1c_2;
 
-    --3.4.              MEM_CNT Register
+    -- 3.4.              MEM_CNT Register
     mem_cnt_wr  <= reg_wr(MEM_CNT);
     mem_cnt_dec <= X"0000"
                    when (mem_cnt_s = X"0000")                              else X"FFFF"
@@ -658,7 +657,7 @@ begin
 
   P4_BREAKPOINTS_WATCHPOINTS : block
   begin
-    --4.1.              Hardware Breakpoint/Watchpoint Register write/read select
+    -- 4.1.              Hardware Breakpoint/Watchpoint Register write/read select
     dbg_hwbr_on : for i in TOTAL_BP - 1 downto 0 generate
       dbg_hwbr_i : if (DBG_HWBRK(i) = '1') generate
 
@@ -726,7 +725,7 @@ begin
                 cpu_nr_rd or
                 matrix_or(brk_dout);
 
-    --5.1.              Tell UART/I2C interface that the data is ready to be read
+    -- 5.1.              Tell UART/I2C interface that the data is ready to be read
     R_1c_2_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -743,19 +742,19 @@ begin
 
   P6_CPU_CONTROL : block
   begin
-    --6.1.              Reset CPU
+    -- 6.1.              Reset CPU
     dbg_cpu_reset <= cpu_ctl_s(CPU_RST);
 
-    --6.2.              Beak after reset
+    -- 6.2.              Beak after reset
     halt_rst <= cpu_ctl_s(RST_BRK_EN) and dbg_en_s and puc_pnd_set;
 
-    --6.3.              Freeze peripherals
+    -- 6.3.              Freeze peripherals
     dbg_freeze <= dbg_halt_st and (cpu_ctl_s(FRZ_BRK_EN) or not cpu_en_s);
 
-    --6.4.              Software break
+    -- 6.4.              Software break
     dbg_swbrk <= to_stdlogic(fe_mdb_in = DBG_SWBRK_OP) and decode_noirq and cpu_ctl_s(SW_BRK_EN);
 
-    --6.5.              Single step
+    -- 6.5.              Single step
     R_1c_2 : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -769,7 +768,7 @@ begin
       end if;
     end process R_1c_2;
 
-    --6.6.              Run / Halt
+    -- 6.6.              Run / Halt
     halt_flag_clr <= run_cpu or mem_run_cpu;
     halt_flag_set <= halt_cpu or halt_rst or dbg_swbrk or mem_halt_cpu or reduce_or(brk_halt);
 
@@ -791,11 +790,11 @@ begin
 
   P7_MEMORY_CONTROL : block
   begin
-    --7.1.              Control Memory bursts
+    -- 7.1.              Control Memory bursts
     mem_burst_start <= mem_start and reduce_or(mem_cnt_s);
     mem_burst_end   <= (dbg_wr or dbg_rd_rdy) and not reduce_or(mem_cnt_s);
 
-    --7.1.1.    Detect when burst is on going
+    -- 7.1.1.    Detect when burst is on going
     R_1c_2c_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -809,11 +808,11 @@ begin
       end if;
     end process R_1c_2c_e;
 
-    --7.1.2.    Control signals for UART/I2C interface 
+    -- 7.1.2.    Control signals for UART/I2C interface 
     mem_burst_rd <= mem_burst_start and not mem_ctl_s(1);
     mem_burst_wr <= mem_burst_start and mem_ctl_s(1);
 
-    --7.1.3.    Trigger CPU Register or memory access during a burst 
+    -- 7.1.3.    Trigger CPU Register or memory access during a burst 
     R1_1_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -823,11 +822,11 @@ begin
       end if;
     end process R1_1_e;
 
-    --7.1.4.    Combine single and burst memory start of sequence 
+    -- 7.1.4.    Combine single and burst memory start of sequence 
     mem_seq_start <= (mem_start and not reduce_or(mem_cnt_s)) or mem_startb;
 
-    --7.2.              Memory access state machine
-    --7.2.1.    State machine definition 
+    -- 7.2.              Memory access state machine
+    -- 7.2.1.    State machine definition 
     process(mem_state, re_m_idle, re_m_set_brk)
     begin
       case mem_state is
@@ -846,8 +845,8 @@ begin
     re_m_set_brk <= M_ACCESS_BRK
                     when dbg_halt_st = '1' else M_SET_BRK;
 
-    --7.2.2.    State transition 
-    --7.2.3.    State machine
+    -- 7.2.2.    State transition 
+    -- 7.2.3.    State machine
     R_1 : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then
@@ -857,12 +856,12 @@ begin
       end if;
     end process R_1;
 
-    --7.2.4.    Utility signals 
+    -- 7.2.4.    Utility signals 
     mem_halt_cpu <= to_stdlogic(mem_state = M_IDLE) and to_stdlogic(mem_state_nxt = M_SET_BRK);
     mem_run_cpu  <= to_stdlogic(mem_state = M_ACCESS_BRK) and to_stdlogic(mem_state_nxt = M_IDLE);
     mem_access   <= to_stdlogic(mem_state = M_ACCESS) or to_stdlogic(mem_state = M_ACCESS_BRK);
 
-    --7.3.              Interface to CPU Registers and Memory bacbkone
+    -- 7.3.              Interface to CPU Registers and Memory bacbkone
     dbg_mem_addr <= mem_addr_s;
     dbg_mem_dout <= mem_data_s
                     when mem_bw = '0'        else (mem_data_s(7 downto 0) & X"00")
@@ -876,7 +875,7 @@ begin
                         when mem_addr_s(0) = '1' else "01";
     dbg_mem_wr_omsp <= (0 to 1 => (dbg_mem_en_omsp and mem_ctl_s(1))) and dbg_mem_wr_msk_s;
 
-    --7.3.1.    It takes one additional cycle to read from Memory as from registers
+    -- 7.3.1.    It takes one additional cycle to read from Memory as from registers
     R2_1_e : process (dbg_clk, dbg_rst)
     begin
       if (dbg_rst = '1') then

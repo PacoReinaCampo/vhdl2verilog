@@ -95,27 +95,27 @@ end omsp_register_file;
 
 architecture omsp_register_file_ARQ of omsp_register_file is
 
-  --SIGNAL INOUT
+  -- SIGNAL INOUT
   signal reg_src_omsp : std_logic_vector (15 downto 0);
 
-  --1.REGISTER FILE
-  --1.1.AUTOINCREMENT UNIT
+  -- 1.REGISTER FILE
+  -- 1.1.AUTOINCREMENT UNIT
   signal inst_src_in     : std_logic_vector (15 downto 0);
   signal incr_op         : std_logic_vector (15 downto 0);
   signal reg_incr_val    : std_logic_vector (15 downto 0);
   signal reg_dest_val_in : std_logic_vector (15 downto 0);
 
-  --1.2.SPECIAL REGISTERS (R1/R2/R3)
-  --R0: Program counter
+  -- 1.2.SPECIAL REGISTERS (R1/R2/R3)
+  -- R0: Program counter
   signal re : std_logic_matrix (3 downto 0)(15 downto 0);
 
-  --R1: Stack pointer
+  -- R1: Stack pointer
   signal mclk_r1 : std_logic;
   signal r1_en   : std_logic;
   signal r1_inc  : std_logic;
   signal r1_wr   : std_logic;
 
-  --R2: Status register
+  -- R2: Status register
   signal mclk_r2     : std_logic;
   signal r2_c        : std_logic;
   signal r2_en       : std_logic;
@@ -129,12 +129,12 @@ architecture omsp_register_file_ARQ of omsp_register_file is
   signal r2_mask     : std_logic_vector (15 downto 0);
   signal scg_mask    : std_logic_matrix (1 downto 0)(15 downto 0);
 
-  --R3: Constant generator
+  -- R3: Constant generator
   signal mclk_r3 : std_logic;
   signal r3_en   : std_logic;
   signal r3_wr   : std_logic;
 
-  --1.3.GENERAL PURPOSE REGISTERS (R4...R15)
+  -- 1.3.GENERAL PURPOSE REGISTERS (R4...R15)
   signal rg      : std_logic_matrix (15 downto 0)(15 downto 0);
   signal mclk_rg : std_logic_vector (15 downto 4);
   signal rg_en   : std_logic_vector (15 downto 4);
@@ -142,21 +142,21 @@ architecture omsp_register_file_ARQ of omsp_register_file is
   signal rg_wr   : std_logic_vector (15 downto 4);
 
 begin
-  --1.1.AUTOINCREMENT UNIT
+  -- 1.1.AUTOINCREMENT UNIT
   incr_op         <= X"0001"                            when (inst_bw and not inst_src_in(1)) = '1' else X"0002";
   reg_incr_val    <= std_logic_vector(unsigned(reg_src_omsp) + unsigned(incr_op));
   reg_dest_val_in <= (X"00" & reg_dest_val(7 downto 0)) when inst_bw = '1'                          else reg_dest_val;
 
-  --1.2.SPECIAL REGISTERS (R1/R2/R3)
-  --Source input selection mask (for interrupt support)
+  -- 1.2.SPECIAL REGISTERS (R1/R2/R3)
+  -- Source input selection mask (for interrupt support)
   inst_src_in <= X"0004" when reg_sr_clr = '1' else inst_src;
 
-  --R0: Program counter
+  -- R0: Program counter
   re(0)    <= pc;
   pc_sw    <= reg_dest_val_in;
   pc_sw_wr <= (inst_dest(0) and reg_dest_wr) or reg_pc_call;
 
-  --R1: Stack pointer
+  -- R1: Stack pointer
   r1_wr  <= inst_dest(1) and reg_dest_wr;
   r1_inc <= inst_src_in(1) and reg_incr;
 
@@ -192,7 +192,7 @@ begin
     end if;
   end process R_1c_2c_3i_4ci;
 
-  --R2: Status register
+  -- R2: Status register
   r2_wr <= (inst_dest(2) and reg_dest_wr) or reg_sr_wr;
 
   clock_gating_1_on : if (CLOCK_GATING = '1') generate
@@ -267,7 +267,7 @@ begin
   scg0   <= re(2)(6);
   scg1   <= re(2)(7);
 
-  --R3: Constant generator
+  -- R3: Constant generator
   r3_wr <= inst_dest(3) and reg_dest_wr;
 
   clock_gating_2_on : if (CLOCK_GATING = '1') generate
@@ -298,7 +298,7 @@ begin
     end if;
   end process R_1i_2ci;
 
-  --1.3.GENERAL PURPOSE REGISTERS (R4...R15)
+  -- 1.3.GENERAL PURPOSE REGISTERS (R4...R15)
   GPR : for i in 15 downto 4 generate
     rg_wr(i)  <= inst_dest(i) and reg_dest_wr;
     rg_inc(i) <= inst_src_in(i) and reg_incr;
@@ -334,7 +334,7 @@ begin
     end process R_1c_2i_3ci;
   end generate GPR;
 
-  --1.4.READ MUX
+  -- 1.4.READ MUX
   reg_src_omsp <= (re(0) and (0 to 15 => inst_src_in(0))) or
                   (re(1) and (0 to 15  => inst_src_in(1))) or
                   (re(2) and (0 to 15  => inst_src_in(2))) or

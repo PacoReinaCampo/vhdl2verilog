@@ -60,25 +60,25 @@ architecture TEMPLATE_08_ARQ of TEMPLATE_08 is
 
   constant SIZE_P08 : integer := 4;
 
-  --0.  PARAMETER_DECLARATION
-  --0.1.        Register base address (must be aligned to decoder bit width)
+  -- 0.  PARAMETER_DECLARATION
+  -- 0.1.        Register base address (must be aligned to decoder bit width)
   constant BASE_ADDR_P08 : std_logic_vector (14 downto 0) := "000000010010000";
 
-  --0.2.        Decoder bit width (defines how many bits are considered for address decoding)
+  -- 0.2.        Decoder bit width (defines how many bits are considered for address decoding)
   constant DEC_WD_P08 : integer := 2;
 
-  --0.3.        Register addresses offset
+  -- 0.3.        Register addresses offset
   constant CNTRL1B08 : std_logic_vector (DEC_WD_P08 - 1 downto 0) := std_logic_vector(to_unsigned(0, DEC_WD_P08));
   constant CNTRL2B08 : std_logic_vector (DEC_WD_P08 - 1 downto 0) := std_logic_vector(to_unsigned(1, DEC_WD_P08));
   constant CNTRL3B08 : std_logic_vector (DEC_WD_P08 - 1 downto 0) := std_logic_vector(to_unsigned(2, DEC_WD_P08));
   constant CNTRL4B08 : std_logic_vector (DEC_WD_P08 - 1 downto 0) := std_logic_vector(to_unsigned(3, DEC_WD_P08));
 
-  --0.4.        Register one-hot decoder utilities
+  -- 0.4.        Register one-hot decoder utilities
   constant DEC_SZ_P08 : integer := 2**DEC_WD_P08;
 
   constant BASE_REG_P08 : std_logic_vector (0 to DEC_SZ_P08 - 1) := std_logic_vector(to_unsigned(1, DEC_SZ_P08));
 
-  --0.5.        Register one-hot decoder
+  -- 0.5.        Register one-hot decoder
   constant CNTRL1_D08 : std_logic_vector (0 to DEC_SZ_P08 - 1) := std_logic_vector(unsigned(BASE_REG_P08) sll to_integer(unsigned(CNTRL1B08)));
   constant CNTRL2_D08 : std_logic_vector (0 to DEC_SZ_P08 - 1) := std_logic_vector(unsigned(BASE_REG_P08) sll to_integer(unsigned(CNTRL2B08)));
   constant CNTRL3_D08 : std_logic_vector (0 to DEC_SZ_P08 - 1) := std_logic_vector(unsigned(BASE_REG_P08) sll to_integer(unsigned(CNTRL3B08)));
@@ -101,33 +101,33 @@ architecture TEMPLATE_08_ARQ of TEMPLATE_08 is
                                                                                          CNTRL2_D08,
                                                                                          CNTRL1_D08);
 
-  --1.  REGISTER_DECODER
-  --1.1.        Local register selection
+  -- 1.  REGISTER_DECODER
+  -- 1.1.        Local register selection
   signal reg_sel_p08 : std_logic;
 
-  --1.2.        Register local address
+  -- 1.2.        Register local address
   signal reg_addr_p08 : std_logic_vector (DEC_WD_P08 - 1 downto 0);
 
-  --1.3.        Register address decode
+  -- 1.3.        Register address decode
   signal reg_dec_p08 : std_logic_vector (0 to DEC_SZ_P08 - 1);
 
-  --1.4.        Read/Write probes
+  -- 1.4.        Read/Write probes
   signal reg_lo_write_p : std_logic;
   signal reg_hi_write_p : std_logic;
   signal reg_read_p08   : std_logic;
 
-  --1.5.        Read/Write vectors
+  -- 1.5.        Read/Write vectors
   signal reg_lo_wr_p : std_logic_vector (0 to DEC_SZ_P08 - 1);
   signal reg_hi_wr_p : std_logic_vector (0 to DEC_SZ_P08 - 1);
   signal reg_rd_p08  : std_logic_vector (0 to DEC_SZ_P08 - 1);
 
-  --2.  REGISTERS       
+  -- 2.  REGISTERS       
   signal cntrl_wr_p08   : std_logic_vector (SIZE_P08 - 1 downto 0);
   signal cntrl_next_p08 : std_logic_matrix (SIZE_P08 - 1 downto 0)(7 downto 0);
   signal cntrl_p08      : std_logic_matrix (SIZE_P08 - 1 downto 0)(7 downto 0);
 
-  --4.  DATA_OUTPUT_GENERATION
-  --4.1.        Data output mux
+  -- 4.  DATA_OUTPUT_GENERATION
+  -- 4.1.        Data output mux
   signal cntrl_rd08 : std_logic_matrix (SIZE_P08 - 1 downto 0)(15 downto 0);
 
   function matrixAP_or (matrix : std_logic_matrix) return std_logic_vector is
@@ -151,14 +151,14 @@ architecture TEMPLATE_08_ARQ of TEMPLATE_08 is
 begin
   REGISTER_DECODER : block
   begin
-    --1.1.      Local register selection
+    -- 1.1.      Local register selection
     reg_sel_p08 <= per_en and
                    to_stdlogic(per_addr(13 downto DEC_WD_P08 - 1) = BASE_ADDR_P08(14 downto DEC_WD_P08));
 
-    --1.2.      Register local address
+    -- 1.2.      Register local address
     reg_addr_p08 <= '0' & per_addr(DEC_WD_P08 - 2 downto 0);
 
-    --1.3.      Register address decode 
+    -- 1.3.      Register address decode 
     address_decode : process (reg_addr_p08)
       variable decode : std_logic_matrix (SIZE_P08 - 1 downto 0)(0 to DEC_SZ_P08 - 1);
     begin
@@ -170,12 +170,12 @@ begin
       reg_dec_p08 <= matrixBP_or(decode);
     end process address_decode;
 
-    --1.4.      Read/Write probes
+    -- 1.4.      Read/Write probes
     reg_lo_write_p <= per_we(0) and reg_sel_p08;
     reg_hi_write_p <= per_we(1) and reg_sel_p08;
     reg_read_p08   <= not reduce_or(per_we) and reg_sel_p08;
 
-    --1.5.      Read/Write vectors
+    -- 1.5.      Read/Write vectors
     reg_lo_wr_p <= reg_dec_p08 and (0 to DEC_SZ_P08 - 1 => reg_lo_write_p);
     reg_hi_wr_p <= reg_dec_p08 and (0 to DEC_SZ_P08 - 1 => reg_hi_write_p);
     reg_rd_p08  <= reg_dec_p08 and (0 to DEC_SZ_P08 - 1 => reg_read_p08);
