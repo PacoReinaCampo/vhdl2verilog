@@ -629,7 +629,7 @@ package riscv_mpsoc_pkg is
   constant AMO_TYPE_LOGICAL    : std_logic_vector(1 downto 0) := "10";
   constant AMO_TYPE_ARITHMETIC : std_logic_vector(1 downto 0) := "11";
 
-  -- AHB3 Lite Package
+  -- AHB4 Lite Package
 
   -- HTRANS
   constant HTRANS_IDLE   : std_logic_vector(1 downto 0) := "00";
