@@ -18,13 +18,13 @@ rm -rf test/riscv/core/memory/riscv_mmu.v
 rm -rf test/riscv/core/memory/riscv_mux.v
 rm -rf test/riscv/core/memory/riscv_pmachk.v
 rm -rf test/riscv/core/memory/riscv_pmpchk.v
-rm -rf test/riscv/core/riscv_bp.v
-rm -rf test/riscv/core/riscv_core.v
-rm -rf test/riscv/core/riscv_du.v
-rm -rf test/riscv/core/riscv_memory.v
-rm -rf test/riscv/core/riscv_rf.v
-rm -rf test/riscv/core/riscv_state.v
-rm -rf test/riscv/core/riscv_wb.v
+rm -rf test/riscv/core/main/riscv_bp.v
+rm -rf test/riscv/core/main/riscv_core.v
+rm -rf test/riscv/core/main/riscv_du.v
+rm -rf test/riscv/core/main/riscv_memory.v
+rm -rf test/riscv/core/main/riscv_rf.v
+rm -rf test/riscv/core/main/riscv_state.v
+rm -rf test/riscv/core/main/riscv_wb.v
 
 rm -rf test/riscv/memory/riscv_ram_1r1w_generic.v
 rm -rf test/riscv/memory/riscv_ram_1r1w.v

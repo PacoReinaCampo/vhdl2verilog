@@ -18,13 +18,13 @@ riscv/core/memory/riscv_mmu.vhd
 riscv/core/memory/riscv_mux.vhd
 riscv/core/memory/riscv_pmachk.vhd
 riscv/core/memory/riscv_pmpchk.vhd
-riscv/core/riscv_bp.vhd
-riscv/core/riscv_core.vhd
-riscv/core/riscv_du.vhd
-riscv/core/riscv_memory.vhd
-riscv/core/riscv_rf.vhd
-riscv/core/riscv_state.vhd
-riscv/core/riscv_wb.vhd
+riscv/core/main/riscv_bp.vhd
+riscv/core/main/riscv_core.vhd
+riscv/core/main/riscv_du.vhd
+riscv/core/main/riscv_memory.vhd
+riscv/core/main/riscv_rf.vhd
+riscv/core/main/riscv_state.vhd
+riscv/core/main/riscv_wb.vhd
 
 riscv/memory/riscv_ram_1r1w_generic.vhd
 riscv/memory/riscv_ram_1r1w.vhd
