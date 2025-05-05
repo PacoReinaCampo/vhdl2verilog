@@ -12,7 +12,7 @@
 --                                                                            //
 --              MPSoC-RISCV CPU                                               //
 --              RISC-V Package                                                //
---              AMBA3 AHB-Lite Bus Interface                                  //
+--              AMBA4 AHB-Lite Bus Interface                                  //
 --                                                                            //
 --//////////////////////////////////////////////////////////////////////////////
 

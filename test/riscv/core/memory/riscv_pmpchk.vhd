@@ -12,7 +12,7 @@
 --                                                                            //
 --              MPSoC-RISCV CPU                                               //
 --              Core - Physical Memory Protection Checker                     //
---              AMBA3 AHB-Lite Bus Interface                                  //
+--              AMBA4 AHB-Lite Bus Interface                                  //
 --                                                                            //
 --//////////////////////////////////////////////////////////////////////////////
 
